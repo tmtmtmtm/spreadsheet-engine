@@ -23,7 +23,8 @@ use Time::Local;                   # For timegm in NOW and TODAY
 use Encode;
 
 use base 'Exporter';
-our @EXPORT = qw(calculate_function);
+our @EXPORT    = qw(calculate_function);
+our @EXPORT_OK = qw(cr_to_coord);
 
 #0 = no arguments
 #>0 = exactly that many arguments
@@ -44,14 +45,9 @@ our %function_list = (
   DSUM      => [ \&dseries_functions,       3 ],
   DVAR      => [ \&dseries_functions,       3 ],
   DVARP     => [ \&dseries_functions,       3 ],
-  HLOOKUP   => [ \&lookup_functions,        -3 ],
   INDEX     => [ \&index_function,          -1 ],
-  MATCH     => [ \&lookup_functions,        -2 ],
-  NOW       => [ \&zeroarg_functions,       0 ],
   ROWS      => [ \&columns_rows_function,   1 ],
   SUMIF     => [ \&countif_sumif_functions, -2 ],
-  TODAY     => [ \&zeroarg_functions,       0 ],
-  VLOOKUP   => [ \&lookup_functions,        -3 ],
   HTML      => [ \&html_function,           -1 ],
   PLAINTEXT => [ \&text_function,           -1 ],
 );
@@ -87,12 +83,12 @@ __PACKAGE__->register(
   map +($_ => "Spreadsheet::Engine::Function::$_"),
   qw/ ABS ACOS AND ASIN ATAN ATAN2 AVERAGE CHOOSE COS COUNT COUNTA
     COUNTBLANK DATE DAY DDB DEGREES ERRCELL EVEN EXACT EXP FACT FALSE FIND
-    FV HOUR IF INT IRR ISBLANK ISERR ISERROR ISLOGICAL ISNA ISNONTEXT
-    ISNUMBER ISTEXT LEFT LEN LN LOG LOG10 LOWER MAX MID MIN MINUTE MOD
-    MONTH N NA NOT NPER NPV ODD OR PI PMT POWER PRODUCT PROPER PV RADIANS
-    RATE REPLACE REPT RIGHT ROUND SECOND SIN SLN SQRT STDEV STDEVP
-    SUBSTITUTE SUM SYD T TAN TIME TRIM TRUE TRUNC UPPER VALUE VAR VARP
-    WEEKDAY YEAR /
+    FV HLOOKUP HOUR IF INT IRR ISBLANK ISERR ISERROR ISLOGICAL ISNA
+    ISNONTEXT ISNUMBER ISTEXT LEFT LEN LN LOG LOG10 LOWER MATCH MAX MID
+    MIN MINUTE MOD MONTH N NA NOT NOW NPER NPV ODD OR PI PMT POWER PRODUCT
+    PROPER PV RADIANS RATE REPLACE REPT RIGHT ROUND SECOND SIN SLN SQRT
+    STDEV STDEVP SUBSTITUTE SUM SYD T TAN TIME TODAY TRIM TRUE TRUNC UPPER
+    VALUE VAR VARP VLOOKUP WEEKDAY YEAR /
 );
 
 =head1 EXPORTS
@@ -383,191 +379,6 @@ sub dseries_functions {
   return;
 }
 
-=head2 lookup_functions
-
-=over
-
-=item HLOOKUP(value, range, row, [rangelookup])
-
-=item VLOOKUP(value, range, col, [rangelookup])
-
-=item MATCH(value, range, [rangelookup])
-
-=back
-
-=cut
-
-sub lookup_functions {
-
-  my ($fname, $operand, $foperand, $errortext, $typelookup, $sheetdata) = @_;
-
-  my ($value, $value8, $tostype, $cr);
-
-  my $lookuptype;
-  my $lookupvalue =
-    operand_value_and_type($sheetdata, $foperand, $errortext, \$lookuptype);
-  my $lookupvalue8 = lc(decode('utf8', $lookupvalue));
-
-  my ($range, $rangetype) =
-    top_of_stack_value_and_type($sheetdata, $foperand, $errortext);
-  my ($offsetvalue, $offsettype);
-  my $rangelookup = 1;    # default to true or 1
-  if ($fname eq "MATCH") {
-    if (scalar @$foperand) {
-      $rangelookup =
-        operand_as_number($sheetdata, $foperand, $errortext, \$tostype);
-      if (substr($tostype, 0, 1) ne "n") {
-        push @$operand, { type => "e#VALUE!", value => 0 };
-        return;
-      }
-      if (scalar @$foperand) {
-        function_args_error($fname, $operand, $errortext);
-        return 0;
-      }
-    }
-  } else {
-    $offsetvalue =
-      int(operand_as_number($sheetdata, $foperand, $errortext, \$offsettype));
-    if (scalar @$foperand) {
-      $rangelookup =
-        operand_as_number($sheetdata, $foperand, $errortext, \$tostype);
-      if (substr($tostype, 0, 1) ne "n") {
-        push @$operand, { type => "e#VALUE!", value => 0 };
-        return;
-      }
-      if (scalar @$foperand) {
-        function_args_error($fname, $operand, $errortext);
-        return 0;
-      }
-      $rangelookup = $rangelookup ? 1 : 0;    # convert to 1 or 0
-    }
-  }
-  $lookuptype = substr($lookuptype, 0, 1);    # only deal with general type
-
-  if ($rangetype ne "range") {
-    function_args_error($fname, $operand, $errortext);
-    return 0;
-  }
-  my ($rangesheetdata, $rangecol1num, $nrangecols, $rangerow1num, $nrangerows)
-    = decode_range_parts($sheetdata, $range, $rangetype);
-
-  my $c     = 0;
-  my $r     = 0;
-  my $cincr = 0;
-  my $rincr = 0;
-  if ($fname eq "HLOOKUP") {
-    $cincr = 1;
-    if ($offsetvalue > $nrangerows) {
-      push @$operand, { type => "e#REF!", value => 0 };
-      return;
-    }
-  } elsif ($fname eq "VLOOKUP") {
-    $rincr = 1;
-    if ($offsetvalue > $nrangecols) {
-      push @$operand, { type => "e#REF!", value => 0 };
-      return;
-    }
-  } elsif ($fname eq "MATCH") {
-    if ($nrangecols > 1) {
-      if ($nrangerows > 1) {
-        push @$operand, { type => "e#N/A", value => 0 };
-        return;
-      }
-      $cincr = 1;
-    } else {
-      $rincr = 1;
-    }
-  } else {
-    function_args_error($fname, $operand, $errortext);
-    return 0;
-  }
-
-  # Added defined test here. 31/12/07 TODO give it a sensible default.
-  if (defined $offsetvalue && $offsetvalue < 1 && $fname ne "MATCH") {
-    push @$operand, { type => "e#VALUE!", value => 0 };
-    return 0;
-  }
-
-  my $previousOK = 0;  # if 1, previous test was <. If 2, also this one wasn't
-  my ($csave, $rsave); # col and row of last OK
-
-  while (1) {
-    $cr      = cr_to_coord($rangecol1num + $c, $rangerow1num + $r);
-    $value   = $rangesheetdata->{datavalues}->{$cr};
-    $tostype = $rangesheetdata->{valuetypes}->{$cr};
-    $tostype = substr($tostype, 0, 1);    # only deal with general types
-    $tostype ||= "b";
-    if ($rangelookup) {    # look for within brackets for matches
-      if ($lookuptype eq "n" && $tostype eq "n") {
-        last if ($lookupvalue == $value);    # match
-        if ( ($rangelookup > 0 && $lookupvalue > $value)
-          || ($rangelookup < 0 && $lookupvalue < $value))
-        {                                    # possible match: wait and see
-          $previousOK = 1;
-          $csave      = $c;
-          $rsave      = $r;
-        } elsif ($previousOK) {              # last one was OK, this one isn't
-          $previousOK = 2;
-          last;
-        }
-      } elsif ($lookuptype eq "t" && $tostype eq "t") {
-        $value8 = decode('utf8', $value);
-        $value8 = lc $value8;
-        last if ($lookupvalue8 eq $value8);    # match
-        if ( ($rangelookup > 0 && $lookupvalue gt $value)
-          || ($rangelookup < 0 && $lookupvalue lt $value))
-        {                                      # possible match: wait and see
-          $previousOK = 1;
-          $csave      = $c;
-          $rsave      = $r;
-        } elsif ($previousOK) {    # last one was OK, this one isn't
-          $previousOK = 2;
-          last;
-        }
-      }
-    } else {    # exact value matches
-      if ($lookuptype eq "n" && $tostype eq "n") {
-        last if ($lookupvalue == $value);    # match
-      } elsif ($lookuptype eq "t" && $tostype eq "t") {
-        $value8 = decode('utf8', $value);
-        $value8 = lc $value8;
-        last if ($lookupvalue8 eq $value8);    # match
-      }
-    }
-    $r += $rincr;
-    $c += $cincr;
-    if ($r >= $nrangerows || $c >= $nrangecols)
-    {    # end of range to check, no exact match
-      if ($previousOK) {    # at least one could have been OK
-        $previousOK = 2;
-        last;
-      }
-      push @$operand, { type => "e#N/A", value => 0 };
-      return;
-    }
-  }
-
-  if ($previousOK == 2) {    # back to last OK
-    $r = $rsave;
-    $c = $csave;
-  }
-
-  if ($fname eq "MATCH") {
-    $value   = $c + $r + 1;    # only one may be <> 0
-    $tostype = "n";
-  } else {
-    $cr = cr_to_coord(
-      $rangecol1num + $c + ($fname eq "VLOOKUP" ? $offsetvalue - 1 : 0),
-      $rangerow1num + $r + ($fname eq "HLOOKUP" ? $offsetvalue - 1 : 0)
-    );
-    $value   = $rangesheetdata->{datavalues}->{$cr};
-    $tostype = $rangesheetdata->{valuetypes}->{$cr};
-  }
-  push @$operand, { type => $tostype, value => $value };
-  return;
-
-}
-
 =head2 index_function
 
 =over
@@ -824,61 +635,6 @@ sub columns_rows_function {
   }
 
   push @$operand, { type => $resulttype, value => $resultvalue };
-
-  return;
-
-}
-
-=head2 zeroarg_functions
-
-=over
-
-=item NOW()
-
-=item TODAY()
-
-=back
-
-=cut
-
-sub zeroarg_functions {
-
-  my ($fname, $operand, $foperand, $errortext, $typelookup, $sheetdata) = @_;
-
-  my $result = 0;
-  my $resulttype;
-
-  if ($fname eq "NOW") {
-    my $startval       = time();
-    my $start_1_1_1970 =
-      25569;    # Day number of 1/1/1970 starting with 1/1/1900 as 1
-    my $seconds_in_a_day = 24 * 60 * 60;
-    my @tmstr            = localtime($startval);
-    my $time2            =
-      timegm($tmstr[0], $tmstr[1], $tmstr[2], $tmstr[3], $tmstr[4],
-      $tmstr[5]);
-    my $offset = ($time2 - $startval) / (60 * 60);
-    my $nowdays =
-      $start_1_1_1970 + $startval / $seconds_in_a_day + $offset / 24;
-    $nowdays    = $start_1_1_1970 + $time2 / $seconds_in_a_day;
-    $resulttype = "ndt";
-    $result     = $nowdays;
-  } elsif ($fname eq "TODAY") {
-    my $startval       = time();
-    my $start_1_1_1970 =
-      25569;    # Day number of 1/1/1970 starting with 1/1/1900 as 1
-    my $seconds_in_a_day = 24 * 60 * 60;
-    my @tmstr            = localtime($startval);
-    my $time2            = timegm(0, 0, 0, $tmstr[3], $tmstr[4], $tmstr[5]);
-    my $offset           = ($time2 - $startval) / (60 * 60);
-    my $nowdays          =
-      $start_1_1_1970 + $startval / $seconds_in_a_day + $offset / 24;
-    $nowdays    = $start_1_1_1970 + $time2 / $seconds_in_a_day;
-    $resulttype = "nd";
-    $result     = $nowdays;
-  }
-
-  push @$operand, { type => $resulttype, value => $result };
 
   return;
 

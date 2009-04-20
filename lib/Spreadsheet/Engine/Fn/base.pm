@@ -99,6 +99,8 @@ sub _ops {
           type  => 'r',
           value => pop @{ $self->foperand },
         );
+        die Spreadsheet::Engine::Error->val('Incorrect arguments')
+          unless $op->value->{type} eq 'range';
       } else {
         croak 'Missing signature value in ' . $self->fname unless $sig;
         $op = $self->next_operand_as_number;

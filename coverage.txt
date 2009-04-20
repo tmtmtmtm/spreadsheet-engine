@@ -1,11 +1,11 @@
 ---------------------------- ------ ------ ------ ------ ------ ------ ------
 File                           stmt   bran   cond    sub    pod   time  total
 ---------------------------- ------ ------ ------ ------ ------ ------ ------
-lib/Spreadsheet/Engine.pm     100.0    n/a    n/a  100.0  100.0    0.2  100.0
+lib/Spreadsheet/Engine.pm     100.0    n/a    n/a  100.0  100.0    0.3  100.0
 ...readsheet/Engine/Error.pm   88.9    n/a  100.0   81.8  100.0    0.0   89.5
 ...Engine/Fn/Approximator.pm  100.0  100.0   72.7  100.0  100.0    0.1   94.1
 ...heet/Engine/Fn/Operand.pm  100.0    n/a    n/a  100.0    n/a    0.0  100.0
-...adsheet/Engine/Fn/base.pm   98.0   84.1   91.7   94.7  100.0    5.5   93.9
+...adsheet/Engine/Fn/base.pm   98.1   82.6   91.7   94.7  100.0    5.6   93.5
 ...heet/Engine/Fn/counter.pm  100.0   75.0    n/a  100.0  100.0    0.0   96.6
 ...Engine/Fn/depreciation.pm  100.0    n/a    n/a  100.0  100.0    0.0  100.0
 ...eadsheet/Engine/Fn/hms.pm  100.0   50.0    n/a  100.0  100.0    0.0   96.7
@@ -40,6 +40,7 @@ lib/Spreadsheet/Engine.pm     100.0    n/a    n/a  100.0  100.0    0.2  100.0
 .../Engine/Function/FALSE.pm  100.0    n/a    n/a  100.0  100.0    0.0  100.0
 ...t/Engine/Function/FIND.pm  100.0  100.0    n/a  100.0  100.0    0.0  100.0
 ...eet/Engine/Function/FV.pm  100.0   50.0   50.0  100.0  100.0    0.0   89.3
+...ngine/Function/HLOOKUP.pm  100.0   80.0    n/a  100.0  100.0    0.0   96.3
 ...t/Engine/Function/HOUR.pm  100.0    n/a    n/a  100.0    n/a    0.0  100.0
 ...eet/Engine/Function/IF.pm  100.0  100.0   66.7  100.0  100.0    0.0   96.7
 ...et/Engine/Function/INT.pm  100.0  100.0  100.0  100.0  100.0    0.0  100.0
@@ -58,6 +59,7 @@ lib/Spreadsheet/Engine.pm     100.0    n/a    n/a  100.0  100.0    0.2  100.0
 ...et/Engine/Function/LOG.pm  100.0    n/a  100.0  100.0  100.0    0.0  100.0
 .../Engine/Function/LOG10.pm  100.0    n/a    n/a  100.0  100.0    0.0  100.0
 .../Engine/Function/LOWER.pm   78.6    n/a    n/a   80.0  100.0    0.0   80.0
+.../Engine/Function/MATCH.pm   95.6   85.0   64.7   94.4  100.0    0.1   89.7
 ...et/Engine/Function/MAX.pm  100.0  100.0    n/a  100.0  100.0    0.0  100.0
 ...et/Engine/Function/MID.pm  100.0    n/a    n/a  100.0  100.0    0.0  100.0
 ...et/Engine/Function/MIN.pm  100.0  100.0    n/a  100.0  100.0    0.0  100.0
@@ -67,6 +69,7 @@ lib/Spreadsheet/Engine.pm     100.0    n/a    n/a  100.0  100.0    0.2  100.0
 ...heet/Engine/Function/N.pm  100.0   50.0    n/a  100.0  100.0    0.0   95.5
 ...eet/Engine/Function/NA.pm  100.0    n/a    n/a  100.0  100.0    0.0  100.0
 ...et/Engine/Function/NOT.pm  100.0  100.0    n/a  100.0  100.0    0.0  100.0
+...et/Engine/Function/NOW.pm  100.0    n/a    n/a  100.0  100.0    0.0  100.0
 ...t/Engine/Function/NPER.pm  100.0   70.0   62.5  100.0  100.0    0.0   87.5
 ...et/Engine/Function/NPV.pm  100.0   50.0   33.3  100.0  100.0    0.0   84.4
 ...et/Engine/Function/ODD.pm  100.0  100.0    n/a  100.0  100.0    0.0  100.0
@@ -95,6 +98,7 @@ lib/Spreadsheet/Engine.pm     100.0    n/a    n/a  100.0  100.0    0.2  100.0
 ...heet/Engine/Function/T.pm  100.0  100.0    n/a  100.0  100.0    0.0  100.0
 ...et/Engine/Function/TAN.pm  100.0    n/a    n/a  100.0  100.0    0.0  100.0
 ...t/Engine/Function/TIME.pm  100.0    n/a    n/a  100.0  100.0    0.0  100.0
+.../Engine/Function/TODAY.pm  100.0    n/a    n/a  100.0  100.0    0.0  100.0
 ...t/Engine/Function/TRIM.pm  100.0    n/a    n/a  100.0  100.0    0.0  100.0
 ...t/Engine/Function/TRUE.pm  100.0    n/a    n/a  100.0  100.0    0.0  100.0
 .../Engine/Function/TRUNC.pm  100.0  100.0    n/a  100.0  100.0    0.0  100.0
@@ -102,11 +106,12 @@ lib/Spreadsheet/Engine.pm     100.0    n/a    n/a  100.0  100.0    0.2  100.0
 .../Engine/Function/VALUE.pm   90.9   66.7   33.3  100.0  100.0    0.0   84.6
 ...et/Engine/Function/VAR.pm  100.0  100.0    n/a  100.0  100.0    0.0  100.0
 ...t/Engine/Function/VARP.pm  100.0   50.0    n/a  100.0  100.0    0.0   94.7
+...ngine/Function/VLOOKUP.pm  100.0   50.0    n/a  100.0    n/a    0.0   95.0
 ...ngine/Function/WEEKDAY.pm  100.0  100.0  100.0  100.0  100.0    0.0  100.0
 ...t/Engine/Function/YEAR.pm  100.0    n/a    n/a  100.0    n/a    0.0  100.0
-...sheet/Engine/Functions.pm   83.3   63.9   44.2   98.1  100.0    1.7   76.8
-...readsheet/Engine/Sheet.pm   45.3   39.8   39.1   66.0  100.0   90.4   43.6
-...ine/Storage/SocialCalc.pm   97.7   77.8    n/a  100.0  100.0    0.1   92.8
+...sheet/Engine/Functions.pm   84.1   57.7   36.7   98.1  100.0    1.6   77.2
+...readsheet/Engine/Sheet.pm   45.4   39.8   38.9   66.0  100.0   89.4   43.7
+...ine/Storage/SocialCalc.pm   97.7   77.8    n/a  100.0  100.0    0.9   92.8
 ...readsheet/Engine/Value.pm   91.3    n/a    n/a   90.0  100.0    0.4   92.5
-Total                          68.5   47.2   45.9   96.4  100.0  100.0   64.8
+Total                          69.2   46.7   45.4   96.5  100.0  100.0   65.4
 ---------------------------- ------ ------ ------ ------ ------ ------ ------

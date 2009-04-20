@@ -111,6 +111,7 @@ set A121 formula VLOOKUP(0,B51:B57,2)
 iserror A121
 
 # In sorted numerical data, 6 is the largest value that is less than or equal to Lookup.
+# (accidentally) fixed when extracting VLOOKUP function 22 Jan 2008
 set A122 formula VLOOKUP(6.1,B51:B57,2)
-TODO test A122 11
+test A122 11
 

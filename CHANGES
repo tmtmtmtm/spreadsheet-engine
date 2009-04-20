@@ -13,6 +13,20 @@ Copyright (c) 2006 OASIS 2006. All Rights Reserved.
 
 Changes from the Standard Version (SocialCalc 1.1.0) are detailed below.
 
+== v0.14 ==   (January 22, 2008)
+
+Summary: Better testing, more extraction
+
+ - Tests
+   -- Only do numeric comparisons if we want and *got* a number
+      (this silences warnings when we want a number but don't get one)
+   -- Add accurate tests for TODAY() and NOW() based on time 
+      (Open Formula spec can't do this)
+
+ - Functions
+   -- Extracted functions TODAY(), NOW()
+   -- Extract and simplify MATCH(), VLOOKUP(), HLOOKUP()
+
 == v0.13 ==   (January 21, 2008)
 
 Summary: Restructuring

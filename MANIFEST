@@ -39,6 +39,7 @@ lib/Spreadsheet/Engine/Function/FACT.pm
 lib/Spreadsheet/Engine/Function/FALSE.pm
 lib/Spreadsheet/Engine/Function/FIND.pm
 lib/Spreadsheet/Engine/Function/FV.pm
+lib/Spreadsheet/Engine/Function/HLOOKUP.pm
 lib/Spreadsheet/Engine/Function/HOUR.pm
 lib/Spreadsheet/Engine/Function/IF.pm
 lib/Spreadsheet/Engine/Function/INT.pm
@@ -57,6 +58,7 @@ lib/Spreadsheet/Engine/Function/LN.pm
 lib/Spreadsheet/Engine/Function/LOG.pm
 lib/Spreadsheet/Engine/Function/LOG10.pm
 lib/Spreadsheet/Engine/Function/LOWER.pm
+lib/Spreadsheet/Engine/Function/MATCH.pm
 lib/Spreadsheet/Engine/Function/MAX.pm
 lib/Spreadsheet/Engine/Function/MID.pm
 lib/Spreadsheet/Engine/Function/MIN.pm
@@ -66,6 +68,7 @@ lib/Spreadsheet/Engine/Function/MONTH.pm
 lib/Spreadsheet/Engine/Function/N.pm
 lib/Spreadsheet/Engine/Function/NA.pm
 lib/Spreadsheet/Engine/Function/NOT.pm
+lib/Spreadsheet/Engine/Function/NOW.pm
 lib/Spreadsheet/Engine/Function/NPER.pm
 lib/Spreadsheet/Engine/Function/NPV.pm
 lib/Spreadsheet/Engine/Function/ODD.pm
@@ -94,6 +97,7 @@ lib/Spreadsheet/Engine/Function/SYD.pm
 lib/Spreadsheet/Engine/Function/T.pm
 lib/Spreadsheet/Engine/Function/TAN.pm
 lib/Spreadsheet/Engine/Function/TIME.pm
+lib/Spreadsheet/Engine/Function/TODAY.pm
 lib/Spreadsheet/Engine/Function/TRIM.pm
 lib/Spreadsheet/Engine/Function/TRUE.pm
 lib/Spreadsheet/Engine/Function/TRUNC.pm
@@ -101,6 +105,7 @@ lib/Spreadsheet/Engine/Function/UPPER.pm
 lib/Spreadsheet/Engine/Function/VALUE.pm
 lib/Spreadsheet/Engine/Function/VAR.pm
 lib/Spreadsheet/Engine/Function/VARP.pm
+lib/Spreadsheet/Engine/Function/VLOOKUP.pm
 lib/Spreadsheet/Engine/Function/WEEKDAY.pm
 lib/Spreadsheet/Engine/Function/YEAR.pm
 lib/Spreadsheet/Engine/Functions.pm
@@ -150,4 +155,5 @@ t/of-value.t
 t/of-whitespace.t
 t/series.t
 t/stringfns.t
+t/today.t
 META.yml                                 Module meta-data (added by MakeMaker)

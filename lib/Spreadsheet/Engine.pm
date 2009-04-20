@@ -6,7 +6,7 @@ use warnings;
 use Spreadsheet::Engine::Sheet (
   qw/parse_sheet_save execute_sheet_command recalc_sheet/);
 
-our $VERSION = '0.13';
+our $VERSION = '0.14';
 
 =head1 NAME
 
@@ -30,7 +30,7 @@ Spreadsheet::Engine - Core calculation engine for a spreadsheet
 =head1 DESCRIPTION
 
 This provides back-end spreadsheet functionality for creating a
-sheet, setting cells to have value or formulae, and performing all
+sheet, setting cells to have values or formulae, and performing all
 necessary calculations. There is no front-end UI provided - this
 is purely the calculation engine.
 
@@ -63,7 +63,7 @@ sub new {
   my $sheet = Spreadsheet::Engine->load_data([@data]);
 
 Instantiate a sheet from lines of data in the saved file format (see
-L<Spreadsheet::Engine::Sheet> for doumentation>)
+L<Spreadsheet::Engine::Sheet> for documentation)
 
 =cut
 
@@ -127,9 +127,16 @@ sub raw {
 
 Although the core underlying code is relatively mature and featureful,
 there will be significant interface changes and refactoring going
-forward with this version. There are very few automated tests as yet, so
-this process is likely to introduce bugs. Please pay close attention to
-the CHANGES file if you upgrade this package.
+forward with this version.  As well as any bugs in the original
+SocialCalc code, the process of rearranging the code is likely to
+introduce more.
+
+There is a reasonably complete test suite for most of the functions,
+but much of the other code is as yet untested.  (See 'coverage.txt'
+in the root directory of the distribution for a little more detail).
+
+Please pay close attention to the CHANGES file if you upgrade this
+package.
 
 =head1 OPEN FORMULA SPECIFICATION
 
@@ -151,7 +158,7 @@ provided:
 
 =over 4
 
-=item * "Year 1583": Dates between 1593 and 1900 are handled correctly
+=item * "Year 1583": Dates between 1583 and 1900 are handled correctly.
 
 =item * Text is automatically converted to numbers in some (but not all)
 circumstances (see t/of-autonum.t gives examples)
@@ -162,7 +169,7 @@ circumstances (see t/of-autonum.t gives examples)
 
 =head1 KNOWN BUGS AND SHORTCOMINGS
 
-Patches are welcome to fix any of these!
+We do not meet the Open Formula specification at the following sections:
 
 =over 4
 
@@ -170,18 +177,20 @@ Patches are welcome to fix any of these!
 
 =item * (5.6) Empty parameters cannot be omitted: IF(FALSE(),7,) 
 
-=item * (5.8) Semicolon is not recognised as a separator in function
-calls, cell/range lists, etc.: SUM(A1;B2;B3), IF(FALSE();7;8)
+=item * (5.8) Semicolon is sometimes not recognised as a separator in
+function calls, cell/range lists, etc.: SUM(A1;B2;B3), IF(FALSE();7;8)
 
 =item * (5.8) Cell references of the form [.B1] are not supported
 
 =item * (5.8) References to other sheets are not supported
+(this feature is in SocialCalc, but for now is out of scope for this
+engine)
 
 =item * (5.10.1) Range names cannot contain unicode characters 
 
 =item * (5.10.1) Range names do not support $$ markers 
 
-=item * (5.11) Errors cannot be entered as strings: #N/A, #DIV/0! etc
+=item * (5.11) Errors cannot be as strings (#N/A, #DIV/0! etc) in formulae
 
 =item * (6.2.4) Empty cell in numeric context is not treated as 0
 
@@ -214,8 +223,6 @@ calls, cell/range lists, etc.: SUM(A1;B2;B3), IF(FALSE();7;8)
 
 =item * (6.12.32) Cannot enter dates with alphabetic month names
 
-=item * (6.13.11) VLOOKUP for an integer must be exact, not <=
-
 =item * (6.14.3) IF() does not have default ifTrue/ifFalse values
 
 =item * (6.15.29) FACT() operates on negative numbers
@@ -235,6 +242,8 @@ calls, cell/range lists, etc.: SUM(A1;B2;B3), IF(FALSE();7;8)
 =head2 FIXED
 
 =over 
+
+=item * (6.13.11) VLOOKUP for an integer must be exact, not <=
 
 =item * (6.19.14) MID() does not accept a zero length
 

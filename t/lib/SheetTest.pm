@@ -69,7 +69,6 @@ is executed 'as is' and followed by a recalc.
 
 use strict;
 use warnings;
-no warnings 'numeric';    # Don't warn if we expect a num but get str
 
 use base 'Exporter';
 our @EXPORT = qw/run_tests/;
@@ -113,9 +112,9 @@ sub run_tests {
       my ($ref, $want) = ($1, $2);
       my $got = $sheet->raw->{datavalues}{$ref};
 
-      # ignore trailing whitespace if we want a number
+      # ignore trailing whitespace if we want (and got) a number
       (my $tmp = $want) =~ s/\s+$//;
-      looks_like_number($tmp)
+      looks_like_number($tmp) && (($sheet->raw->{valuetypes}{$ref} || '') =~ /^n/)
         ? $Test->is_num($got, $tmp, "$ref == $tmp")
         : $Test->is_eq($got, $want, "$ref eq $want");
     } elsif ($cmd =~ /^isnear\s(\w+)\s(.*?)\s*$/) {
