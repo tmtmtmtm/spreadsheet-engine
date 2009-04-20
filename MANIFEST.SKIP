@@ -31,3 +31,5 @@ aegis.log$
 \#$
 \b\.#
 
+# Other misc stuff
+.perlcriticrc

@@ -14,6 +14,30 @@ Copyright (c) 2006 OASIS 2006. All Rights Reserved.
 
 Changes from the Standard Version (SocialCalc 1.1.0) are detailed below:
 
+== v0.08 ==   (January 6, 2008)
+
+Summary: Pluggable math functions
+
+ - Function/*.pm
+   -- Extracted math.pm and math2.pm baseclasses
+   -- Extracted functions ABS(), ACOS(), ASIN(), ATAN(), COS(),
+      DEGREES(), EVEN(), EXP(), FACT(), INT(), LN(), LOG10(), ODD(),
+      RADIANS(), SIN(), SQRT(), TAN() 
+   -- Extracted functions ATAN2(), MOD(), POWER(), TRUNC()
+   -- Extracted functions FIND(), LEFT(), LEN(), MID(), PROPER(),
+      REPLACE(), REPT(), RIGHT(), SUBSTITUTE(), TRIM()
+   -- Allowed MID() to accept a zero length per OpenFormula spec
+
+ - Spreadsheet::Engine::Sheet
+   -- Removed straggling reference to obsolete definitions file
+
+ - Tests
+   -- POD coverage test now uses CountParents
+   -- removed t/stringfn2.t (obsoleted by OF tests)
+
+ - General
+   -- Style tweaking per perlcritic
+
 == v0.07 ==   (January 1, 2008)
 
 Summary: Open Formula test cases

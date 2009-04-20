@@ -1,6 +1,7 @@
 package Spreadsheet::Engine::Function::series;
 
 use strict;
+use warnings;
 
 use Spreadsheet::Engine::Sheet qw/lookup_result_type operand_value_and_type/;
 
@@ -11,18 +12,18 @@ sub argument_count { -1 }
 sub execute {
   my $self = shift;
 
-  my $type = "";
+  my $type = '';
 
   my $calculator  = $self->calculate;
   my $accumulator = $self->accumulator;
 
   return unless defined(my $foperand = $self->foperand);
-  while (@$foperand) {
+  while (@{$foperand}) {
     my $value =
       operand_value_and_type($self->sheetdata, $foperand, $self->errortext,
       \my $tostype);
 
-    if (substr($tostype, 0, 1) eq "n") {
+    if (substr($tostype, 0, 1) eq 'n') {
       $accumulator =
         $calculator->({ value => $value, type => $tostype }, $accumulator);
 
@@ -32,16 +33,16 @@ sub execute {
         $self->typelookup->{plus}
       );
 
-    } elsif (substr($tostype, 0, 1) eq "e" && substr($type, 0, 1) ne "e") {
+    } elsif (substr($tostype, 0, 1) eq 'e' && substr($type, 0, 1) ne 'e') {
       $type = $tostype;
     }
   }
 
   my $operand = $self->operand;
-  my $result  = $self->result($accumulator) || 0;
-  ($result, $type) = @$result if ref $result eq 'ARRAY';
+  my $result = $self->result($accumulator) || 0;
+  ($result, $type) = @{$result} if ref $result eq 'ARRAY';
 
-  push @$operand, { type => $type || 'n', value => $result };
+  push @{$operand}, { type => $type || 'n', value => $result };
 
   return;
 }
@@ -128,9 +129,9 @@ All Rights Reserved.
 Portions (c) Copyright 2007 Socialtext, Inc.
 All Rights Reserved.
 
-Portions (c) Copyright 2007 Tony Bowden
+Portions (c) Copyright 2007, 2008 Tony Bowden
 
-=head1 LICENSE
+=head1 LICENCE
 
 The contents of this file are subject to the Artistic License 2.0;
 you may not use this file except in compliance with the License.

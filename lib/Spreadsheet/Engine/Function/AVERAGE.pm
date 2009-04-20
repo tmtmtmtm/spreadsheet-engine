@@ -1,13 +1,14 @@
 package Spreadsheet::Engine::Function::AVERAGE;
 
 use strict;
+use warnings;
 
 use base 'Spreadsheet::Engine::Function::series';
 
 sub calculate {
   return sub {
     my ($in,    $accum) = @_;
-    my ($count, $sum)   = @$accum;
+    my ($count, $sum)   = @{$accum};
     $count++ if substr($in->{type}, 0, 1) eq 'n';
     $sum += $in->{value};    # Will be zero if type is not a number
     return [ $count, $sum ];
@@ -18,8 +19,8 @@ sub accumulator { [ 0, 0 ] }
 
 sub result {
   my ($self,  $accum) = @_;
-  my ($count, $sum)   = @$accum;
-  return [ 0, "e#DIV/0!" ] unless $count;
+  my ($count, $sum)   = @{$accum};
+  return [ 0, 'e#DIV/0!' ] unless $count;
   return $sum / $count;
 }
 
@@ -62,7 +63,7 @@ All Rights Reserved.
 
 Portions (c) Copyright 2007 Tony Bowden
 
-=head1 LICENSE
+=head1 LICENCE
 
 The contents of this file are subject to the Artistic License 2.0;
 you may not use this file except in compliance with the License.

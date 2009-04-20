@@ -1,6 +1,7 @@
 package Spreadsheet::Engine::Function::text;
 
 use strict;
+use warnings;
 
 use base 'Spreadsheet::Engine::Function::base';
 
@@ -11,7 +12,7 @@ use Spreadsheet::Engine::Sheet
 sub execute {
   my $self = shift;
 
-  my $fname      = $self->fname or die "Name not set";
+  my $fname      = $self->fname or die 'Name not set';
   my $operand    = $self->operand;
   my $foperand   = $self->foperand;
   my $errortext  = $self->errortext;
@@ -20,11 +21,11 @@ sub execute {
 
   my ($value, $tostype, @operand_value, @operand_type);
 
-  my $numargs = scalar @$foperand;
+  my $numargs = scalar @{$foperand};
   my @argdef  = @{ $self->arguments };
 
   # go through each arg, get value and type, and check for errors
-  for (my $i = 1 ; $i <= $numargs ; $i++) {
+  for my $i (1 .. $numargs) {
     if ($i > scalar @argdef) {    # too many args
       function_args_error($fname, $self->operand, $errortext);
       return;
@@ -43,8 +44,8 @@ sub execute {
 
     $operand_value[$i] = $value;
     $operand_type[$i]  = $tostype;
-    if (substr($tostype, 0, 1) eq "e") {
-      push @$operand, { type => $tostype, value => $value };
+    if (substr($tostype, 0, 1) eq 'e') {
+      push @{$operand}, { type => $tostype, value => $value };
     }
   }
 
@@ -54,12 +55,12 @@ sub execute {
 
   if ($@) {
     $result      = $@;
-    $result_type = "e#VALUE!";
+    $result_type = 'e#VALUE!';
   } else {
     $result = encode('utf8', $result);    # convert UTF-8 back to bytes
   }
 
-  push @$operand, { type => $result_type, value => $result };
+  push @{$operand}, { type => $result_type, value => $result };
   return;
 
 }
@@ -98,6 +99,12 @@ will be called with those arguments.
 This checks that the parameters passed to the function are correct, and
 if so delegates to the subclass to calculate().
 
+=head2 calculate
+
+Subclasses should provide this as the workhorse. It should either return
+the result, or die with an error message (that will be trapped and
+turned into a spreadsheet error).
+
 =head2 result_type
 
 Most text functions return a text string, so we provide that as the
@@ -117,9 +124,9 @@ All Rights Reserved.
 Portions (c) Copyright 2007 Socialtext, Inc.
 All Rights Reserved.
 
-Portions (c) Copyright 2007 Tony Bowden
+Portions (c) Copyright 2007, 2008 Tony Bowden
 
-=head1 LICENSE
+=head1 LICENCE
 
 The contents of this file are subject to the Artistic License 2.0;
 you may not use this file except in compliance with the License.

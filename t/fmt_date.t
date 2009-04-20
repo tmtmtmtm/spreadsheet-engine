@@ -1,4 +1,7 @@
+#!/usr/bin/perl
+
 use strict;
+use warnings;
 
 use lib 'lib';
 use Test::More;
@@ -6,8 +9,8 @@ use Spreadsheet::Engine::Sheet;
 *fmt = \&Spreadsheet::Engine::Sheet::format_number_for_display;
 
 my %date = (
-  "y"                => "07",
-  "yyyy"             => "2007",
+  y                  => '07',
+  yyyy               => 2007,
   m                  => 12,
   mm                 => 12,
   mmm                => 'Dec',
@@ -17,12 +20,12 @@ my %date = (
   dd                 => '09',
   ddd                => 'Sun',
   dddd               => 'Sunday',
-  "ddd, d mmmm yyyy" => "Sun, 9 December 2007",
+  'ddd, d mmmm yyyy' => 'Sun, 9 December 2007',
 );
 
 plan tests => scalar keys %date;
 
 while (my ($fmtstr, $result) = each %date) {
-  is fmt(39425, "d", $fmtstr), $result, "$fmtstr => $result";
+  is fmt(39425, 'd', $fmtstr), $result, "$fmtstr => $result";
 }
 

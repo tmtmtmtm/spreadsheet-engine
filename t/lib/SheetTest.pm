@@ -14,6 +14,10 @@ SheetTest - Spreadsheet::Engine test mechanism
     against => 't/data/my_test_data.txt'
   );
 
+=head1 DESCRIPTION
+
+Run a series of test commands against a spreadsheet.
+
 =head1 EXPORTS
 
 =head2 run_tests
@@ -89,7 +93,7 @@ sub run_tests {
   my @cmds =
     exists $conf{commands}
     ? @{ $conf{commands} }
-    : do { my $data = caller() . "::DATA"; <$data> };
+    : do { my $data = caller() . '::DATA'; <$data> };
 
   foreach my $cmd (@cmds) {
     chomp $cmd;
@@ -103,7 +107,7 @@ sub run_tests {
     # (During the conversation Schwern patched that bug, but we
     # can't rely on that fix without a high dependency)
     no strict 'refs';
-    local ${ caller() . '::TODO' } = "later" if $cmd =~ s/^TODO //;
+    local ${ caller() . '::TODO' } = 'later' if $cmd =~ s/^TODO //;
 
     if ($cmd =~ /^test\s(\w+)\s(.*?)$/) {
       my ($ref, $want) = ($1, $2);
@@ -126,7 +130,7 @@ sub run_tests {
       $Test->is_eq($sheet->raw->{valuetypes}{$1}, $2, "$1 = $2");
     } elsif ($cmd =~ /^iserror\s(\w+)\s*$/) {
       $Test->is_eq(substr($sheet->raw->{valuetypes}{$1}, 0, 1),
-        "e", "$1 is an error");
+        'e', "$1 is an error");
     } elsif ($cmd =~ /^like\s(\w+)\s(.*?)$/) {
       $Test->like($sheet->raw->{datavalues}{$1}, qr/$2/, "$1 =~ $2");
     } else {
@@ -138,4 +142,21 @@ sub run_tests {
 }
 
 1;
+
+=head1 HISTORY
+
+This code was created for Spreadsheet::Engine.
+
+=head1 COPYRIGHT 
+
+Copyright (c) 2007, 2008 Tony Bowden
+
+=head1 LICENCE
+
+The contents of this file are subject to the Artistic License 2.0;
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+  http://www.perlfoundation.org/artistic_license_2_0
+
+=cut
 

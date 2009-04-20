@@ -1,6 +1,7 @@
 package Spreadsheet::Engine::Function::VAR;
 
 use strict;
+use warnings;
 
 use base 'Spreadsheet::Engine::Function::series';
 
@@ -21,7 +22,7 @@ sub calculate {
 
 sub result {
   my ($self, $A) = @_;
-  return [ 0, "e#DIV/0!" ] unless $A->{count} > 1;
+  return [ 0, 'e#DIV/0!' ] unless $A->{count} > 1;
   return $A->{sk} / ($A->{count} - 1);
 }
 
@@ -65,7 +66,7 @@ All Rights Reserved.
 
 Portions (c) Copyright 2007 Tony Bowden
 
-=head1 LICENSE
+=head1 LICENCE
 
 The contents of this file are subject to the Artistic License 2.0;
 you may not use this file except in compliance with the License.

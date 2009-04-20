@@ -4,7 +4,7 @@ use strict;
 use Spreadsheet::Engine::Sheet (
   qw/parse_sheet_save execute_sheet_command recalc_sheet/);
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
 =head1 NAME
 
@@ -33,7 +33,8 @@ necessary calculations. There is no front-end UI provided - this
 is purely the calculation engine.
 
 Over 110 spreadsheet functions are provided: see
-L<Spreadsheet::Engine::Functions> for the full list.
+Spreadsheet::Engine::Function::* and L<Spreadsheet::Engine::Functions>
+for the full list.
 
 =head1 METHODS
 
@@ -227,9 +228,15 @@ calls, cell/range lists, etc.: SUM(A1;B2;B3), IF(FALSE();7;8)
 
 =item * (6.19.14) MID() with a start beyond string returns undef
 
-=item * (6.19.14) MID() does not accept a zero length
-
 =item * (6.19.18) RIGHT() does not have a default length
+
+=back
+
+=head2 FIXED
+
+=over 
+
+=item * (6.19.14) MID() does not accept a zero length
 
 =back
 

@@ -217,7 +217,7 @@ iserror A147
 
 # But otherwise, length=0 produces the empty string 
 set A148 formula MID("123456789",1,0)
-TODO test A148 
+test A148 
 
 # INT(Start) is used 
 set A149 formula MID("123456789",2.9,1 )

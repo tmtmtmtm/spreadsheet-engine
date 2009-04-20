@@ -1,6 +1,11 @@
 package Spreadsheet::Engine::Storage::SocialCalc;
 
 use strict;
+use warnings;
+
+use Carp;
+use IO::File;
+
 use Spreadsheet::Engine;
 
 =head1 NAME
@@ -32,22 +37,23 @@ Load a saved file.
 
 sub load {
   my ($class, $file) = @_;
-  open DATAFILEIN, "< $file" or die "Can't open $file: $!\n";
+  my $datafile = IO::File->new($file) or croak "Can't open $file: $!\n";
 
   my ($line,        $boundary);
   my ($headerlines, $sheetlines);
 
-  while ($line = <DATAFILEIN>) {
+  while ($line = <$datafile>) {
     last if $line =~ m/^Content-Type:\smultipart\/mixed;/i;
   }
   $line =~ m/\sboundary=(\S+)/i;
-  $boundary = $1;
-  while ($line = <DATAFILEIN>) {
+  $boundary = $1 or croak "No boundary found in $file";
+
+  while ($line = <$datafile>) {
     $line =~ s/\r//g;
     last if $line =~ m/^--$boundary$/o;
   }
 
-  while ($line = <DATAFILEIN>) {    # go to blank line
+  while ($line = <$datafile>) {    # go to blank line
     chomp $line;
     $line =~ s/\r//g;
     last unless $line;
@@ -55,23 +61,21 @@ sub load {
 
   my $bregex = qr/^--$boundary/;
 
-  while ($line = <DATAFILEIN>) {    # copy header lines
+  while ($line = <$datafile>) {    # copy header lines
     last if $line =~ m/$bregex/;
-    push @$headerlines, $line if $headerlines;
+    push @{$headerlines}, $line if $headerlines;
   }
 
-  while ($line = <DATAFILEIN>) {    # go to blank line
+  while ($line = <$datafile>) {    # go to blank line
     chomp $line;
     $line =~ s/\r//g;
     last unless $line;
   }
 
-  while ($line = <DATAFILEIN>) {    # copy sheet lines
+  while ($line = <$datafile>) {    # copy sheet lines
     last if $line =~ m/$bregex/;
-    push @$sheetlines, $line;
+    push @{$sheetlines}, $line;
   }
-
-  close DATAFILEIN;
 
   return Spreadsheet::Engine->load_data($sheetlines);
 
@@ -104,7 +108,7 @@ All Rights Reserved.
 
 Portions (c) Copyright 2007 Tony Bowden
 
-=head1 LICENSE
+=head1 LICENCE
 
 The contents of this file are subject to the Artistic License 2.0;
 you may not use this file except in compliance with the License.
@@ -112,3 +116,4 @@ You may obtain a copy of the License at
   http://www.perlfoundation.org/artistic_license_2_0
 
 =cut
+

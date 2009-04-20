@@ -1,6 +1,7 @@
 package Spreadsheet::Engine::Function::MIN;
 
 use strict;
+use warnings;
 
 use base 'Spreadsheet::Engine::Function::series';
 
@@ -47,7 +48,7 @@ All Rights Reserved.
 
 Portions (c) Copyright 2007 Tony Bowden
 
-=head1 LICENSE
+=head1 LICENCE
 
 The contents of this file are subject to the Artistic License 2.0;
 you may not use this file except in compliance with the License.
