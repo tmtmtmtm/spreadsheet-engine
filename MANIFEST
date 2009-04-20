@@ -1,5 +1,9 @@
 CHANGES
 lib/Spreadsheet/Engine.pm
+lib/Spreadsheet/Engine/Function/LEN.pm
+lib/Spreadsheet/Engine/Function/LOWER.pm
+lib/Spreadsheet/Engine/Function/text.pm
+lib/Spreadsheet/Engine/Function/UPPER.pm
 lib/Spreadsheet/Engine/Functions.pm
 lib/Spreadsheet/Engine/Sheet.pm
 lib/Spreadsheet/Engine/Storage/SocialCalc.pm
@@ -18,5 +22,6 @@ t/dsum.t
 t/fmt_date.t
 t/fmt_num.t
 t/header.t
+t/stringfn2.t
 t/stringfns.t
 META.yml                                 Module meta-data (added by MakeMaker)

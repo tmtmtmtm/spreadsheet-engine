@@ -10,6 +10,20 @@ Portions (c) Copyright 2007 Tony Bowden
 
 Changes from the Standard Version (SocialCalc 1.1.0) are detailed below:
 
+== v0.05 ==   (December 18, 2007)
+
+Summary: Pluggable text functions 
+
+ - Spreadsheet::Engine::Functions
+   -- Document new way of adding UDFs
+
+ - Function/*.pm
+   -- Extracted text.pm baseclass
+   -- Extracted functions UPPER, LOWER, LEN
+
+ - Tests
+   -- Add stringfn2.t
+
 == v0.04 ==   (December 14, 2007)
 
 Summary: Fix cpantesters problems
@@ -22,7 +36,7 @@ Summary: Fix cpantesters problems
  - Spreadsheet::Engine::Sheet
    -- Fix hash slice syntax that no longer works in 5.10 (Slaven Rezik)
 
- - Spreadsheet::Engine::SheetFunctions
+ - Spreadsheet::Engine::Functions
    -- use Encode::encode/decode rather than utf::encode/decode
 
  - Tests

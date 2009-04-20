@@ -24,30 +24,10 @@ use Encode;
 use base 'Exporter';
 our @EXPORT = qw(calculate_function);
 
-=head1 EXTENDING
 
-=head2 %function_list
-
-  $Spreadsheet::Engine::function_list{MYFUN} = [ \&my_function, ARGCNT ];
-
-To add a new function provided, you should extend the %function_list
-hash. The key should be the name of the function as called from
-within the spreadsheet, and the value should be a reference to a
-list containing a reference to the subroutine providing your
-functionality, and information on how many arguments should be
-passed:
-
-   0 = no arguments
-   >0 = exactly that many arguments
-   <0 = that many arguments (abs value) or more
-   100 = don't check
-
-Your function should take the arguments
-   $fname, \@operand, \@foperand, \$errortext, \%typelookup, \%sheetdata.
-
-(It is high on the TODO list to provide a better interface to all this.)
-
-=cut
+#0 = no arguments
+#>0 = exactly that many arguments
+#<0 = that many arguments (abs value) or more
 
 our %function_list = (
   ABS => [\&math1_function, 1],
@@ -102,11 +82,9 @@ our %function_list = (
   ISNUMBER => [\&is_functions, 1],
   ISTEXT => [\&is_functions, 1],
   LEFT => [\&string_functions, -2],
-  LEN => [\&string_functions, 1],
   LN => [\&math1_function, 1],
   LOG => [\&log_function, -1],
   LOG10 => [\&math1_function, 1],
-  LOWER => [\&string_functions, 1],
   MATCH => [\&lookup_functions, -2],
   MAX => [\&series_functions, -1],
   MID => [\&string_functions, 3],
@@ -152,7 +130,6 @@ our %function_list = (
   TRIM => [\&string_functions, 1],
   TRUE => [\&zeroarg_functions, 0],
   TRUNC => [\&math2_function, 2],
-  UPPER => [\&string_functions, 1],
   VALUE => [\&ntv_functions, 1],
   VAR => [\&series_functions, -1],
   VARP => [\&series_functions, -1],
@@ -166,6 +143,39 @@ our %function_list = (
 
 my $PI = atan2(1,1)*4;
 
+=head1 EXTENDING
+
+=head2 register
+
+  Spreadsheet::Engine->register(SUM => 'Spreadsheet::Engine::Function::SUM');
+
+If you wish to make a new function available you should register it
+here. A series of base classes are provided that do all the argument
+checking etc., allowing you to concentrate on the calculations. Have a
+look at how the existing functions are implemented for details (it
+should hopefully be mostly self-explanatory!)
+
+information on how many arguments should be passed:
+
+=cut
+
+
+my $_reg = {};
+sub register { 
+  my ($class, %to_reg) = @_;
+  while (my ($name, $where) = each %to_reg) { 
+    eval "use $where";
+    die $@ if $@;
+    $_reg->{$name} = $where;
+  }
+}
+
+__PACKAGE__->register(
+  UPPER => 'Spreadsheet::Engine::Function::UPPER',
+  LOWER => 'Spreadsheet::Engine::Function::LOWER',
+  LEN => 'Spreadsheet::Engine::Function::LEN',
+);
+
 =head1 EXPORTS
 
 =head2 calculate_function
@@ -178,47 +188,46 @@ sub calculate_function {
 
    my ($fname, $operand, $errortext, $typelookup, $sheetdata) = @_;
 
-   my ($value1, $value2, $tostype, $tostype2, $resulttype);
+   # has the function been registered (new style) 
+   if (my $fclass = $_reg->{$fname}) { 
+     copy_function_args($operand, \my @foperand);
+     my $fn = $fclass->new(
+         fname => $fname,
+         operand => $operand,
+         foperand => \@foperand,
+         errortext => $errortext,
+         typelookup => $typelookup,
+         sheetdata => $sheetdata,
+     );
+     $fn->execute;
+     return 1;
+   }
 
-   my $ok = 1;
-
-   my ($function_sub, $function_argnum) = @{$function_list{$fname}}[0, 1];
+   # Otherwise is it in our function_list (old style)
+   my ($function_sub, $want_args) = @{$function_list{$fname}}[0,1];
 
    if ($function_sub) {
-      my @foperand;
-      copy_function_args($operand, \@foperand);
-      if ($function_argnum != 100) {
-         if ($function_argnum < 0) {
-            if (scalar @foperand < -$function_argnum) {
+      copy_function_args($operand, \my @foperand);
+     
+      my $have_args = scalar @foperand;
+
+      if ( ($want_args < 0 and $have_args < -$want_args) or 
+           ($want_args >= 0 and $have_args != $want_args) ) { 
                function_args_error($fname, $operand, $errortext);
                return 0;
-               }
-            }
-         else {
-            if (scalar @foperand != $function_argnum) {
-               function_args_error($fname, $operand, $errortext);
-               return 0;
-               }
-            }
-         }
+      }
+      
       $function_sub->($fname, $operand, \@foperand, $errortext, $typelookup, $sheetdata);
-      }
-
-   else {
-         my $ttext = $fname;
-
-         if (@$operand && $operand->[@$operand-1]->{type} eq "start") { # no arguments - name or zero arg function
-            pop @$operand;
-            push @$operand, {type => "name", value => $ttext};
-            }
-
-         else {
-            $$errortext = "Unknown function $ttext. ";
-            }
-      }
-
-   return $ok;
-
+   } else {
+       my $ttext = $fname;
+       if (@$operand && $operand->[@$operand-1]->{type} eq "start") { # no arguments - name or zero arg function
+          pop @$operand;
+          push @$operand, {type => "name", value => $ttext};
+       } else {
+          $$errortext = "Unknown function $ttext. ";
+       }
+   }
+   return 1;
 }
 
 =head1 FUNCTION providers
@@ -914,7 +923,7 @@ sub countif_sumif_functions {
       $sumrangetype = $rangetype;
    }
 
-	 my $ct = substr($criteriatype || '',0,1) || '';
+   my $ct = substr($criteriatype || '',0,1) || '';
    if ($ct eq "n") {
       $criteriavalue = "$criteriavalue";
    } elsif ($ct eq "e") { # error
@@ -1272,10 +1281,6 @@ sub exact_function {
 
 =item LEFT(string,[length])
 
-=item LEN(string)
-
-=item LOWER(string)
-
 =item MID(string,start,length)
 
 =item PROPER(string)
@@ -1290,7 +1295,11 @@ sub exact_function {
 
 =item TRIM(string)
 
-=item UPPER(string)
+=item UPPER(string) - see L<Spreadsheet::Engine::Function::UPPER>
+
+=item LOWER(string) - see L<Spreadsheet::Engine::Function::LOWER>
+
+=item LEN(string) - see L<Spreadsheet::Engine::Function::LEN>
 
 =back
 
@@ -1304,8 +1313,6 @@ sub exact_function {
 my %arg_list = (
                 FIND => [1, 1, 0],
                 LEFT => [1, 0],
-                LEN => [1],
-                LOWER => [1],
                 MID => [1, 0, 0],
                 PROPER => [1],
                 REPLACE => [1, 0, 0, 1],
@@ -1313,7 +1320,6 @@ my %arg_list = (
                 RIGHT => [1, 0],
                 SUBSTITUTE => [1, 1, 1, 0],
                 TRIM => [1],
-                UPPER => [1],
                );
 
 sub string_functions {
@@ -1335,7 +1341,7 @@ sub string_functions {
       }
       elsif ($argdef[$i-1] == 1) {
          $value = operand_as_text($sheetdata, $foperand, $errortext, \$tostype);
-				 $value = decode('utf8', $value);
+         $value = decode('utf8', $value);
       }
       elsif ($argdef[$i-1] == -1) {
          $value = operand_value_and_type($sheetdata, $foperand, $errortext, \$tostype);
@@ -1366,6 +1372,7 @@ sub string_functions {
          }
       }
    }
+
    elsif ($fname eq "LEFT") {
       my $len = $operand_type[2] ? $operand_value[2] : 1;
       if ($len < 0) {
@@ -1376,14 +1383,7 @@ sub string_functions {
          $resulttype = "t";
       }
    }
-   elsif ($fname eq "LEN") {
-      $result = length($operand_value[1]);
-      $resulttype = "n";
-   }
-   elsif ($fname eq "LOWER") {
-      $result = lc($operand_value[1]);
-      $resulttype = "t";
-   }
+
    elsif ($fname eq "MID") {
       my $start = $operand_value[2];
       my $len = $operand_value[3];
@@ -1462,13 +1462,9 @@ sub string_functions {
       $result =~ s/ +/ /g;
       $resulttype = "t";
    }
-   elsif ($fname eq "UPPER") {
-      $result = uc($operand_value[1]);
-      $resulttype = "t";
-   }
 
    if (substr($resulttype,0,1) eq "t") {
-		 $result = encode('utf8', $result); # convert UTF-8 back to bytes
+     $result = encode('utf8', $result); # convert UTF-8 back to bytes
    }
    push @$operand, {type => $resulttype, value => $result};
 
