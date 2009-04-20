@@ -9,7 +9,7 @@ use Encode;
 use Spreadsheet::Engine::Sheet
   qw/function_args_error operand_as_number operand_as_text operand_value_and_type/;
 
-sub execute {
+sub result {
   my $self = shift;
 
   my $fname      = $self->fname or die 'Name not set';
@@ -60,9 +60,7 @@ sub execute {
     $result = encode('utf8', $result);    # convert UTF-8 back to bytes
   }
 
-  push @{$operand}, { type => $result_type, value => $result };
-  return;
-
+  return { type => $result_type, value => $result };
 }
 
 sub result_type { 't' }
@@ -93,11 +91,6 @@ type of arguments they should receive, and a 'calculate' function that
 will be called with those arguments.
 
 =head1 INSTANCE METHODS
-
-=head2 execute
-
-This checks that the parameters passed to the function are correct, and
-if so delegates to the subclass to calculate().
 
 =head2 calculate
 

@@ -1,14 +1,13 @@
-package Spreadsheet::Engine::Function::STDEVP;
+package Spreadsheet::Engine::Function::ISTEXT;
 
 use strict;
 use warnings;
 
-use base 'Spreadsheet::Engine::Function::VARP';
+use base 'Spreadsheet::Engine::Function::is';
 
-sub result_from {
-  my ($self, $A) = @_;
-  return [ 0, 'e#DIV/0!' ] unless $A->{count} > 1;
-  return sqrt $self->SUPER::result_from($A);
+sub calculate {
+  my ($self, $major, $full) = @_;
+  return $major eq 't';
 }
 
 1;
@@ -17,24 +16,19 @@ __END__
 
 =head1 NAME
 
-Spreadsheet::Engine::Function::STDEVP - Spreadsheet funtion STDEVP()
+Spreadsheet::Engine::Function::ISTEXT - Spreadsheet funtion ISTEXT()
 
 =head1 SYNOPSIS
 
-  =STDEVP(list_of_numbers)
+  =ISTEXT(value)
 
 =head1 DESCRIPTION
 
-This provides the spreadsheet text funtion STDEVP()
+This provides the spreadsheet text funtion ISTEXT()
 
 =head2 calculate
 
-This returns the standard deviation.
-
-=head2 result
-
-We calculate as per Knuth "The Art of Computer Programming" Vol. 2
-3rd edition, page 232
+Is the value textual?
 
 =head1 HISTORY
 
@@ -49,7 +43,7 @@ All Rights Reserved.
 Portions (c) Copyright 2007 Socialtext, Inc.
 All Rights Reserved.
 
-Portions (c) Copyright 2007 Tony Bowden
+Portions (c) Copyright 2008 Tony Bowden
 
 =head1 LICENCE
 

@@ -1,10 +1,12 @@
 package Spreadsheet::Engine;
 
 use strict;
+use warnings;
+
 use Spreadsheet::Engine::Sheet (
   qw/parse_sheet_save execute_sheet_command recalc_sheet/);
 
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 
 =head1 NAME
 
@@ -265,7 +267,7 @@ All Rights Reserved.
 
 Portions (c) Copyright 2007, 2008 Tony Bowden. Some Rights Reserved.
 
-=head1 LICENSE
+=head1 LICENCE
 
 The contents of this file are subject to the Artistic License 2.0;
 you may not use this file except in compliance with the License.

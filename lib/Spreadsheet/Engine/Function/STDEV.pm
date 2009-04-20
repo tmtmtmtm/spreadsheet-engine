@@ -5,10 +5,10 @@ use warnings;
 
 use base 'Spreadsheet::Engine::Function::VAR';
 
-sub result {
+sub result_from {
   my ($self, $A) = @_;
   return [ 0, 'e#DIV/0!' ] unless $A->{count} > 1;
-  return sqrt $self->SUPER::result($A);
+  return sqrt $self->SUPER::result_from($A);
 }
 
 1;

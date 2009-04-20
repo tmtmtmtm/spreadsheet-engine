@@ -5,37 +5,31 @@ use warnings;
 
 use base 'Spreadsheet::Engine::Function::base';
 
-use Spreadsheet::Engine::Sheet qw/operand_as_number lookup_result_type/;
+use Spreadsheet::Engine::Sheet qw/lookup_result_type/;
 
-sub execute {
+sub argument_count { 2 }
+
+sub result {
   my $self = shift;
 
-  my $fname      = $self->fname or die 'Name not set';
-  my $operand    = $self->operand;
-  my $foperand   = $self->foperand;
-  my $errortext  = $self->errortext;
-  my $typelookup = $self->typelookup;
-  my $sheetdata  = $self->sheetdata;
+  my $op1 = $self->next_operand_as_number;
+  my $op2 = $self->next_operand_as_number;
 
-  my $arg1 =
-    operand_as_number($sheetdata, $foperand, $errortext, \my $tostype1);
-  my $arg2 =
-    operand_as_number($sheetdata, $foperand, $errortext, \my $tostype2);
   my $result_type =
-    lookup_result_type($tostype1, $tostype2, $typelookup->{twoargnumeric});
-  my $result = 0;
+    lookup_result_type($op1->{type}, $op2->{type},
+    $self->typelookup->{twoargnumeric});
 
-  if ($result_type eq 'n') {
-    $result = eval { $self->calculate($arg1, $arg2) };
-  }
+  my $result =
+    ($result_type eq 'n')
+    ? eval { $self->calculate($op1->{value}, $op2->{value}) }
+    : 0;
 
   if ($@) {
     $result      = $@->{message} || 'Invalid arguments';
     $result_type = $@->{type}    || 'e#NUM!';
   }
 
-  push @{$operand}, { type => $result_type, value => $result };
-  return;
+  return { type => $result_type, value => $result };
 
 }
 
@@ -62,11 +56,6 @@ Subclasses should provide 'calculate' function that will be called with
 the arguments provided.
 
 =head1 INSTANCE METHODS
-
-=head2 execute
-
-This checks that the parameters passed to the function are correct, and
-if so delegates to the subclass to calculate().
 
 =head2 calculate
 

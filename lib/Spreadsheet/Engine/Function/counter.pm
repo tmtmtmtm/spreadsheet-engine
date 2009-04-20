@@ -3,32 +3,23 @@ package Spreadsheet::Engine::Function::counter;
 use strict;
 use warnings;
 
-use Spreadsheet::Engine::Sheet qw/lookup_result_type operand_value_and_type/;
-
 use base 'Spreadsheet::Engine::Function::base';
 
 sub argument_count { -1 }
 
-sub execute {
+sub result {
   my $self = shift;
+
+  return unless defined(my $foperand = $self->foperand);
 
   my $match = $self->calculate;
   my $count = 0;
 
-  return unless defined(my $foperand = $self->foperand);
   while (@{$foperand}) {
-    my $value =
-      operand_value_and_type($self->sheetdata, $foperand, $self->errortext,
-      \my $tostype);
-
-    $count++ if $match->($tostype);
-
+    $count++ if $match->($self->next_operand->{type});
   }
 
-  my $operand = $self->operand;
-  push @{$operand}, { type => 'n', value => $count };
-
-  return;
+  return { type => 'n', value => $count };
 }
 
 1;
@@ -62,12 +53,6 @@ COUNTBLANK, etc).
 
 By default all such functions take one or more argument.
 
-=head2 execute 
-
-This takes care of fetching the values from the list one at a time, and
-then applies the sub provided by a subclass's 'calculate' method to each
-in turn. 
-
 =head2 result_type
 
 This is always a number.
@@ -93,7 +78,7 @@ All Rights Reserved.
 Portions (c) Copyright 2007 Socialtext, Inc.
 All Rights Reserved.
 
-Portions (c) Copyright 2007 Tony Bowden
+Portions (c) Copyright 2007, 2008 Tony Bowden
 
 =head1 LICENCE
 

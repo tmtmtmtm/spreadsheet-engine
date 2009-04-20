@@ -1,4 +1,5 @@
 package Spreadsheet::Engine::Functions;
+## no critic
 
 =head1 NAME
 
@@ -49,33 +50,22 @@ our %function_list = (
   DVAR      => [ \&dseries_functions,       3 ],
   DVARP     => [ \&dseries_functions,       3 ],
   EXACT     => [ \&exact_function,          2 ],
-  FALSE     => [ \&zeroarg_functions,       0 ],
   FV        => [ \&interest_functions,      -2 ],
   HLOOKUP   => [ \&lookup_functions,        -3 ],
   HOUR      => [ \&hms_function,            1 ],
   IF        => [ \&if_function,             3 ],
   INDEX     => [ \&index_function,          -1 ],
   IRR       => [ \&irr_function,            -1 ],
-  ISBLANK   => [ \&is_functions,            1 ],
-  ISERR     => [ \&is_functions,            1 ],
-  ISERROR   => [ \&is_functions,            1 ],
-  ISLOGICAL => [ \&is_functions,            1 ],
-  ISNA      => [ \&is_functions,            1 ],
-  ISNONTEXT => [ \&is_functions,            1 ],
-  ISNUMBER  => [ \&is_functions,            1 ],
-  ISTEXT    => [ \&is_functions,            1 ],
   LOG       => [ \&log_function,            -1 ],
   MATCH     => [ \&lookup_functions,        -2 ],
   MINUTE    => [ \&hms_function,            1 ],
   MONTH     => [ \&dmy_function,            1 ],
   N         => [ \&ntv_functions,           1 ],
-  NA        => [ \&zeroarg_functions,       0 ],
   NOT       => [ \&not_function,            1 ],
   NOW       => [ \&zeroarg_functions,       0 ],
   NPER      => [ \&interest_functions,      -2 ],
   NPV       => [ \&npv_function,            -2 ],
   OR        => [ \&and_or_function,         -1 ],
-  PI        => [ \&zeroarg_functions,       0 ],
   PMT       => [ \&interest_functions,      -2 ],
   PV        => [ \&interest_functions,      -2 ],
   RATE      => [ \&interest_functions,      -2 ],
@@ -88,17 +78,13 @@ our %function_list = (
   T         => [ \&ntv_functions,           1 ],
   TIME      => [ \&time_function,           3 ],
   TODAY     => [ \&zeroarg_functions,       0 ],
-  TRUE      => [ \&zeroarg_functions,       0 ],
   VALUE     => [ \&ntv_functions,           1 ],
   VLOOKUP   => [ \&lookup_functions,        -3 ],
   WEEKDAY   => [ \&dmy_function,            -1 ],
-  ERRCELL   => [ \&zeroarg_functions,       0 ],
   HTML      => [ \&html_function,           -1 ],
   PLAINTEXT => [ \&text_function,           -1 ],
   YEAR      => [ \&dmy_function,            1 ],
 );
-
-my $PI = atan2(1, 1) * 4;
 
 =head1 EXTENDING
 
@@ -128,53 +114,13 @@ sub register {
 }
 
 __PACKAGE__->register(
-
-  ABS        => 'Spreadsheet::Engine::Function::ABS',
-  ACOS       => 'Spreadsheet::Engine::Function::ACOS',
-  ASIN       => 'Spreadsheet::Engine::Function::ASIN',
-  ATAN       => 'Spreadsheet::Engine::Function::ATAN',
-  ATAN2      => 'Spreadsheet::Engine::Function::ATAN2',
-  AVERAGE    => 'Spreadsheet::Engine::Function::AVERAGE',
-  COS        => 'Spreadsheet::Engine::Function::COS',
-  COUNT      => 'Spreadsheet::Engine::Function::COUNT',
-  COUNTA     => 'Spreadsheet::Engine::Function::COUNTA',
-  COUNTBLANK => 'Spreadsheet::Engine::Function::COUNTBLANK',
-  DEGREES    => 'Spreadsheet::Engine::Function::DEGREES',
-  EVEN       => 'Spreadsheet::Engine::Function::EVEN',
-  EXP        => 'Spreadsheet::Engine::Function::EXP',
-  FACT       => 'Spreadsheet::Engine::Function::FACT',
-  FIND       => 'Spreadsheet::Engine::Function::FIND',
-  INT        => 'Spreadsheet::Engine::Function::INT',
-  LEFT       => 'Spreadsheet::Engine::Function::LEFT',
-  LEN        => 'Spreadsheet::Engine::Function::LEN',
-  LN         => 'Spreadsheet::Engine::Function::LN',
-  LOG10      => 'Spreadsheet::Engine::Function::LOG10',
-  LOWER      => 'Spreadsheet::Engine::Function::LOWER',
-  MAX        => 'Spreadsheet::Engine::Function::MAX',
-  MID        => 'Spreadsheet::Engine::Function::MID',
-  MIN        => 'Spreadsheet::Engine::Function::MIN',
-  MOD        => 'Spreadsheet::Engine::Function::MOD',
-  ODD        => 'Spreadsheet::Engine::Function::ODD',
-  POWER      => 'Spreadsheet::Engine::Function::POWER',
-  PRODUCT    => 'Spreadsheet::Engine::Function::PRODUCT',
-  PROPER     => 'Spreadsheet::Engine::Function::PROPER',
-  RADIANS    => 'Spreadsheet::Engine::Function::RADIANS',
-  REPLACE    => 'Spreadsheet::Engine::Function::REPLACE',
-  REPT       => 'Spreadsheet::Engine::Function::REPT',
-  RIGHT      => 'Spreadsheet::Engine::Function::RIGHT',
-  SIN        => 'Spreadsheet::Engine::Function::SIN',
-  SQRT       => 'Spreadsheet::Engine::Function::SQRT',
-  STDEV      => 'Spreadsheet::Engine::Function::STDEV',
-  STDEVP     => 'Spreadsheet::Engine::Function::STDEVP',
-  SUBSTITUTE => 'Spreadsheet::Engine::Function::SUBSTITUTE',
-  SUM        => 'Spreadsheet::Engine::Function::SUM',
-  TAN        => 'Spreadsheet::Engine::Function::TAN',
-  TRIM       => 'Spreadsheet::Engine::Function::TRIM',
-  TRUNC      => 'Spreadsheet::Engine::Function::TRUNC',
-  UPPER      => 'Spreadsheet::Engine::Function::UPPER',
-  VAR        => 'Spreadsheet::Engine::Function::VAR',
-  VARP       => 'Spreadsheet::Engine::Function::VARP',
-
+  map +($_ => "Spreadsheet::Engine::Function::$_"),
+  qw/ ABS ACOS ASIN ATAN ATAN2 AVERAGE COS COUNT COUNTA COUNTBLANK
+    DEGREES ERRCELL EVEN EXP FACT FALSE FIND INT ISBLANK ISERR ISERROR
+    ISLOGICAL ISNA ISNONTEXT ISNUMBER ISTEXT LEFT LEN LN LOG10 LOWER MAX
+    MID MIN MOD NA ODD PI POWER PRODUCT PROPER RADIANS REPLACE REPT RIGHT
+    SIN SQRT STDEV STDEVP SUBSTITUTE SUM TAN TRIM TRUE TRUNC UPPER VAR
+    VARP /
 );
 
 =head1 EXPORTS
@@ -1187,66 +1133,6 @@ sub exact_function {
 
 }
 
-=head2 is_functions
-
-=over
-
-=item ISBLANK(value)
-
-=item ISERR(value)
-
-=item ISERROR(value)
-
-=item ISLOGICAL(value)
-
-=item ISNA(value)
-
-=item ISNONTEXT(value)
-
-=item ISNUMBER(value)
-
-=item ISTEXT(value)
-
-=back
-
-=cut
-
-sub is_functions {
-
-  my ($fname, $operand, $foperand, $errortext, $typelookup, $sheetdata) = @_;
-
-  my $tostype;
-  my $result     = 0;
-  my $resulttype = "nl";
-
-  my $value =
-    operand_value_and_type($sheetdata, $foperand, $errortext, \$tostype);
-
-  if ($fname eq "ISBLANK") {
-    $result = $tostype eq "b" ? 1 : 0;
-  } elsif ($fname eq "ISERR") {
-    $result =
-      substr($tostype, 0, 1) eq "e" ? ($tostype eq "e#N/A" ? 0 : 1) : 0;
-  } elsif ($fname eq "ISERROR") {
-    $result = substr($tostype, 0, 1) eq "e" ? 1 : 0;
-  } elsif ($fname eq "ISLOGICAL") {
-    $result = $tostype eq "nl" ? 1 : 0;
-  } elsif ($fname eq "ISNA") {
-    $result = $tostype eq "e#N/A" ? 1 : 0;
-  } elsif ($fname eq "ISNONTEXT") {
-    $result = substr($tostype, 0, 1) eq "t" ? 0 : 1;
-  } elsif ($fname eq "ISNUMBER") {
-    $result = substr($tostype, 0, 1) eq "n" ? 1 : 0;
-  } elsif ($fname eq "ISTEXT") {
-    $result = substr($tostype, 0, 1) eq "t" ? 1 : 0;
-  }
-
-  push @$operand, { type => $resulttype, value => $result };
-
-  return;
-
-}
-
 =head2 ntv_functions
 
 =over
@@ -1600,19 +1486,9 @@ sub columns_rows_function {
 
 =over
 
-=item ERRCELL()
-
-=item FALSE()
-
-=item NA()
-
 =item NOW()
 
-=item PI()
-
 =item TODAY()
-
-=item TRUE()
 
 =back
 
@@ -1625,14 +1501,7 @@ sub zeroarg_functions {
   my $result = 0;
   my $resulttype;
 
-  if ($fname eq "ERRCELL") {
-    $resulttype = "e#REF!";
-  } elsif ($fname eq "FALSE") {
-    $resulttype = "nl";
-    $result     = 0;
-  } elsif ($fname eq "NA") {
-    $resulttype = "e#N/A";
-  } elsif ($fname eq "NOW") {
+  if ($fname eq "NOW") {
     my $startval       = time();
     my $start_1_1_1970 =
       25569;    # Day number of 1/1/1970 starting with 1/1/1900 as 1
@@ -1647,9 +1516,6 @@ sub zeroarg_functions {
     $nowdays    = $start_1_1_1970 + $time2 / $seconds_in_a_day;
     $resulttype = "ndt";
     $result     = $nowdays;
-  } elsif ($fname eq "PI") {
-    $resulttype = "n";
-    $result     = $PI;
   } elsif ($fname eq "TODAY") {
     my $startval       = time();
     my $start_1_1_1970 =
@@ -1663,9 +1529,6 @@ sub zeroarg_functions {
     $nowdays    = $start_1_1_1970 + $time2 / $seconds_in_a_day;
     $resulttype = "nd";
     $result     = $nowdays;
-  } elsif ($fname eq "TRUE") {
-    $resulttype = "nl";
-    $result     = 1;
   }
 
   push @$operand, { type => $resulttype, value => $result };
@@ -2309,7 +2172,7 @@ All Rights Reserved.
 
 Portions (c) Copyright 2007, 2008 Tony Bowden
 
-=head1 LICENSE
+=head1 LICENCE
 
 The contents of this file are subject to the Artistic License 2.0;
 you may not use this file except in compliance with the License.

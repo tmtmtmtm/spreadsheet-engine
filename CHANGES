@@ -14,6 +14,27 @@ Copyright (c) 2006 OASIS 2006. All Rights Reserved.
 
 Changes from the Standard Version (SocialCalc 1.1.0) are detailed below:
 
+== v0.09 ==   (January 15, 2008)
+
+Summary: Further abstraction of functions
+
+ - Function/base.pm
+   -- Abstract execute() up and delegate to result() in subclasses
+   -- Add next_operand / next_operand_as_text/number
+     -- rewrite other classes to use these
+
+ - Function/*.pm
+   -- Extracted is.pm baseclass
+   -- Extracted functions ERRCELL(), FALSE(), ISBLANK(), ISERR(), 
+      ISERROR(), ISLOGICAL(), ISNA(), ISNONTEXT(), ISNUMBER(), ISTEXT(), 
+      NA(), PI(), TRUE()
+
+ - Functions.pm
+   -- simplify function delegation list
+
+ - Tests
+   -- add t/fn_args.t (and fix math/math2 argument checking)
+
 == v0.08 ==   (January 6, 2008)
 
 Summary: Pluggable math functions

@@ -1,36 +1,22 @@
-package Spreadsheet::Engine::Function::math;
+package Spreadsheet::Engine::Function::is;
 
 use strict;
 use warnings;
 
 use base 'Spreadsheet::Engine::Function::base';
 
-use Spreadsheet::Engine::Sheet qw/lookup_result_type/;
-
-use constant PI => atan2(1, 1) * 4;
-
 sub argument_count { 1 }
 
 sub result {
   my $self = shift;
 
-  my $op = $self->next_operand_as_number;
+  my $op = $self->next_operand;
 
-  my $result_type =
-    lookup_result_type($op->{type}, $op->{type},
-    $self->typelookup->{oneargnumeric});
+  my $full   = $op->{type};
+  my $major  = substr($full, 0, 1);
+  my $result = $self->calculate($major, $full) ? 1 : 0;
 
-  my $result =
-    $result_type eq 'n'
-    ? eval { $self->calculate($op->{value}) }
-    : 0;
-
-  if ($@) {
-    $result      = $@;
-    $result_type = 'e#NUM!';
-  }
-
-  return { type => $result_type, value => $result };
+  return { type => 'nl', value => $result };
 
 }
 
@@ -40,29 +26,26 @@ __END__
 
 =head1 NAME
 
-Spreadsheet::Engine::Function::math - base class for math functions
+Spreadsheet::Engine::Function::is - base class for IS functions
 
 =head1 SYNOPSIS
 
-  use base 'Spreadsheet::Engine::Function::math';
+  use base 'Spreadsheet::Engine::Function::is';
 
   sub calculate { ... }
 
 =head1 DESCRIPTION
 
 This provides a base class for spreadsheet functions that perform
+IS checks (ISBLANK(), ISERR()) etc.
 mathematical functions on a single argument (ABS(), SIN(), SQRT() etc).
-
-Subclasses should provide 'calculate' function that will be called with 
-the argument provided.
 
 =head1 INSTANCE METHODS
 
 =head2 calculate
 
-Subclasses should provide this as the workhorse. It should either return
-the result, or die with an error message (that will be trapped and
-turned into a e#NUM! error).
+Subclasses should provide 'calculate' function that will be called with 
+the major type and the full type of the referenced value.
 
 =head1 HISTORY
 

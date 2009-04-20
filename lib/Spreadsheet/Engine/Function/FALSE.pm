@@ -1,14 +1,18 @@
-package Spreadsheet::Engine::Function::STDEVP;
+package Spreadsheet::Engine::Function::FALSE;
 
 use strict;
 use warnings;
 
-use base 'Spreadsheet::Engine::Function::VARP';
+use base 'Spreadsheet::Engine::Function::base';
 
-sub result_from {
-  my ($self, $A) = @_;
-  return [ 0, 'e#DIV/0!' ] unless $A->{count} > 1;
-  return sqrt $self->SUPER::result_from($A);
+sub argument_count { 0 }
+
+sub result {
+  my $self = shift;
+  return {
+    type  => 'nl',
+    value => 0,
+  };
 }
 
 1;
@@ -17,24 +21,15 @@ __END__
 
 =head1 NAME
 
-Spreadsheet::Engine::Function::STDEVP - Spreadsheet funtion STDEVP()
+Spreadsheet::Engine::Function::FALSE - Spreadsheet funtion FALSE()
 
 =head1 SYNOPSIS
 
-  =STDEVP(list_of_numbers)
+  =FALSE()
 
 =head1 DESCRIPTION
 
-This provides the spreadsheet text funtion STDEVP()
-
-=head2 calculate
-
-This returns the standard deviation.
-
-=head2 result
-
-We calculate as per Knuth "The Art of Computer Programming" Vol. 2
-3rd edition, page 232
+This returns FALSE
 
 =head1 HISTORY
 
@@ -49,7 +44,7 @@ All Rights Reserved.
 Portions (c) Copyright 2007 Socialtext, Inc.
 All Rights Reserved.
 
-Portions (c) Copyright 2007 Tony Bowden
+Portions (c) Copyright 2008 Tony Bowden
 
 =head1 LICENCE
 

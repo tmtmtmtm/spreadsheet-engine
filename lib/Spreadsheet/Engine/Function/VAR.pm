@@ -20,7 +20,7 @@ sub calculate {
   };
 }
 
-sub result {
+sub result_from {
   my ($self, $A) = @_;
   return [ 0, 'e#DIV/0!' ] unless $A->{count} > 1;
   return $A->{sk} / ($A->{count} - 1);

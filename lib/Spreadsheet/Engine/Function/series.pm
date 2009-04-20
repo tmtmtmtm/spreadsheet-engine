@@ -3,13 +3,13 @@ package Spreadsheet::Engine::Function::series;
 use strict;
 use warnings;
 
-use Spreadsheet::Engine::Sheet qw/lookup_result_type operand_value_and_type/;
+use Spreadsheet::Engine::Sheet qw/lookup_result_type/;
 
 use base 'Spreadsheet::Engine::Function::base';
 
 sub argument_count { -1 }
 
-sub execute {
+sub result {
   my $self = shift;
 
   my $type = '';
@@ -17,39 +17,33 @@ sub execute {
   my $calculator  = $self->calculate;
   my $accumulator = $self->accumulator;
 
-  return unless defined(my $foperand = $self->foperand);
+  my $foperand = $self->foperand;
   while (@{$foperand}) {
-    my $value =
-      operand_value_and_type($self->sheetdata, $foperand, $self->errortext,
-      \my $tostype);
+    my $op = $self->next_operand;
 
-    if (substr($tostype, 0, 1) eq 'n') {
-      $accumulator =
-        $calculator->({ value => $value, type => $tostype }, $accumulator);
+    if (substr($op->{type}, 0, 1) eq 'n') {
+      $accumulator = $calculator->($op, $accumulator);
 
       $type = lookup_result_type(
-        $tostype,
-        $type || $tostype,
+        $op->{type},
+        $type || $op->{type},
         $self->typelookup->{plus}
       );
 
-    } elsif (substr($tostype, 0, 1) eq 'e' && substr($type, 0, 1) ne 'e') {
-      $type = $tostype;
+    } elsif (substr($op->{type}, 0, 1) eq 'e' && substr($type, 0, 1) ne 'e') {
+      $type = $op->{type};
     }
   }
 
-  my $operand = $self->operand;
-  my $result = $self->result($accumulator) || 0;
+  my $result = $self->result_from($accumulator) || 0;
   ($result, $type) = @{$result} if ref $result eq 'ARRAY';
 
-  push @{$operand}, { type => $type || 'n', value => $result };
-
-  return;
+  return { type => $type || 'n', value => $result };
 }
 
 sub accumulator { undef }
 
-sub result {
+sub result_from {
   my ($self, $accumulator) = @_;
   return $accumulator;
 }
@@ -85,13 +79,6 @@ of values to a single number, such as SUM(), MIN(), MAX() etc.
 
 By default all such functions take one or more argument.
 
-=head2 execute 
-
-This takes care of fetching the values from the list one at a time, and
-then applies the sub provided by a subclass's 'calculate' method to each
-in turn. For examples have a look at how SUM(), AVERAGE() etc are
-implemented.
-
 =head2 result_type
 
 This usualy depends on the types of the arguments passed. See the
@@ -109,7 +96,7 @@ accumulator, and returns the new value for the accumulator.
 This should provide the initial accumulator value. The default is to
 set it to undef. 
 
-=head2 result
+=head2 result_from($accumulator)
 
 Calculate the result based on the accumulator. The default is that the
 result is whatever value is in the accumulator. Functions such as

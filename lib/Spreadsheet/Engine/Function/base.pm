@@ -3,7 +3,10 @@ package Spreadsheet::Engine::Function::base;
 use strict;
 use warnings;
 
-use Spreadsheet::Engine::Sheet qw/copy_function_args function_args_error/;
+use Spreadsheet::Engine::Sheet qw/
+  copy_function_args function_args_error
+  operand_value_and_type operand_as_number operand_as_text
+  /;
 
 use Class::Struct;
 
@@ -17,6 +20,30 @@ struct(__PACKAGE__,
   }
 );
 
+sub execute {
+  my $self = shift;
+
+  my $result = eval {
+
+    # make sure we check args even for functions that don't need any
+    # TODO rearrange this logic
+    my @foperand = $self->foperand;
+    $self->result;
+  };
+
+  # TODO: harmonise this
+  if ($@) {
+    die $@ unless ref $@ eq 'HASH';
+    $result->{value} = $@->{message};
+    $result->{type}  = $@->{type};
+  }
+
+  push @{ $self->operand },
+    { type => $result->{type}, value => $result->{value} }
+    if $result;
+  return;
+}
+
 sub argument_count { undef }
 
 sub foperand {
@@ -25,17 +52,43 @@ sub foperand {
 
   copy_function_args($self->operand, \my @foperand);
 
-  my $want_args = $self->argument_count;
-  return ($self->{_foperand} = \@foperand) unless defined $want_args;
-
-  my $have_args = scalar @foperand;
-  if ( ($want_args < 0 and $have_args < -$want_args)
-    or ($want_args >= 0 and $have_args != $want_args)) {
-    function_args_error($self->fname, $self->operand, $self->errortext);
-    return ($self->{_foperand} = undef);
+  if (defined(my $want_args = $self->argument_count)) {
+    my $have_args = scalar @foperand;
+    if ( ($want_args < 0 and $have_args < -$want_args)
+      or ($want_args >= 0 and $have_args != $want_args)) {
+      die {
+        type    => 'e#VALUE!',
+        message =>
+          sprintf('Incorrect arguments to function "%s". ', $self->fname),
+      };
+    }
   }
 
   return ($self->{_foperand} = \@foperand);
+}
+
+sub next_operand {
+  my $self  = shift;
+  my $value =
+    operand_value_and_type($self->sheetdata, $self->foperand,
+    $self->errortext, \my $tostype);
+  return { value => $value, type => $tostype };
+}
+
+sub next_operand_as_number {
+  my $self  = shift;
+  my $value =
+    operand_as_number($self->sheetdata, $self->foperand, $self->errortext,
+    \my $tostype);
+  return { value => $value, type => $tostype };
+}
+
+sub next_operand_as_text {
+  my $self  = shift;
+  my $value =
+    operand_as_text($self->sheetdata, $self->foperand, $self->errortext,
+    \my $tostype);
+  return { value => $value, type => $tostype };
 }
 
 1;
@@ -80,6 +133,27 @@ arguments, or a negative integer for at least that many arguments (based
 on the absolute value). If this method is not provided no checking of
 arguments is performed.
 
+=head2 result
+
+Functions should provide a result() method that will return a value/type
+hash containing the calculated response.
+
+=head1 METHODS
+
+=head2 execute
+
+This delegates to the response() method in the subclass, and pushes the
+response onto the stack. 
+
+=head2 next_operand / next_operand_as_text / next_operand_as_number
+
+	my $op = $self->next_operand
+	print $op->{value} => $op->{type};
+
+Pops the top of the operand stack and returns a hash containing the
+value and type. (This is currently a simple delegation to
+Sheet::operand_value_and_type/operand_as_text/operand_as_number
+
 =head1 HISTORY
 
 This is a Modified Version of code extracted from SocialCalc::Functions
@@ -93,7 +167,7 @@ All Rights Reserved.
 Portions (c) Copyright 2007 Socialtext, Inc.
 All Rights Reserved.
 
-Portions (c) Copyright 2007 Tony Bowden
+Portions (c) Copyright 2007, 2008 Tony Bowden
 
 =head1 LICENCE
 
