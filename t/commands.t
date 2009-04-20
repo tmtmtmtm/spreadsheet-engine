@@ -6,14 +6,14 @@ use lib 'lib';
 use_ok 'Spreadsheet::Engine::Sheet';
 
 my $sheet = {};
-parse_sheet_save( [] => $sheet );
+parse_sheet_save([] => $sheet);
 
-chomp( my @cmds = <DATA> );
+chomp(my @cmds = <DATA>);
 foreach my $cmd (@cmds) {
-    execute_sheet_command( $sheet => $cmd ) if $cmd =~ /^(set|name)/;
-    recalc_sheet($sheet) if $cmd eq 'recalc';
-    is( $sheet->{datavalues}{$1}, $2, "$1 = $2" )
-      if $cmd =~ /^test\s+(\w+)\s+(.*?)$/;
+  execute_sheet_command($sheet => $cmd) if $cmd =~ /^(set|name)/;
+  recalc_sheet($sheet) if $cmd eq 'recalc';
+  is($sheet->{datavalues}{$1}, $2, "$1 = $2")
+    if $cmd =~ /^test\s+(\w+)\s+(.*?)$/;
 }
 
 __DATA__
@@ -26,6 +26,7 @@ name define myrange A1:A3
 set A6 formula PRODUCT(myrange)
 set A7 formula MIN(myrange)
 set A8 formula MAX(myrange)
+set A9 formula SUMIF(myrange, ">2", myrange)
 recalc
 test A3 4
 test A4 9
@@ -33,4 +34,5 @@ test A5 3
 test A6 24
 test A7 2
 test A8 4
+test A9 7
 

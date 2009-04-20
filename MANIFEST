@@ -9,6 +9,10 @@ MANIFEST.SKIP
 README
 t/98-pod.t
 t/99-podc.t
+t/circular.t
 t/commands.t
+t/copypaste.t
+t/dsum.t
 t/formatting.t
+t/header.t
 META.yml                                 Module meta-data (added by MakeMaker)

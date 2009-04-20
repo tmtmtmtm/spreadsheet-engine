@@ -16,11 +16,10 @@ etc).
 =cut
 
 use strict;
-# use CGI qw(:standard);
 use utf8;
 
 use Spreadsheet::Engine::Sheet; # bah!
-use Time::Local;
+use Time::Local; # For timegm in NOW and TODAY
 
 use base 'Exporter';
 our @EXPORT = qw(calculate_function);
@@ -411,7 +410,7 @@ sub series_functions {
 sub dseries_functions {
 
    my ($fname, $operand, $foperand, $errortext, $typelookup, $sheetdata) = @_;
-
+ 
    my ($value1, $tostype, $cr);
 
    my $sum = 0;
@@ -426,14 +425,14 @@ sub dseries_functions {
                               # as per Knuth "The Art of Computer Programming" Vol. 2 3rd edition, page 232
 
    my ($dbrange, $dbrangetype) = top_of_stack_value_and_type($sheetdata, $foperand, $errortext);
-   my ($fieldname, $fieldtype);
-   $fieldname = operand_value_and_type($sheetdata, $foperand, $errortext, \$fieldtype);
+   my $fieldtype;
+   my $fieldname = operand_value_and_type($sheetdata, $foperand, $errortext, \$fieldtype);
    my ($criteriarange, $criteriarangetype) = top_of_stack_value_and_type($sheetdata, $foperand, $errortext);
 
    if ($dbrangetype ne "range" || $criteriarangetype ne "range") {
       function_args_error($fname, $operand, $errortext);
       return 0;
-      }
+   }
 
 
    my ($dbsheetdata, $dbcol1num, $ndbcols, $dbrow1num, $ndbrows) = decode_range_parts($sheetdata, $dbrange, $dbrangetype);
@@ -444,14 +443,14 @@ sub dseries_functions {
    if ($fieldasnum <= 0) {
       push @$operand, {type => "e#VALUE!", value => 0};
       return;
-      }
+   }
 
    my $targetcol = $dbcol1num + $fieldasnum - 1;
 
-   my (@criteriafieldnums, $criteriacr, $criteriafieldname, $criteriafieldtype, $criterianum);
+   my (@criteriafieldnums, $criteriafieldname, $criteriafieldtype, $criterianum);
 
    for (my $i=0; $i<$ncriteriacols; $i++) { # get criteria field colnums
-      $criteriacr = cr_to_coord($criteriacol1num+$i, $criteriarow1num);
+      my $criteriacr = cr_to_coord($criteriacol1num+$i, $criteriarow1num);
       $criteriafieldname = $criteriasheetdata->{datavalues}->{$criteriacr};
       $criteriafieldtype = $criteriasheetdata->{valuetypes}->{$criteriacr};
       $criterianum = field_to_colnum($dbsheetdata, $dbcol1num, $ndbcols, $dbrow1num, $criteriafieldname, $criteriafieldtype);
@@ -459,18 +458,18 @@ sub dseries_functions {
       if ($criterianum <= 0) {
          push @$operand, {type => "e#VALUE!", value => 0};
          return;
-         }
-      push @criteriafieldnums, $dbcol1num + $criterianum - 1;
       }
+      push @criteriafieldnums, $dbcol1num + $criterianum - 1;
+   }
 
-   my ($testok, $criteriacr, $criteria, $testcol, $testcr);
+   my ($testok, $criteria, $testcol, $testcr);
 
    for (my $i=1; $i<$ndbrows; $i++) { # go through each row of the database
       $testok = 0;
 CRITERIAROW:
       for (my $j=1; $j<$ncriteriarows; $j++) { # go through each criteria row
          for (my $k=0; $k<$ncriteriacols; $k++) { # look at each column
-            $criteriacr = cr_to_coord($criteriacol1num+$k, $criteriarow1num+$j); # where criteria is
+            my $criteriacr = cr_to_coord($criteriacol1num+$k, $criteriarow1num+$j); # where criteria is
             $criteria = $criteriasheetdata->{datavalues}->{$criteriacr};
             next unless $criteria; # blank items are OK
             $testcol = $criteriasheetdata->{datavalues}->{cr_to_coord($criteriacol1num+$k,$criteriarow1num)};
@@ -479,10 +478,10 @@ CRITERIAROW:
             next CRITERIAROW unless test_criteria($criteriasheetdata->{datavalues}->{$testcr},
                                                   ($criteriasheetdata->{valuetypes}->{$testcr} || "b"),
                                                   $criteria);
-            }
+         }
          $testok = 1;
          last CRITERIAROW;
-         }
+      }
       next unless $testok;
 
       $cr = cr_to_coord($targetcol, $dbrow1num + $i); # get cell of this row to do the function on
@@ -491,7 +490,7 @@ CRITERIAROW:
       $tostype ||= "b";
       if ($tostype eq "b") { # blank
          $value1 = 0;
-         }
+      }
 
       $count += 1 if substr($tostype,0,1) eq "n";
       $counta += 1 if substr($tostype,0,1) ne "b";
@@ -505,91 +504,91 @@ CRITERIAROW:
          if ($count eq 1) { # initialize with with first values for variance used in STDEV, VAR, etc.
             $mk1 = $value1;
             $sk1 = 0;
-            }
+         }
          else { # Accumulate S sub 1 through n as per Knuth noted above
             $mk = $mk1 + ($value1 - $mk1) / $count;
             $sk = $sk1 + ($value1 - $mk1) * ($value1 - $mk);
             $sk1 = $sk;
             $mk1 = $mk;
-            }
-         $resulttypesum = lookup_result_type($tostype, $resulttypesum || $tostype, $typelookup->{plus});
          }
+         $resulttypesum = lookup_result_type($tostype, $resulttypesum || $tostype, $typelookup->{plus});
+      }
       elsif (substr($tostype,0,1) eq "e" && substr($resulttypesum,0,1) ne "e") {
          $resulttypesum = $tostype;
-         }
       }
+   }
 
    $resulttypesum ||= "n";
 
    if ($fname eq "DSUM") {
       push @$operand, {type => $resulttypesum, value => $sum};
-      }
+   }
    elsif ($fname eq "DPRODUCT") { # may handle cases with text differently than some other spreadsheets
       push @$operand, {type => $resulttypesum, value => $product};
-      }
+   }
    elsif ($fname eq "DMIN") {
       push @$operand, {type => $resulttypesum, value => ($minval || 0)};
-      }
+   }
    elsif ($fname eq "DMAX") {
       push @$operand, {type => $resulttypesum, value => ($maxval || 0)};
-      }
+   }
    elsif ($fname eq "DCOUNT") {
       push @$operand, {type => "n", value => $count};
-      }
+   }
    elsif ($fname eq "DCOUNTA") {
       push @$operand, {type => "n", value => $counta};
-      }
+   }
    elsif ($fname eq "DAVERAGE") {
       if ($count > 0) {
          push @$operand, {type => $resulttypesum, value => ($sum / $count)};
-         }
+      }
       else {
          push @$operand, {type => "e#DIV/0!", value => 0};
-         }
       }
+   }
    elsif ($fname eq "DSTDEV") {
       if ($count > 1) {
          push @$operand, {type => $resulttypesum, value => (sqrt($sk / ($count - 1)))};
-         }
+      }
       else {
          push @$operand, {type => "e#DIV/0!", value => 0};
-         }
       }
+   }
    elsif ($fname eq "DSTDEVP") {
       if ($count > 1) {
          push @$operand, {type => $resulttypesum, value => (sqrt($sk / $count))};
-         }
+      }
       else {
          push @$operand, {type => "e#DIV/0!", value => 0};
-         }
       }
+   }
    elsif ($fname eq "DVAR") {
       if ($count > 1) {
          push @$operand, {type => $resulttypesum, value => ($sk / ($count - 1))};
-         }
+      }
       else {
          push @$operand, {type => "e#DIV/0!", value => 0};
-         }
       }
+   }
    elsif ($fname eq "DVARP") {
       if ($count > 1) {
          push @$operand, {type => $resulttypesum, value => ($sk / $count)};
-         }
+      }
       else {
          push @$operand, {type => "e#DIV/0!", value => 0};
-         }
       }
+   }
    elsif ($fname eq "DGET") {
       if ($count == 1) {
          push @$operand, {type => $resulttypesum, value => $sum};
-         }
+      }
       elsif ($count == 0) {
          push @$operand, {type => "e#VALUE!", value => 0};
-         }
+      }
       else {
          push @$operand, {type => "e#NUM!", value => 0};
-         }
       }
+   }
 
    return;
 }
@@ -897,47 +896,46 @@ sub countif_sumif_functions {
 
    my ($fname, $operand, $foperand, $errortext, $typelookup, $sheetdata) = @_;
 
-   my ($value1, $tostype, $value2, $tostype2, $criteriavalue, $criteriatype, $sumrangevalue, $sumrangetype);
+   my ( $tostype, $tostype2, $sumrangevalue, $sumrangetype);
 
    my ($rangevalue, $rangetype) = top_of_stack_value_and_type($sheetdata, $foperand, $errortext); # get range or coord
    my ($criteriavalue, $criteriatype) = operand_as_text($sheetdata, $foperand, $errortext, \$tostype); # get criteria
    if ($fname eq "SUMIF") {
       if ((scalar @$foperand) == 1) { # three arg form of SUMIF
          ($sumrangevalue, $sumrangetype) = top_of_stack_value_and_type($sheetdata, $foperand, $errortext);
-         }
+      }
       elsif ((scalar @$foperand) == 0) { # two arg form
          $sumrangevalue = $rangevalue;
          $sumrangetype = $rangetype;
-         }
+      }
       else {
          function_args_error($fname, $operand, $errortext);
          return 0;
-         }
       }
+   }
    else {
       $sumrangevalue = $rangevalue;
       $sumrangetype = $rangetype;
-      }
+   }
 
-   if (substr($criteriatype,0,1) eq "n") {
+	 my $ct = substr($criteriatype || '',0,1) || '';
+   if ($ct eq "n") {
       $criteriavalue = "$criteriavalue";
-      }
-   elsif (substr($criteriatype,0,1) eq "e") { # error
+   } elsif ($ct eq "e") { # error
       undef $criteriavalue;
-      }
-   elsif (substr($criteriatype,0,1) eq "b") { # blank here is undefined
+   } elsif ($ct eq "b") { # blank here is undefined
       undef $criteriavalue;
-      }
+   }
 
    if ($rangetype ne "coord" && $rangetype ne "range") {
       function_args_error($fname, $operand, $errortext);
       return 0;
-      }
+   }
 
    if ($fname eq "SUMIF" && $sumrangetype ne "coord" && $sumrangetype ne "range") {
       function_args_error($fname, $operand, $errortext);
       return 0;
-      }
+   }
 
    push @$foperand, {type => $rangetype, value => $rangevalue};
    my @f2operand; # to allow for 3 arg form
@@ -948,8 +946,8 @@ sub countif_sumif_functions {
    my $count = 0;
 
    while (@$foperand) {
-      $value1 = operand_value_and_type($sheetdata, $foperand, $errortext, \$tostype);
-      $value2 = operand_value_and_type($sheetdata, \@f2operand, $errortext, \$tostype2);
+      my $value1 = operand_value_and_type($sheetdata, $foperand, $errortext, \$tostype);
+      my $value2 = operand_value_and_type($sheetdata, \@f2operand, $errortext, \$tostype2);
 
       next unless test_criteria($value1, $tostype, $criteriavalue);
 
@@ -958,20 +956,19 @@ sub countif_sumif_functions {
       if (substr($tostype2,0,1) eq "n") {
          $sum += $value2;
          $resulttypesum = lookup_result_type($tostype2, $resulttypesum || $tostype2, $typelookup->{plus});
-         }
+      }
       elsif (substr($tostype2,0,1) eq "e" && substr($resulttypesum,0,1) ne "e") {
          $resulttypesum = $tostype2;
-         }
       }
+   }
 
    $resulttypesum ||= "n";
 
    if ($fname eq "SUMIF") {
       push @$operand, {type => $resulttypesum, value => $sum};
-      }
-   elsif ($fname eq "COUNTIF") {
+   } elsif ($fname eq "COUNTIF") {
       push @$operand, {type => "n", value => $count};
-      }
+   }
 
    return;
 

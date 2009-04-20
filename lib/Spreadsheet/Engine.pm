@@ -2,7 +2,7 @@ package Spreadsheet::Engine;
 
 use strict;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 1;
 
@@ -15,15 +15,15 @@ Spreadsheet::Engine - Core calculation engine for a spreadsheet
 =head1 SYNOPSIS
 
   use Spreadsheet::Engine::Sheet;
-	
-	my $sheet = {};
-	parse_sheet_save( [] => $sheet );
+  
+  my $sheet = {};
+  parse_sheet_save( [] => $sheet );
 
-	execute_sheet_command($sheet => 'set A1 value n 2');
-	execute_sheet_command($sheet => 'set A2 value n 4');
-	execute_sheet_command($sheet => 'set A3 formula SUM(A1:A2)');
-	recalc_sheet($sheet);
-	print $sheet->{datavalues}{A3}; # 6
+  execute_sheet_command($sheet => 'set A1 value n 2');
+  execute_sheet_command($sheet => 'set A2 value n 4');
+  execute_sheet_command($sheet => 'set A3 formula SUM(A1:A2)');
+  recalc_sheet($sheet);
+  print $sheet->{datavalues}{A3}; # 6
 
 =head1 DESCRIPTION
 

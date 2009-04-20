@@ -28,10 +28,7 @@ in future releases.
 =cut
 
 use strict;
-# use CGI qw(:standard);
 use utf8;
-
-use Time::Local;
 
 require Exporter;
 our @ISA = qw(Exporter);
@@ -410,14 +407,9 @@ The resulting $sheetdata data structure is as follows:
 
 sub parse_sheet_save {
 
-   my ($rest, $linetype, $coord, $type, $value, $valuetype, $formula, $style, $namename, $namedesc, $fontnum, $layoutnum, $colornum, $check, $maxrow, $maxcol, $row, $col);
-
    my ($lines, $sheetdata) = @_;
 
-   my $errortext;
-
    # Initialize sheetdata structure
-
    $sheetdata->{datavalues} = {};
    $sheetdata->{datatypes} = {};
    $sheetdata->{valuetypes} = {};
@@ -466,18 +458,20 @@ sub parse_sheet_save {
    my $valueformats = $sheetdata->{valueformats};
    my $valueformathash = $sheetdata->{valueformathash};
 
-   my $clipdatavalues;
-   my $clipdatatypes;
-   my $clipvaluetypes;
-   my $clipdataformulas;
-   my $clipcellerrors;
-   my $clipcellattribs;
+	 my ($coord, $type, $rest);
+   my ($linetype, $value, $valuetype, $formula, $style, $namename, $namedesc);
+	 my ($fontnum, $layoutnum, $colornum, $check,  $row, $col);
+   my $errortext;
+   my ($clipdatavalues, $clipdatatypes, $clipvaluetypes, $clipdataformulas, $clipcellerrors, $clipcellattribs);
+	 my ($maxcol, $maxrow) = (0, 0);
 
    foreach my $line (@$lines) {
       chomp $line;
       $line =~ s/\r//g;
 # assumed already done in read. #      $line =~ s/^\x{EF}\x{BB}\x{BF}//; # remove UTF-8 Byte Order Mark if present
-      ($linetype, $rest) = split(/:/, $line, 2);
+      my ($linetype, $rest) = split(/:/, $line, 2);
+      next unless $linetype;
+
       if ($linetype eq "cell") {
          ($coord, $type, $rest) = split(/:/, $rest, 3);
          $coord = uc($coord);
@@ -1132,9 +1126,10 @@ sub execute_sheet_command {
    my $valueformats = $sheetdata->{valueformats};
    my $valueformathash = $sheetdata->{valueformathash};
 
-   my ($cmd1, $rest, $what, $coord1, $coord2, $attrib, $name, $value, $v1, $v2, $v3, $errortext);
+   my ($what, $coord1, $coord2, $attrib, $name, $value, $v1, $v2, $v3, $errortext);
 
-   ($cmd1, $rest) = split(/ /, $command, 2);
+   my ($cmd1, $rest) = split(/ /, $command, 2);
+   return unless $cmd1;
 
    if ($cmd1 eq "set") {
       ($what, $attrib, $rest) = split(/ /, $rest, 3);
@@ -1529,7 +1524,7 @@ sub execute_sheet_command {
          for (my $r = $r1; $r <= $r2; $r++) {
             for (my $c = $c1; $c <= $c2; $c++) {
                my $cr = cr_to_coord($c, $r);
-               $clipcellattribs->{$cr}->{'coord' => $cr}; # make sure something (used for save)
+               $clipcellattribs->{$cr}->{'coord' => $cr} = ''; # make sure something (used for save)
                if ($rest eq "all" || $rest eq "formats") {
                   foreach my $attribtype (keys %{$cellattribs->{$cr}}) {
                      $clipcellattribs->{$cr}->{$attribtype} = $cellattribs->{$cr}->{$attribtype};
@@ -1638,7 +1633,7 @@ sub execute_sheet_command {
             for (my $c = $c1; $c <= $c2; $c++) {
                my $cr = cr_to_coord($c, $r);
                next if !$cellattribs->{$cr}->{coord}; # don't copy blank cells
-               $sortcellattribs->{$cr}->{'coord' => $cr};
+               $sortcellattribs->{$cr}->{'coord' => $cr} = '';
                foreach my $attribtype (keys %{$cellattribs->{$cr}}) {
                   $sortcellattribs->{$cr}->{$attribtype} = $cellattribs->{$cr}->{$attribtype};
                }
@@ -2041,7 +2036,7 @@ sub execute_sheet_command {
    else {
       $errortext = "Unknown command '$cmd1' in line:\n$command\n";
       return 0;
-      }
+   }
 
    return $command;
 }
@@ -2055,22 +2050,17 @@ Recalculates the entire spreadsheet
 =cut
 
 sub recalc_sheet {
+  my $Sheet = shift;
 
-   my $sheetdata = shift @_;
+  $Sheet->{checked} = {};
+  delete $Sheet->{sheetattribs}->{circularreferencecell};
 
-   my $dataformulas = $sheetdata->{formulas};
+  foreach my $coord (keys %{$Sheet->{formulas}}) {
+    my $err = check_and_calc_cell($Sheet, $coord) if $coord
+  }
 
-   $sheetdata->{checked} = {};
-   delete $sheetdata->{sheetattribs}->{circularreferencecell};
-
-   foreach my $coord (keys %$dataformulas) {
-      next unless $coord;
-      my $err = check_and_calc_cell($sheetdata, $coord);
-   }
-
-   delete $sheetdata->{checked}; # save memory and clear out for name lookup formula evaluation
-
-   delete $sheetdata->{sheetattribs}->{needsrecalc}; # remember recalc done
+  delete $Sheet->{checked}; # save memory and clear out for name lookup formula evaluation
+  delete $Sheet->{sheetattribs}->{needsrecalc}; # remember recalc done
 }
 
 =head2 parse_header_save
@@ -2102,26 +2092,21 @@ Fills in %headerdata:
 =cut
 
 sub parse_header_save {
+  my ($lines, $headerdata) = @_;
+  foreach my $line (@$lines) {
+    chomp $line;
+    $line =~ s/\r//g;
+    my ($linetype, $rest) = split(/:/, $line, 2);
+    next if !$linetype or $linetype =~ /^#/ or $linetype !~ /\S/;
 
-   my ($lines, $headerdata) = @_;
+    if ($linetype eq 'edit') { 
+      push @{$headerdata->{editlog}}, decode_from_save($rest);
+    } else { 
+      $headerdata->{$linetype} = decode_from_save($rest);
+    }
+  }
 
-   my ($rest, $linetype, $name, $type, $type2, $rest, $value);
-
-   foreach my $line (@$lines) {
-      chomp $line;
-      $line =~ s/\r//g;
-# assume already done #      $line =~ s/^\x{EF}\x{BB}\x{BF}//; # remove UTF-8 Byte Order Mark if present
-      ($linetype, $rest) = split(/:/, $line, 2);
-      if ($linetype eq "edit") {
-         $headerdata->{editlog} ||= ();
-         push @{$headerdata->{editlog}}, decode_from_save($rest);
-      }
-      else {
-         $headerdata->{$linetype} = decode_from_save($rest) if ($linetype && $linetype !~ m/^#/);
-      }
-   }
-
-   return "";
+  return "";
 }
 
 =head2 create_header_save
@@ -2763,15 +2748,17 @@ sub decode_from_save {
    return $string;
 }
 
-=head2 special_chars
+=head2 html_escape / special_chars
 
-  my $estring = special_chars($string)
+  my $estring = html_escape($string)
 
-Returns $estring where &, <, >, " are HTML escaped
+Returns $estring where &, <, >, " are HTML escaped.
+
+This used to be known as special_chars() but that usage is deprecated.
 
 =cut
 
-sub special_chars {
+sub html_escape {
    my $string = shift @_;
    $string =~ s/&/&amp;/g;
    $string =~ s/</&lt;/g;
@@ -2779,6 +2766,7 @@ sub special_chars {
    $string =~ s/"/&quot;/g;
    return $string;
 }
+*special_chars = \&html_escape;
 
 =head2 special_chars_nl
 
@@ -2920,21 +2908,16 @@ sub adjust_formula_coords {
 =cut
 
 sub format_value_for_display {
-
    my ($sheetdata, $value, $cr, $linkstyle) = @_;
 
-   my ($valueformat, $has_parens, $has_commas, $valuetype, $valuesubtype);
-
    # Get references to the parts
-
-   my $datavalues = $sheetdata->{datavalues};
-   my $valuetypes = $sheetdata->{valuetypes};
-   my $cellerrors = $sheetdata->{cellerrors};
-   my $cellattribs = $sheetdata->{cellattribs};
+   my $datavalues   = $sheetdata->{datavalues};
+   my $valuetypes   = $sheetdata->{valuetypes};
+   my $cellerrors   = $sheetdata->{cellerrors};
+   my $cellattribs  = $sheetdata->{cellattribs};
    my $sheetattribs = $sheetdata->{sheetattribs};
    my $valueformats = $sheetdata->{valueformats};
-
-   my $datatypes = $sheetdata->{datatypes};
+   my $datatypes    = $sheetdata->{datatypes};
    my $dataformulas = $sheetdata->{formulas};
 
    my $displayvalue = $value;
@@ -2945,67 +2928,62 @@ sub format_value_for_display {
 
    if ($cellerrors->{$cr}) {
      # TODO check this, now that expand_markup no longer exists
-     $displayvalue = $cellerrors->{$cr} || $valuesubtype || "Error in cell";
      # $displayvalue = expand_markup($cellerrors->{$cr}, $sheetdata, $linkstyle) || $valuesubtype || "Error in cell";
-      return $displayvalue;
-      }
+     $displayvalue = $cellerrors->{$cr} || $valuesubtype || "Error in cell";
+     return $displayvalue;
+   }
 
    if ($valuetype eq "t") {
-      $valueformat = $valueformats->[($cellattribs->{$cr}->{textvalueformat} || $sheetattribs->{defaulttextvalueformat})] || "";
+      my $valueformat = $valueformats->[($cellattribs->{$cr}->{textvalueformat} || $sheetattribs->{defaulttextvalueformat})] || "";
       if ($valueformat eq "formula") {
          if ($datatypes->{$cr} eq "f") {
-            $displayvalue = special_chars("=$dataformulas->{$cr}") || "&nbsp;";
-            }
-         elsif ($datatypes->{$cr} eq "c") {
-            $displayvalue = special_chars("'$dataformulas->{$cr}") || "&nbsp;";
-            }
-         else {
-            $displayvalue = special_chars("'$displayvalue") || "&nbsp;";
-            }
-         return $displayvalue;
+            $displayvalue = html_escape("=$dataformulas->{$cr}") || "&nbsp;";
+         } elsif ($datatypes->{$cr} eq "c") {
+            $displayvalue = html_escape("'$dataformulas->{$cr}") || "&nbsp;";
+         } else {
+            $displayvalue = html_escape("'$displayvalue") || "&nbsp;";
          }
-      $displayvalue = format_text_for_display($displayvalue, $valuetypes->{$cr}, $valueformat, $sheetdata, $linkstyle);
+         return $displayvalue;
       }
+      $displayvalue = format_text_for_display($displayvalue, $valuetypes->{$cr}, $valueformat, $sheetdata, $linkstyle);
+   }
 
    elsif ($valuetype eq "n") {
-      $valueformat = $cellattribs->{$cr}->{nontextvalueformat};
+      my $valueformat = $cellattribs->{$cr}->{nontextvalueformat};
       if (length($valueformat) == 0) { # "0" is a legal value format
          $valueformat = $sheetattribs->{defaultnontextvalueformat};
-         }
+      }
       $valueformat = $valueformats->[$valueformat];
       if (length($valueformat) == 0) {
          $valueformat = "";
-         }
+      }
       $valueformat = "" if $valueformat eq "none";
       if ($valueformat eq "formula") {
          if ($datatypes->{$cr} eq "f") {
-            $displayvalue = special_chars("=$dataformulas->{$cr}") || "&nbsp;";
-            }
-         elsif ($datatypes->{$cr} eq "c") {
-            $displayvalue = special_chars("'$dataformulas->{$cr}") || "&nbsp;";
-            }
-         else {
-            $displayvalue = special_chars("'$displayvalue") || "&nbsp;";
-            }
-         return $displayvalue;
+            $displayvalue = html_escape("=$dataformulas->{$cr}") || "&nbsp;";
+         } elsif ($datatypes->{$cr} eq "c") {
+            $displayvalue = html_escape("'$dataformulas->{$cr}") || "&nbsp;";
+         } else {
+            $displayvalue = html_escape("'$displayvalue") || "&nbsp;";
          }
+         return $displayvalue;
+      }
       elsif ($valueformat eq "forcetext") {
          if ($datatypes->{$cr} eq "f") {
-            $displayvalue = special_chars("=$dataformulas->{$cr}") || "&nbsp;";
-            }
-         elsif ($datatypes->{$cr} eq "c") {
-            $displayvalue = special_chars($dataformulas->{$cr}) || "&nbsp;";
-            }
-         else {
-            $displayvalue = special_chars($displayvalue) || "&nbsp;";
-            }
-         return $displayvalue;
+            $displayvalue = html_escape("=$dataformulas->{$cr}") || "&nbsp;";
+         } elsif ($datatypes->{$cr} eq "c") {
+            $displayvalue = html_escape($dataformulas->{$cr}) || "&nbsp;";
+         } else {
+            $displayvalue = html_escape($displayvalue) || "&nbsp;";
          }
-      $displayvalue = format_number_for_display($displayvalue, $valuetypes->{$cr}, $valueformat);
+         return $displayvalue;
       }
+      $displayvalue = format_number_for_display($displayvalue, $valuetypes->{$cr}, $valueformat);
+   }
+
    else { # unknown type - probably blank
       $displayvalue = "&nbsp;";
-      }
+   }
 
    return $displayvalue;
 
@@ -3031,32 +3009,32 @@ sub format_text_for_display {
       $valueformat = "text-html" if ($valuesubtype eq "h");
       $valueformat = "text-wiki" if ($valuesubtype eq "w");
       $valueformat = "text-plain" unless $valuesubtype;
-      }
+   }
    if ($valueformat eq "text-html") { # HTML - output as it as is
       ;
-      }
+   }
    elsif ($valueformat eq "text-wiki") { # wiki text
       die "Wiki text not handled";
-      }
+   }
    elsif ($valueformat eq "text-url") { # text is a URL for a link
-      my $dvsc = special_chars($displayvalue);
+      my $dvsc = html_escape($displayvalue);
       my $dvue = url_encode($displayvalue);
       $dvue =~ s/\Q{{amp}}/%26/g;
       $displayvalue = qq!<a href="$dvue">$dvsc</a>!;
-      }
+   }
    elsif ($valueformat eq "text-link") { # text is a URL for a link shown as Link
-      my $dvsc = special_chars($displayvalue);
+      my $dvsc = html_escape($displayvalue);
       my $dvue = url_encode($displayvalue);
       $dvue =~ s/\Q{{amp}}/%26/g;
       $displayvalue = qq!<a href="$dvue">Link</a>!;
-      }
+   }
    elsif ($valueformat eq "text-image") { # text is a URL for an image
       my $dvue = url_encode($displayvalue);
       $dvue =~ s/\Q{{amp}}/%26/g;
       $displayvalue = qq!<img src="$dvue">!;
-      }
+   }
    elsif ($valueformat =~ m/^text-custom\:/) { # construct a custom text format: @r = text raw, @s = special chars, @u = url encoded
-      my $dvsc = special_chars($displayvalue); # do special chars
+      my $dvsc = html_escape($displayvalue); # do special chars
       $dvsc =~ s/  /&nbsp; /g; # keep multiple spaces
       $dvsc =~ s/\n/<br>/g;  # keep line breaks
       my $dvue = url_encode($displayvalue);
@@ -3068,21 +3046,21 @@ sub format_text_for_display {
       $displayvalue = $valueformat;
       $displayvalue =~ s/^text-custom\://;
       $displayvalue =~ s/@(r|s|u)/$textval{$1}/ge;
-      }
+   }
    elsif ($valueformat =~ m/^custom/) { # custom
-      $displayvalue = special_chars($displayvalue); # do special chars
+      $displayvalue = html_escape($displayvalue); # do special chars
       $displayvalue =~ s/  /&nbsp; /g; # keep multiple spaces
       $displayvalue =~ s/\n/<br>/g;  # keep line breaks
       $displayvalue .= " (custom format)";
-      }
+   }
    elsif ($valueformat eq "hidden") {
       $displayvalue = "&nbsp;";
-      }
+   }
    else { # plain text
-      $displayvalue = special_chars($displayvalue); # do special chars
+      $displayvalue = html_escape($displayvalue); # do special chars
       $displayvalue =~ s/  /&nbsp; /g; # keep multiple spaces
       $displayvalue =~ s/\n/<br>/g;  # keep line breaks
-      }
+   }
 
    return $displayvalue;
 
@@ -3255,8 +3233,8 @@ sub format_number_with_format_string {
       }
 
    # Get values for our section
-   my ($sectionstart, $integerdigits, $fractiondigits, $commas, $percent, $thousandssep) =
-      @{%{$thisformat->{sectioninfo}->[$section]}}{qw(sectionstart integerdigits fractiondigits commas percent thousandssep)};
+   my ($sectionstart, $integerdigits, $fractiondigits, $commas, $percent, $thousandssep) = map $_ || 0, 
+    @{%{$thisformat->{sectioninfo}->[$section]}}{qw(sectionstart integerdigits fractiondigits commas percent thousandssep)};
 
    if ($commas > 0) { # scale by thousands
       for (my $i=0; $i<$commas; $i++) {
@@ -3283,11 +3261,9 @@ sub format_number_with_format_string {
       return "$rawvalue"; # Just return plain converted raw value
       }
    $strvalue =~ m/^\+{0,1}(\d*)(?:\.(\d*)){0,1}$/; # get integer and fraction as character arrays
-   my $integervalue = $1;
-   $integervalue = "" if ($integervalue == 0);
+   my $integervalue = $1 || "";
    my @integervalue = split(//, $integervalue);
-   my $fractionvalue = $2;
-   $fractionvalue = "" if ($fractionvalue == 0);
+   my $fractionvalue = $2 || "";
    my @fractionvalue = split(//, $fractionvalue);
 
    if ($thisformat->{sectioninfo}->[$section]->{hasdate}) { # there are date placeholders
@@ -3945,47 +3921,39 @@ Circular referenced detected by using $sheetdata->{checked}->{$coord}:
 
 sub check_and_calc_cell {
 
-   my ($sheetdata, $coord) = @_;
+   my ($Sheet, $coord) = @_;
 
-   my $datavalues = $sheetdata->{datavalues};
-   my $datatypes = $sheetdata->{datatypes};
-   my $valuetypes = $sheetdata->{valuetypes};
-   my $dataformulas = $sheetdata->{formulas};
-   my $cellerrors = $sheetdata->{cellerrors};
-   my $coordchecked = $sheetdata->{checked};
+   my $coordchecked = $Sheet->{checked};
 
-   if ($datatypes->{$coord} ne 'f') {
-      return "";
-      }
-   if ($coordchecked->{$coord} == 2) { # Already calculated this time
-      return "";
-      }
-   elsif ($coordchecked->{$coord} == 1) { # Circular reference
-      $cellerrors->{$coord} = "Circular reference to $coord";
-      return $cellerrors->{$coord};
-      }
+   return "" if !$Sheet->{datatypes}->{$coord} or $Sheet->{datatypes}->{$coord} ne 'f';
 
-   my $line = $dataformulas->{$coord};
+   if ($Sheet->{checked}->{$coord}) { 
+     return $Sheet->{cellerrors}->{$coord} = "Circular reference to $coord"
+       if $Sheet->{checked}->{$coord} == 1; 
+     return "";  
+   }
+   $Sheet->{checked}->{$coord} = 1; 
+
+   my $line = $Sheet->{formulas}->{$coord};
    my $parseinfo = parse_formula_into_tokens($line);
 
    my $parsed_token_text = $parseinfo->{tokentext};
    my $parsed_token_type = $parseinfo->{tokentype};
    my ($ttype, $ttext, $sheetref);
-   $coordchecked->{$coord} = 1; # Remember we are in progress
    for (my $i=0; $i<@$parsed_token_text; $i++) {
       $ttype = $parsed_token_type->[$i];
       $ttext = $parsed_token_text->[$i];
       if ($ttype == $token_op) { # references with sheet specifier are not recursed into
          if ($ttext eq "!") {
             $sheetref = 1; # found a sheet reference
-            }
+         }
          elsif ($ttext ne ":") { # for everything but a range, reset
             $sheetref = 0;
-            }
          }
+      }
       if ($ttype == $token_name) { # look for named range
          my ($valuetype, $errortext);
-         my $value = lookup_name($sheetdata, $ttext, \$valuetype, \$errortext);
+         my $value = lookup_name($Sheet, $ttext, \$valuetype, \$errortext);
          if ($valuetype eq "range") { # only need to recurse for range, which may be just one cell
             my ($cr1, $cr2) = split(/\|/, $value);
             $cr2 ||= $cr1;
@@ -3996,12 +3964,12 @@ sub check_and_calc_cell {
             for (my $r=$r1;$r<=$r2;$r++) {
                for (my $c=$c1;$c<=$c2;$c++) {
                   my $rangecoord = cr_to_coord($c, $r);
-                  my $circref = check_and_calc_cell($sheetdata, $rangecoord);
-                  $sheetdata->{sheetattribs}->{circularreferencecell} = "$coord|$rangecoord" if $circref;
-                  }
+                  my $circref = check_and_calc_cell($Sheet, $rangecoord);
+                  $Sheet->{sheetattribs}->{circularreferencecell} = "$coord|$rangecoord" if $circref;
                }
             }
          }
+      }
       if ($ttype == $token_coord) {
          if ($i >= 2 
              && $parsed_token_type->[$i-1] == $token_op && $parsed_token_text->[$i-1] eq ':'
@@ -4014,28 +3982,27 @@ sub check_and_calc_cell {
             for (my $r=$r1;$r<=$r2;$r++) { # Checks first cell a second time, but that should just return
                for (my $c=$c1;$c<=$c2;$c++) {
                   my $rangecoord = cr_to_coord($c, $r);
-                  my $circref = check_and_calc_cell($sheetdata, $rangecoord);
-                  $sheetdata->{sheetattribs}->{circularreferencecell} = "$coord|$rangecoord" if $circref;
-                  }
+                  my $circref = check_and_calc_cell($Sheet, $rangecoord);
+                  $Sheet->{sheetattribs}->{circularreferencecell} = "$coord|$rangecoord" if $circref;
                }
             }
+         }
          elsif (!$sheetref) { # Single cell reference
             $ttext =~ s/\$//g;
-            my $circref = check_and_calc_cell($sheetdata, $ttext);
-            $sheetdata->{sheetattribs}->{circularreferencecell} = "$coord|$ttext" if $circref; # remember at least one circ ref
-            }
-         }      
-      }
-   my ($value, $valuetype, $errortext) = evaluate_parsed_formula($parseinfo, $sheetdata);
-   $datavalues->{$coord} = $value;
-   $valuetypes->{$coord} = $valuetype;
+            my $circref = check_and_calc_cell($Sheet, $ttext);
+            $Sheet->{sheetattribs}->{circularreferencecell} = "$coord|$ttext" if $circref; # remember at least one circ ref
+         }
+      }      
+   }
+   my ($value, $valuetype, $errortext) = evaluate_parsed_formula($parseinfo, $Sheet);
+   $Sheet->{datavalues}->{$coord} = $value;
+   $Sheet->{valuetypes}->{$coord} = $valuetype;
    if ($errortext) {
-      $cellerrors->{$coord} = $errortext;
-      }
-   elsif ($cellerrors->{$coord}) {
-      delete $cellerrors->{$coord};
-      }
-   $coordchecked->{$coord} = 2; # Remember we were here
+      $Sheet->{cellerrors}->{$coord} = $errortext;
+   } elsif ($Sheet->{cellerrors}->{$coord}) {
+      delete $Sheet->{cellerrors}->{$coord};
+   }
+   $Sheet->{checked}->{$coord} = 2; # Remember we were here
    return "";
 }
 
@@ -4976,16 +4943,19 @@ sub step_through_range_down {
 
    my ($operand, $value, $operandtype) = @_;
 
-   my ($value1, $value2, $sequence) = split(/\|/, $value);
-   my ($sheet1, $sheet2);
-   ($value1, $sheet1) = split(/!/, $value1);
-   $sheet1 = "!$sheet1" if $sheet1;
-   ($value2, $sheet2) = split(/!/, $value2);
+   my ($v1, $v2, $sequence) = split(/\|/, $value);
+   $sequence ||= 0;
+
+   my ($value1, $sheet1) = split(/!/, $v1);
+   ($sheet1 &&= "!$sheet1") ||= '';
+   my ($value2, $sheet2) = split(/!/, $v2);
+
    my ($c1, $r1) = coord_to_cr($value1);
    my ($c2, $r2) = coord_to_cr($value2);
    ($c2, $c1) = ($c1, $c2) if ($c1 > $c2);
    ($r2, $r1) = ($r1, $r2) if ($r1 > $r2);
-   my $count;
+
+   my $count = 0;
    for (my $r=$r1;$r<=$r2;$r++) {
       for (my $c=$c1;$c<=$c2;$c++) {
          $count++;

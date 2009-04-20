@@ -10,7 +10,32 @@ Portions (c) Copyright 2007 Tony Bowden
 
 Changes from the Standard Version (SocialCalc 1.1.0) are detailed below:
 
-== v0.01 ==
+== v0.02 ==   (December 12, 2007)
+
+Summary: silence warnings exposed by test suite
+
+ - Sheet.pm
+
+   -- Rename special_chars() to html_escape()
+   -- Ensure values are initialised in format_number_with_format_string()
+   -- Silence warnings from format_value_for_display(),
+       step_through_range_down(), execute_sheet_command() 
+       parse_sheet_save()
+   -- Tidy parse_header_save(), recalc_sheet()
+   -- Shortcircuit empty commands in execute_sheet_command() 
+   -- Shortcircuit empty lines in parse_sheet_save()
+   -- Remove unnecessary use of Time::Local
+
+ - Functions.pm
+   -- Silence warnings from dseries_functions(), countif_sumif_functions()
+
+ - Tests
+   -- Add tests circular.t, cutpaste.t, dsum.t, header.t
+   -- Add SUMIF() test to commands.t
+
+== v0.01 ==   (December 11, 2007)
+
+Summary: Created from SocialCalc 1.1.0
 
  - General
 
@@ -35,4 +60,3 @@ Changes from the Standard Version (SocialCalc 1.1.0) are detailed below:
    -- Removed display functionality
    -- Remove wikitext formatting
    -- Remove ability to fetch related sheets over HTTP
-
