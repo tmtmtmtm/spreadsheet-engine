@@ -1,22 +1,12 @@
-package Spreadsheet::Engine::Function::depreciation;
+package Spreadsheet::Engine::Fn::depreciation;
 
 use strict;
 use warnings;
 
-use base 'Spreadsheet::Engine::Function::base';
+use base 'Spreadsheet::Engine::Fn::math';
 
-sub argument_count { 3 }
-
-sub result {
-  my $self    = shift;
-  my $cost    = $self->next_operand_as_number;
-  my $salvage = $self->next_operand_as_number;
-  my $life    = $self->next_operand_as_number;
-  die Spreadsheet::Engine::Error->num('life must be > 1') if $life < 1;
-  my $result = $self->depreciate($cost, $salvage, $life);
-  return Spreadsheet::Engine::Value->new(type => 'n$', value => $result);
-
-}
+sub signature { 'n', 'n', '>=1' }
+sub result_type { Spreadsheet::Engine::Value->new(type => 'n$') }
 
 1;
 
@@ -24,11 +14,11 @@ __END__
 
 =head1 NAME
 
-Spreadsheet::Engine::Function::depreciate - base class for depreciation functions
+Spreadsheet::Engine::Fn::depreciation - base class for depreciation functions
 
 =head1 SYNOPSIS
 
-  use base 'Spreadsheet::Engine::Function::depreciation';
+  use base 'Spreadsheet::Engine::Fn::depreciation';
 
   sub depreciate { ... }
 

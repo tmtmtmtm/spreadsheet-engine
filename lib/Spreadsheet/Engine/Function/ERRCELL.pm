@@ -3,7 +3,7 @@ package Spreadsheet::Engine::Function::ERRCELL;
 use strict;
 use warnings;
 
-use base 'Spreadsheet::Engine::Function::base';
+use base 'Spreadsheet::Engine::Fn::base';
 
 sub argument_count { 0 }
 

@@ -6,7 +6,7 @@ use warnings;
 use Spreadsheet::Engine::Sheet (
   qw/parse_sheet_save execute_sheet_command recalc_sheet/);
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 
 =head1 NAME
 

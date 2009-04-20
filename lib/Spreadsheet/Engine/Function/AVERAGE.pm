@@ -3,7 +3,7 @@ package Spreadsheet::Engine::Function::AVERAGE;
 use strict;
 use warnings;
 
-use base 'Spreadsheet::Engine::Function::series';
+use base 'Spreadsheet::Engine::Fn::series';
 
 sub calculate {
   return sub {

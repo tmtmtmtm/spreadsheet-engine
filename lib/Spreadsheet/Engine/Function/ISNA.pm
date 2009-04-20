@@ -3,12 +3,9 @@ package Spreadsheet::Engine::Function::ISNA;
 use strict;
 use warnings;
 
-use base 'Spreadsheet::Engine::Function::is';
+use base 'Spreadsheet::Engine::Fn::logical';
 
-sub calculate {
-  my ($self, $op) = @_;
-  return $op->is_na;
-}
+sub calculate { shift->next_operand->is_na }
 
 1;
 

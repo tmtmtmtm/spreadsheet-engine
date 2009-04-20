@@ -3,10 +3,11 @@ package Spreadsheet::Engine::Function::ISERR;
 use strict;
 use warnings;
 
-use base 'Spreadsheet::Engine::Function::is';
+use base 'Spreadsheet::Engine::Fn::logical';
 
 sub calculate {
-  my ($self, $op) = @_;
+  my $self = shift;
+  my $op   = $self->next_operand;
   return $op->is_error && !$op->is_na;
 }
 

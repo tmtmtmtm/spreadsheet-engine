@@ -1,15 +1,19 @@
-package Spreadsheet::Engine::Function::COUNT;
+package Spreadsheet::Engine::Function::OR;
 
 use strict;
 use warnings;
 
-use base 'Spreadsheet::Engine::Fn::counter';
+use base 'Spreadsheet::Engine::Fn::logical';
+use List::Util 'first';
+
+sub argument_count { -1 }
 
 sub calculate {
-  return sub {
-    my $op = shift;
-    return $op->is_num;
-  };
+  my $self = shift;
+  my @ops  = map $self->next_operand, 1 .. @{ $self->foperand };
+  my $type = $self->optype(propagateerror => @ops);
+  die $type if $type->is_error;
+  return first { $_->value } @ops;
 }
 
 1;
@@ -18,15 +22,15 @@ __END__
 
 =head1 NAME
 
-Spreadsheet::Engine::Function::COUNT - Spreadsheet funtion COUNT()
+Spreadsheet::Engine::Function::OR - Spreadsheet funtion OR()
 
 =head1 SYNOPSIS
 
-  =COUNT(list)
+  =OR(v1,c1:c2,...)
 
 =head1 DESCRIPTION
 
-This returns the count of how many values in the list are numbers.
+This returns TRUE if any paramter is true.
 
 =head1 HISTORY
 
@@ -41,7 +45,7 @@ All Rights Reserved.
 Portions (c) Copyright 2007 Socialtext, Inc.
 All Rights Reserved.
 
-Portions (c) Copyright 2007, 2008 Tony Bowden
+Portions (c) Copyright 2008 Tony Bowden
 
 =head1 LICENCE
 

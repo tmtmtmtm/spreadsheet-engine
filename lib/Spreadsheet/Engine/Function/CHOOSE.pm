@@ -1,18 +1,22 @@
-package Spreadsheet::Engine::Function::ymd;
+package Spreadsheet::Engine::Function::CHOOSE;
 
 use strict;
 use warnings;
 
-use base 'Spreadsheet::Engine::Function::math';
+use base 'Spreadsheet::Engine::Fn::base';
 
-use Spreadsheet::Engine::Sheet qw/convert_date_julian_to_gregorian/;
+sub argument_count { -2 }
 
-sub signature { 'n' }
+sub result {
+  my $self   = shift;
+  my $index  = $self->next_operand_as_number;
+  my $cindex = $index->is_num ? int $index->value : 1;
 
-sub calculate {
-  my ($self, $value) = @_;
-  return $self->_calculate(
-    convert_date_julian_to_gregorian(int($value + $self->JULIAN_OFFSET)));
+  my $count = 0;
+  while (my $op = $self->top_of_stack) {
+    return $op if ($cindex == ++$count);
+  }
+  return Spreadsheet::Engine::Error->val;
 }
 
 1;
@@ -21,18 +25,15 @@ __END__
 
 =head1 NAME
 
-Spreadsheet::Engine::Function::ymd - base class for DMY functions
+Spreadsheet::Engine::Function::CHOOSE - Spreadsheet funtion CHOOSE()
 
 =head1 SYNOPSIS
 
-  use base 'Spreadsheet::Engine::Function::ymd';
-
-  sub calculate { ... }
+  =CHOOSE(index,value1,value2,...)
 
 =head1 DESCRIPTION
 
-This provides a base class for spreadsheet functions that operate on a
-single date pre-split into year, month, and day.
+Pick a value from a list by index.
 
 =head1 HISTORY
 

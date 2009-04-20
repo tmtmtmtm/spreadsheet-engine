@@ -3,7 +3,7 @@ package Spreadsheet::Engine::Function::VALUE;
 use strict;
 use warnings;
 
-use base 'Spreadsheet::Engine::Function::base';
+use base 'Spreadsheet::Engine::Fn::base';
 
 use Spreadsheet::Engine::Sheet qw/determine_value_type/;
 

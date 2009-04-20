@@ -3,7 +3,7 @@ package Spreadsheet::Engine::Function::DAY;
 use strict;
 use warnings;
 
-use base 'Spreadsheet::Engine::Function::ymd';
+use base 'Spreadsheet::Engine::Fn::ymd';
 
 sub _calculate {
   my ($self, $y, $m, $d) = @_;

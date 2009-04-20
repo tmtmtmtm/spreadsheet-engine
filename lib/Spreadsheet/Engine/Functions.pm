@@ -30,8 +30,6 @@ our @EXPORT = qw(calculate_function);
 #<0 = that many arguments (abs value) or more
 
 our %function_list = (
-  AND       => [ \&and_or_function,         -1 ],
-  CHOOSE    => [ \&choose_function,         -2 ],
   COLUMNS   => [ \&columns_rows_function,   1 ],
   COUNTIF   => [ \&countif_sumif_functions, 2 ],
   DAVERAGE  => [ \&dseries_functions,       3 ],
@@ -46,15 +44,10 @@ our %function_list = (
   DSUM      => [ \&dseries_functions,       3 ],
   DVAR      => [ \&dseries_functions,       3 ],
   DVARP     => [ \&dseries_functions,       3 ],
-  EXACT     => [ \&exact_function,          2 ],
   HLOOKUP   => [ \&lookup_functions,        -3 ],
-  IF        => [ \&if_function,             3 ],
   INDEX     => [ \&index_function,          -1 ],
-  IRR       => [ \&irr_function,            -1 ],
   MATCH     => [ \&lookup_functions,        -2 ],
-  NOT       => [ \&not_function,            1 ],
   NOW       => [ \&zeroarg_functions,       0 ],
-  OR        => [ \&and_or_function,         -1 ],
   ROWS      => [ \&columns_rows_function,   1 ],
   SUMIF     => [ \&countif_sumif_functions, -2 ],
   TODAY     => [ \&zeroarg_functions,       0 ],
@@ -92,13 +85,14 @@ sub register {
 
 __PACKAGE__->register(
   map +($_ => "Spreadsheet::Engine::Function::$_"),
-  qw/ ABS ACOS ASIN ATAN ATAN2 AVERAGE COS COUNT COUNTA COUNTBLANK DATE
-    DAY DDB DEGREES ERRCELL EVEN EXP FACT FALSE FIND FV HOUR INT ISBLANK
-    ISERR ISERROR ISLOGICAL ISNA ISNONTEXT ISNUMBER ISTEXT LEFT LEN LN LOG
-    LOG10 LOWER MAX MID MIN MINUTE MOD MONTH N NA NPER NPV ODD PI PMT
-    POWER PRODUCT PROPER PV RADIANS RATE REPLACE REPT RIGHT ROUND SECOND
-    SIN SLN SQRT STDEV STDEVP SUBSTITUTE SUM SYD T TAN TIME TRIM TRUE
-    TRUNC UPPER VALUE VAR VARP WEEKDAY YEAR /
+  qw/ ABS ACOS AND ASIN ATAN ATAN2 AVERAGE CHOOSE COS COUNT COUNTA
+    COUNTBLANK DATE DAY DDB DEGREES ERRCELL EVEN EXACT EXP FACT FALSE FIND
+    FV HOUR IF INT IRR ISBLANK ISERR ISERROR ISLOGICAL ISNA ISNONTEXT
+    ISNUMBER ISTEXT LEFT LEN LN LOG LOG10 LOWER MAX MID MIN MINUTE MOD
+    MONTH N NA NOT NPER NPV ODD OR PI PMT POWER PRODUCT PROPER PV RADIANS
+    RATE REPLACE REPT RIGHT ROUND SECOND SIN SLN SQRT STDEV STDEVP
+    SUBSTITUTE SUM SYD T TAN TIME TRIM TRUE TRUNC UPPER VALUE VAR VARP
+    WEEKDAY YEAR /
 );
 
 =head1 EXPORTS
@@ -157,37 +151,6 @@ sub calculate_function {
 }
 
 =head1 FUNCTION providers
-
-=head2 series_functions
-
-=over
-
-=item AVERAGE(v1,c1:c2,...) - See <Spreadsheet::Engine::Function::AVERAGE>
-
-=item COUNT(v1,c1:c2,...) - See <Spreadsheet::Engine::Function::COUNT>
-
-=item COUNTA(v1,c1:c2,...) - See <Spreadsheet::Engine::Function::COUNTA>
-
-=item COUNTBLANK(v1,c1:c2,...) - See <Spreadsheet::Engine::Function::COUNTBLANK>
-
-=item MAX(v1,c1:c2,...) - See L<Spreadsheet::Engine::Function::MAX>
-
-=item MIN(v1,c1:c2,...) - See L<Spreadsheet::Engine::Function::MIN>
-
-=item PRODUCT(v1,c1:c2,...) - See L<Spreadsheet::Engine::Function::PRODUCT>
-
-=item STDEV(v1,c1:c2,...) - See L<Spreadsheet::Engine::Function::STDEV>
-
-=item STDEVP(v1,c1:c2,...) - See L<Spreadsheet::Engine::Function::STDEVP>
-
-=item SUM(v1,c1:c2,...) - See L<Spreadsheet::Engine::Function::SUM>
-
-=item VAR(v1,c1:c2,...) - See L<Spreadsheet::Engine::Function::VAR>
-
-=item VARP(v1,c1:c2,...) - See L<Spreadsheet::Engine::Function::VARP>
-
-=back
-
 
 =head2 dseries_functions
 
@@ -815,239 +778,6 @@ sub countif_sumif_functions {
 
 }
 
-=head2 if_function
-
-=over
-
-=item IF(cond,truevalue,falsevalue)
-
-=back
-
-=cut
-
-sub if_function {
-
-  my ($fname, $operand, $foperand, $errortext, $typelookup, $sheetdata) = @_;
-
-  my $tostype;
-
-  my $cond =
-    operand_value_and_type($sheetdata, $foperand, $errortext, \$tostype);
-  if (substr($tostype, 0, 1) ne "n" && substr($tostype, 0, 1) ne "b") {
-    push @$operand, { type => "e#VALUE!", value => 0 };
-    return;
-  }
-
-  pop @$foperand if !$cond;
-  push @$operand, $foperand->[ @$foperand - 1 ];
-  pop @$foperand if $cond;
-
-  return;
-
-}
-
-=head2 exact_function
-
-=over
-
-=item EXACT(v1,v2)
-
-=back
-
-=cut
-
-sub exact_function {
-
-  my ($fname, $operand, $foperand, $errortext, $typelookup, $sheetdata) = @_;
-
-  my ($tostype, $tostype2);
-
-  my $value1 =
-    operand_value_and_type($sheetdata, $foperand, $errortext, \$tostype);
-  my $value2 =
-    operand_value_and_type($sheetdata, $foperand, $errortext, \$tostype2);
-
-  my $result     = 0;
-  my $resulttype = "nl";
-
-  if (substr($tostype, 0, 1) eq "t") {
-    if (substr($tostype2, 0, 1) eq "t") {
-      $result = $value1 eq $value2 ? 1 : 0;
-    } elsif (substr($tostype2, 0, 1) eq "b") {
-      $result = len($value1) ? 0 : 1;
-    } elsif (substr($tostype2, 0, 1) eq "n") {
-      $result = $value1 eq "$value2" ? 1 : 0;
-    } elsif (substr($tostype2, 0, 1) eq "e") {
-      $result     = $value2;
-      $resulttype = $tostype2;
-    } else {
-      $result = 0;
-    }
-  } elsif (substr($tostype, 0, 1) eq "n") {
-    if (substr($tostype2, 0, 1) eq "n") {
-      $result = $value1 == $value2 ? 1 : 0;
-    } elsif (substr($tostype2, 0, 1) eq "b") {
-      $result = 0;
-    } elsif (substr($tostype2, 0, 1) eq "t") {
-      $result = "$value1" eq $value2 ? 1 : 0;
-    } elsif (substr($tostype2, 0, 1) eq "e") {
-      $result     = $value2;
-      $resulttype = $tostype2;
-    } else {
-      $result = 0;
-    }
-  } elsif (substr($tostype, 0, 1) eq "b") {
-    if (substr($tostype2, 0, 1) eq "t") {
-      $result = len($value2) ? 0 : 1;
-    } elsif (substr($tostype2, 0, 1) eq "b") {
-      $result = 1;
-    } elsif (substr($tostype2, 0, 1) eq "n") {
-      $result = 0;
-    } elsif (substr($tostype2, 0, 1) eq "e") {
-      $result     = $value2;
-      $resulttype = $tostype2;
-    } else {
-      $result = 0;
-    }
-  } elsif (substr($tostype, 0, 1) eq "e") {
-    $result     = $value1;
-    $resulttype = $tostype;
-  }
-
-  push @$operand, { type => $resulttype, value => $result };
-
-  return;
-
-}
-
-=head2 and_or_function
-
-=over
-
-=item AND(v1,c1:c2,...)
-
-=item OR(v1,c1:c2,...)
-
-=back
-
-=cut
-
-sub and_or_function {
-
-  my ($fname, $operand, $foperand, $errortext, $typelookup, $sheetdata) = @_;
-
-  my ($value1, $tostype, $resulttype);
-
-  my $result;
-  if ($fname eq "AND") {
-    $result = 1;
-  } elsif ($fname eq "OR") {
-    $result = 0;
-  }
-  $resulttype = "";
-  while (@$foperand) {
-    $value1 =
-      operand_value_and_type($sheetdata, $foperand, $errortext, \$tostype);
-    if (substr($tostype, 0, 1) eq "n") {
-      if ($fname eq "AND") {
-        $result = $value1 != 0 ? $result : 0;
-      } elsif ($fname eq "OR") {
-        $result = $value1 != 0 ? 1 : $result;
-      }
-      $resulttype = lookup_result_type(
-        $tostype,
-        $resulttype || "nl",
-        $typelookup->{propagateerror}
-      );
-    } elsif (substr($tostype, 0, 1) eq "e"
-      && substr($resulttype, 0, 1) ne "e") {
-      $resulttype = $tostype;
-    }
-  }
-  if (length($resulttype) < 1) {
-    $resulttype = "e#VALUE!";
-    $result     = 0;
-  }
-  push @$operand, { type => $resulttype, value => $result };
-
-  return;
-
-}
-
-=head2 not_function
-
-=over
-
-=item NOT(value)
-
-=back
-
-=cut
-
-sub not_function {
-
-  my ($fname, $operand, $foperand, $errortext, $typelookup, $sheetdata) = @_;
-
-  my $tostype;
-  my $result = 0;
-
-  my $value =
-    operand_value_and_type($sheetdata, $foperand, $errortext, \$tostype);
-  my $resulttype =
-    lookup_result_type($tostype, $tostype, $typelookup->{oneargnumeric});
-
-  if (substr($resulttype, 0, 1) eq "n") {
-    $result = $value != 0 ? 0 : 1;    # do the "not" operation
-    $resulttype = "nl";
-  }
-
-  push @$operand, { type => $resulttype, value => $result };
-
-  return;
-
-}
-
-=head2 choose_function
-
-=over
-
-=item CHOOSE(index,value1,value2,...)
-
-=back
-
-=cut
-
-sub choose_function {
-
-  my ($fname, $operand, $foperand, $errortext, $typelookup, $sheetdata) = @_;
-
-  my ($value1, $tostype, $resultvalue, $resulttype);
-
-  my $cindex =
-    operand_as_number($sheetdata, $foperand, $errortext, \$tostype);
-  $cindex = 0 if substr($tostype, 0, 1) ne "n";
-  $cindex = int($cindex);
-
-  my $count = 0;
-  while (@$foperand) {
-    ($value1, $tostype) =
-      top_of_stack_value_and_type($sheetdata, $foperand, $errortext);
-    $count += 1;
-    if ($cindex == $count) {
-      $resultvalue = $value1;
-      $resulttype  = $tostype;
-    }
-  }
-  if ($resulttype) {    # found something
-    push @$operand, { type => $resulttype, value => $resultvalue };
-  } else {
-    push @$operand, { type => "e#VALUE!", value => 0 };
-  }
-
-  return;
-
-}
-
 =head2 columns_rows_function
 
 =over
@@ -1149,107 +879,6 @@ sub zeroarg_functions {
   }
 
   push @$operand, { type => $resulttype, value => $result };
-
-  return;
-
-}
-
-#
-# * * * * * FINANCIAL FUNCTIONS * * * * *
-#
-
-=head2 irr_function
-
-=over
-
-=item IRR(c1:c2,[guess])
-
-=back
-
-=cut
-
-sub irr_function {
-
-  my ($fname, $operand, $foperand, $errortext, $typelookup, $sheetdata) = @_;
-
-  my ($value1, $tostype);
-
-  my @rangeoperand;
-  push @rangeoperand, pop @$foperand;    # first operand is a range
-
-  my @cashflows;
-  while (@rangeoperand)
-  {    # get values from range so we can do iterative approximations
-    $value1 =
-      operand_value_and_type($sheetdata, \@rangeoperand, $errortext,
-      \$tostype);
-    if (substr($tostype, 0, 1) eq "n") {
-      push @cashflows, $value1;
-    } elsif (substr($tostype, 0, 1) eq "e") {
-      push @$operand, { type => "e#VALUE!", value => 0 };
-      return;
-    }
-  }
-
-  my $guess = 0;
-
-  if (@$foperand) {    # guess is provided
-    $guess = operand_as_number($sheetdata, $foperand, $errortext, \$tostype);
-    if (substr($tostype, 0, 1) ne "n" && substr($tostype, 0, 1) ne "b") {
-      push @$operand, { type => "e#VALUE!", value => 0 };
-      return;
-    }
-    if (@$foperand) {    # should be no more args
-      function_args_error($fname, $operand, $errortext);
-      return;
-    }
-  }
-
-  $guess ||= 0.1;
-
-  # rate is calculated by repeated approximations
-  # The deltas are used to calculate new guesses
-
-  my $oldsum;
-  my $maxloop = 20;
-  my $tries   = 0;
-  my $epsilon = 0.0000001;    # this is close enough
-  my $rate    = $guess;
-  my $oldrate = 0;
-  my $m;
-  my $sum = 1;
-  my $factor;
-
-  while (($sum >= 0 ? $sum : -$sum) > $epsilon && ($rate != $oldrate)) {
-    $sum    = 0;
-    $factor = 1;
-    for (my $i = 0 ; $i < @cashflows ; $i++) {
-      $factor *= (1 + $rate);
-      if ($factor == 0) {
-        push @$operand, { type => "e#DIV/0!", value => 0 };
-        return;
-      }
-      $sum += $cashflows[$i] / $factor;
-    }
-
-    if (defined $oldsum) {
-      $m = ($sum - $oldsum) / ($rate - $oldrate);    # get slope
-      $oldrate = $rate;
-      $rate   = $rate - $sum / $m;                   # look for zero crossing
-      $oldsum = $sum;
-    } else {    # first time - no old values
-      $oldrate = $rate;
-      $rate    = 1.1 * $rate;
-      $oldsum  = $sum;
-    }
-    $tries++;
-    if ($tries >= $maxloop) {    # didn't converge yet
-      push @$operand, { type => "e#NUM!", value => 0 };
-      return;
-    }
-  }
-
-  push @$operand, { type => 'n%', value => $rate };
 
   return;
 

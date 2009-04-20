@@ -11,10 +11,27 @@ Portions (c) Copyright 2005, 2006, 2007 Software Garden, Inc.
 Numerous tests are adapted from the Open Formula specification.
 Copyright (c) 2006 OASIS 2006. All Rights Reserved.
 
+Changes from the Standard Version (SocialCalc 1.1.0) are detailed below.
 
-Changes from the Standard Version (SocialCalc 1.1.0) are detailed below:
+== v0.13 ==   (January 21, 2008)
 
-== v0.12 ==   (January ??)
+Summary: Restructuring
+
+ - Functions
+   -- Moved base classes from Function/ to Fn/
+       Function/ is now just for packages that are spreadsheet functions
+       and Fn/ for helper classes (including base classes)
+   -- Extracted logical.pm baseclass
+   -- Extracted functions IF(), AND(), OR(), NOT(), EXACT(), CHOOSE(),
+      IRR()
+     -- Simplify EXACT() by pre-sorting operands by type
+     -- Simplify IF() into a trivial ternary
+   -- Rewrite depreciation functions
+   -- Extracted Fn/Approximator for Newton-Raphson approximations
+   -- Added temporary(?) top_of_stack method to base.pm
+   -- Removed ability for 'series' functions to return a listref
+
+== v0.12 ==   (January 19, 2008)
 
 Summary: Harmonise operand handling in Functions
 
@@ -28,8 +45,8 @@ Summary: Harmonise operand handling in Functions
 
  - Function/*.pm
    -- next_operand_as_text now automatically upgrades to utf8
-   -- Extracted (and simplified) ROUND.pm
-   -- Extracted LOG.pm
+   -- Extracted (and simplified) ROUND() function
+   -- Extracted LOG() function
      -- Corrected LOG() to default to base 10 (was natural log)
    -- math2.pm is now a subclass of math.pm
    -- remove no longer necessary dates.pm 

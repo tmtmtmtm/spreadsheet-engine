@@ -3,7 +3,7 @@ package Spreadsheet::Engine::Function::LEFT;
 use strict;
 use warnings;
 
-use base 'Spreadsheet::Engine::Function::text';
+use base 'Spreadsheet::Engine::Fn::text';
 
 sub signature { 't', '>=0' }
 

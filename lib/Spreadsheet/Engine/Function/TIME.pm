@@ -3,7 +3,7 @@ package Spreadsheet::Engine::Function::TIME;
 use strict;
 use warnings;
 
-use base 'Spreadsheet::Engine::Function::math';
+use base 'Spreadsheet::Engine::Fn::math';
 
 sub argument_count   { 3 }
 sub signature        { 'n', 'n', 'n' }

@@ -1,4 +1,4 @@
-package Spreadsheet::Engine::Function::base;
+package Spreadsheet::Engine::Fn::base;
 
 use strict;
 use warnings;
@@ -10,9 +10,9 @@ use Encode;
 use Spreadsheet::Engine::Value;
 use Spreadsheet::Engine::Error;
 use Spreadsheet::Engine::Fn::Operand;
-use Spreadsheet::Engine::Sheet qw/ copy_function_args
-  function_args_error lookup_result_type operand_value_and_type
-  operand_as_number operand_as_text /;
+use Spreadsheet::Engine::Sheet qw/ copy_function_args lookup_result_type
+  operand_value_and_type operand_as_number operand_as_text
+  top_of_stack_value_and_type /;
 
 struct(__PACKAGE__,
   {
@@ -90,6 +90,15 @@ sub _ops {
         $op = $self->next_operand_as_number;
       } elsif ($sig eq 't') {    # any string - was 1
         $op = $self->next_operand_as_text;
+      } elsif ($sig eq '*') {    # anything at all
+        $op = $self->next_operand;
+      } elsif ($sig eq 'r') {    # range
+                                 # TODO refactor this into Range object
+                                 # For now we'll just hijack an op
+        $op = Spreadsheet::Engine::Fn::Operand->new(
+          type  => 'r',
+          value => pop @{ $self->foperand },
+        );
       } else {
         croak 'Missing signature value in ' . $self->fname unless $sig;
         $op = $self->next_operand_as_number;
@@ -109,13 +118,20 @@ sub _ops {
         }
       }
 
-      die $op if $op->is_error;
+      die $op if $op->is_error and not $self->_error_ops_ok;
       push @operands, $op;
     }
     $self->_opstore(\@operands);
   }
   return @{ $self->_opstore };
 }
+
+# Usually, when extracting the operands based on the signature, any
+# operand that is of type 'error' will cause the entire function to die
+# with that error. Subclassing this method to return a true value will
+# allow that error to be passed through as-is.
+
+sub _error_ops_ok { 0 }
 
 sub next_operand {
   my $self  = shift;
@@ -150,6 +166,18 @@ sub next_operand_as_text {
   );
 }
 
+sub top_of_stack {
+  my $self = shift;
+  my ($value, $type) =
+    top_of_stack_value_and_type($self->sheetdata, $self->foperand,
+    $self->errortext);
+  return unless $type;
+  return Spreadsheet::Engine::Fn::Operand->new(
+    value => $value,
+    type  => $type
+  );
+}
+
 sub optype {
   my ($self, $operation, @op) = @_;
 
@@ -173,11 +201,11 @@ __END__
 
 =head1 NAME
 
-Spreadsheet::Engine::Function::base - base class for spreadsheet functions
+Spreadsheet::Engine::Fn::base - base class for spreadsheet functions
 
 =head1 SYNOPSIS
 
-  use base 'Spreadsheet::Engine::Function::text';
+  use base 'Spreadsheet::Engine::Fn::text';
 
 =head1 DESCRIPTION
 
@@ -248,6 +276,11 @@ value and type. (This is currently a simple delegation to
 Sheet::operand_value_and_type/operand_as_text/operand_as_number
 
 next_operand_as_text also encodes its return value as utf8.
+
+=head2 top_of_stack
+
+Fetch the next operand using top_of_stack_value_and_type(). (This deals
+differently with ranges and co-ordinates.)
 
 =head2 optype
 

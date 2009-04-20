@@ -1,28 +1,18 @@
-package Spreadsheet::Engine::Function::hms;
+package Spreadsheet::Engine::Fn::ymd;
 
 use strict;
 use warnings;
 
-use base 'Spreadsheet::Engine::Function::math';
+use base 'Spreadsheet::Engine::Fn::math';
+
+use Spreadsheet::Engine::Sheet qw/convert_date_julian_to_gregorian/;
 
 sub signature { 'n' }
 
 sub calculate {
   my ($self, $value) = @_;
-
-  my $fraction = $value - int($value);    # fraction of a day
-  $fraction *= 24;
-
-  my $H = int($fraction);
-  $fraction -= int($fraction);
-  $fraction *= 60;
-
-  my $M = int($fraction);
-  $fraction -= int($fraction);
-  $fraction *= 60;
-
-  my $S = int($fraction + ($value >= 0 ? 0.5 : -0.5));
-  return $self->_calculate($H, $M, $S);
+  return $self->_calculate(
+    convert_date_julian_to_gregorian(int($value + $self->JULIAN_OFFSET)));
 }
 
 1;
@@ -31,18 +21,18 @@ __END__
 
 =head1 NAME
 
-Spreadsheet::Engine::Function::hms - base class for HMS functions
+Spreadsheet::Engine::Fn::ymd - base class for DMY functions
 
 =head1 SYNOPSIS
 
-  use base 'Spreadsheet::Engine::Function::hms';
+  use base 'Spreadsheet::Engine::Fn::ymd';
 
   sub calculate { ... }
 
 =head1 DESCRIPTION
 
 This provides a base class for spreadsheet functions that operate on a
-given time pre-split into hours, minutes, and seconds.
+single date pre-split into year, month, and day.
 
 =head1 HISTORY
 

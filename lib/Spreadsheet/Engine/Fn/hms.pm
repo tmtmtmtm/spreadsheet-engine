@@ -1,17 +1,28 @@
-package Spreadsheet::Engine::Function::INT;
+package Spreadsheet::Engine::Fn::hms;
 
 use strict;
 use warnings;
 
 use base 'Spreadsheet::Engine::Fn::math';
 
+sub signature { 'n' }
+
 sub calculate {
   my ($self, $value) = @_;
-  my $result = int $value;
 
-  # round negatives towards minus infinity
-  $result-- if $value < 0 and $result != $value;
-  return $result;
+  my $fraction = $value - int($value);    # fraction of a day
+  $fraction *= 24;
+
+  my $H = int($fraction);
+  $fraction -= int($fraction);
+  $fraction *= 60;
+
+  my $M = int($fraction);
+  $fraction -= int($fraction);
+  $fraction *= 60;
+
+  my $S = int($fraction + ($value >= 0 ? 0.5 : -0.5));
+  return $self->_calculate($H, $M, $S);
 }
 
 1;
@@ -20,15 +31,18 @@ __END__
 
 =head1 NAME
 
-Spreadsheet::Engine::Function::INT - Spreadsheet funtion INT()
+Spreadsheet::Engine::Fn::hms - base class for HMS functions
 
 =head1 SYNOPSIS
 
-  =INT(value)
+  use base 'Spreadsheet::Engine::Fn::hms';
+
+  sub calculate { ... }
 
 =head1 DESCRIPTION
 
-This rounds the value down to the nearest integer. 
+This provides a base class for spreadsheet functions that operate on a
+given time pre-split into hours, minutes, and seconds.
 
 =head1 HISTORY
 

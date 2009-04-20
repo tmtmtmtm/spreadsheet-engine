@@ -3,7 +3,7 @@ package Spreadsheet::Engine::Function::SUBSTITUTE;
 use strict;
 use warnings;
 
-use base 'Spreadsheet::Engine::Function::text';
+use base 'Spreadsheet::Engine::Fn::text';
 
 sub argument_count { -3 => 4 }
 sub signature { 't', 't', 't', '!=0' }

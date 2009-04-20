@@ -3,7 +3,7 @@ package Spreadsheet::Engine::Function::FV;
 use strict;
 use warnings;
 
-use base 'Spreadsheet::Engine::Function::investment';
+use base 'Spreadsheet::Engine::Fn::investment';
 
 sub result_type { Spreadsheet::Engine::Value->new(type => 'n$') }
 

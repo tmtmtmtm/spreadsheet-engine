@@ -1,26 +1,22 @@
-package Spreadsheet::Engine::Function::text;
+package Spreadsheet::Engine::Fn::text;
 
 use strict;
 use warnings;
 
-use base 'Spreadsheet::Engine::Function::base';
+use base 'Spreadsheet::Engine::Fn::base';
 
 use Encode;
-use Spreadsheet::Engine::Sheet
-  qw/function_args_error operand_as_number operand_as_text operand_value_and_type/;
 
-sub signature { 't' }
+sub signature   { 't' }
+sub result_type { 't' }
 
 sub result {
   my $self = shift;
-
   return Spreadsheet::Engine::Value->new(
     type  => $self->result_type,
     value => encode('utf8', $self->calculate($self->_opvals)),
   );
 }
-
-sub result_type { 't' }
 
 1;
 
@@ -28,11 +24,11 @@ __END__
 
 =head1 NAME
 
-Spreadsheet::Engine::Function::text - base class for text functions
+Spreadsheet::Engine::Fn::text - base class for text functions
 
 =head1 SYNOPSIS
 
-  use base 'Spreadsheet::Engine::Function::text';
+  use base 'Spreadsheet::Engine::Fn::text';
 
   sub calculate { ... }
 

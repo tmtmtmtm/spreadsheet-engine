@@ -1,11 +1,17 @@
-package Spreadsheet::Engine::Function::ISTEXT;
+package Spreadsheet::Engine::Fn::logical;
 
 use strict;
 use warnings;
 
-use base 'Spreadsheet::Engine::Fn::logical';
+use base 'Spreadsheet::Engine::Fn::base';
 
-sub calculate { shift->next_operand->is_txt }
+sub argument_count { 1 }
+
+sub result {
+  my $self = shift;
+  my $result = $self->calculate ? 1 : 0;
+  return Spreadsheet::Engine::Value->new(type => 'nl', value => $result);
+}
 
 1;
 
@@ -13,15 +19,25 @@ __END__
 
 =head1 NAME
 
-Spreadsheet::Engine::Function::ISTEXT - Spreadsheet funtion ISTEXT()
+Spreadsheet::Engine::Fn::logical - base class for logical functions
 
 =head1 SYNOPSIS
 
-  =ISTEXT(value)
+  use base 'Spreadsheet::Engine::Fn::logical';
+
+  sub calculate { return 1 | 0 }
 
 =head1 DESCRIPTION
 
-Is the value textual?
+This provides a base class for spreadsheet functions that perform
+return a TRUE or FALSE value.
+
+=head1 INSTANCE METHODS
+
+=head2 calculate
+
+Subclasses should provide 'calculate' function that will return either 1
+or 0.
 
 =head1 HISTORY
 

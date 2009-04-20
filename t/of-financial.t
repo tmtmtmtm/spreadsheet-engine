@@ -9,7 +9,7 @@ use warnings;
 use lib ('lib', 't/lib');
 
 use SheetTest;
-use Test::More tests => 26;
+use Test::More tests => 28;
 
 run_tests(against => 't/data/openformula-testsuite.txt');
 
@@ -120,4 +120,13 @@ test A125 875
 set A126 formula SYD(4000,500,4,2)
 test A126 1050
 
+# ------ extras ------
+#
+# IRR with guess
+set A127 formula IRR(F24:F26,0.1)
+isnear A127 0.418787 
+
+# IRR that doesn't converge
+set A128 formula IRR(F24:F26,40)
+iserror A128
 

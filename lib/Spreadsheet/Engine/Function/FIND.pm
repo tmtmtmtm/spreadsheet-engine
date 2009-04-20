@@ -3,7 +3,7 @@ package Spreadsheet::Engine::Function::FIND;
 use strict;
 use warnings;
 
-use base 'Spreadsheet::Engine::Function::text';
+use base 'Spreadsheet::Engine::Fn::text';
 
 sub argument_count { -2 => 3 }
 

@@ -3,7 +3,7 @@ package Spreadsheet::Engine::Function::COUNTA;
 use strict;
 use warnings;
 
-use base 'Spreadsheet::Engine::Function::counter';
+use base 'Spreadsheet::Engine::Fn::counter';
 
 sub calculate {
   return sub {

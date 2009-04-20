@@ -3,12 +3,9 @@ package Spreadsheet::Engine::Function::ISLOGICAL;
 use strict;
 use warnings;
 
-use base 'Spreadsheet::Engine::Function::is';
+use base 'Spreadsheet::Engine::Fn::logical';
 
-sub calculate {
-  my ($self, $op) = @_;
-  return $op->is_logical;
-}
+sub calculate { shift->next_operand->is_logical }
 
 1;
 

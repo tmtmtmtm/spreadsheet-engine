@@ -1,12 +1,18 @@
-package Spreadsheet::Engine::Function::math2;
+package Spreadsheet::Engine::Function::NOT;
 
 use strict;
 use warnings;
 
-use base 'Spreadsheet::Engine::Function::math';
+use base 'Spreadsheet::Engine::Fn::logical';
 
-sub signature { 'n', 'n' }
-sub _result_type_key { 'twoargnumeric' }
+sub argument_count { 1 }
+
+sub calculate {
+  my $self = shift;
+  my $val  = $self->next_operand;
+  die $val if $val->is_error;
+  return !$val->value;
+}
 
 1;
 
@@ -14,18 +20,16 @@ __END__
 
 =head1 NAME
 
-Spreadsheet::Engine::Function::math2 - base class for 2arg math functions
+Spreadsheet::Engine::Function::NOT - Spreadsheet funtion NOT()
 
 =head1 SYNOPSIS
 
-  use base 'Spreadsheet::Engine::Function::math2';
-
-  sub calculate { ... }
+  =NOT(value)
 
 =head1 DESCRIPTION
 
-This provides a base class for spreadsheet functions that perform
-mathematical functions with two arguments (POWER(), MOD(), etc)
+This returns TRUE if given a false value, and FALSE if given a true
+value.
 
 =head1 HISTORY
 

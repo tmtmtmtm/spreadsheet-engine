@@ -1,9 +1,9 @@
-package Spreadsheet::Engine::Function::math;
+package Spreadsheet::Engine::Fn::math;
 
 use strict;
 use warnings;
 
-use base 'Spreadsheet::Engine::Function::base';
+use base 'Spreadsheet::Engine::Fn::base';
 
 use constant PI => atan2(1, 1) * 4;
 use constant JULIAN_OFFSET => 2_415_019;
@@ -33,11 +33,11 @@ __END__
 
 =head1 NAME
 
-Spreadsheet::Engine::Function::math - base class for math functions
+Spreadsheet::Engine::Fn::math - base class for math functions
 
 =head1 SYNOPSIS
 
-  use base 'Spreadsheet::Engine::Function::math';
+  use base 'Spreadsheet::Engine::Fn::math';
 
   sub calculate { ... }
 

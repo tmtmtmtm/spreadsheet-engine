@@ -9,7 +9,7 @@ use warnings;
 use lib ('lib', 't/lib');
 
 use SheetTest;
-use Test::More tests => 78;
+use Test::More tests => 80;
 
 run_tests(against => 't/data/openformula-testsuite.txt');
 
@@ -342,4 +342,14 @@ test A177 7
 # Non-text converted into null string
 set A178 formula T(5)
 test A178 
+
+# ------
+
+# EXACT with blank and empty string
+set A179 formula EXACT(B8,"")
+test A179 1
+
+# But not with blank and zero
+set A180 formula EXACT(B8,0)
+test A180 0
 

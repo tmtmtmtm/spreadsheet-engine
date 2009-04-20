@@ -3,7 +3,7 @@ package Spreadsheet::Engine::Function::TRUNC;
 use strict;
 use warnings;
 
-use base 'Spreadsheet::Engine::Function::math2';
+use base 'Spreadsheet::Engine::Fn::math2';
 
 sub calculate {
   my ($self, $num, $digits) = @_;

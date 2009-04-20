@@ -3,7 +3,7 @@ package Spreadsheet::Engine::Function::PMT;
 use strict;
 use warnings;
 
-use base 'Spreadsheet::Engine::Function::investment';
+use base 'Spreadsheet::Engine::Fn::investment';
 
 sub signature { 'n', '!=0', 'n', 'n', 'n' }
 

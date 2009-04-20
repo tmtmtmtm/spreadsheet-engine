@@ -3,7 +3,7 @@ package Spreadsheet::Engine::Function::PV;
 use strict;
 use warnings;
 
-use base 'Spreadsheet::Engine::Function::investment';
+use base 'Spreadsheet::Engine::Fn::investment';
 
 sub calculate {
   my ($self, $rate, $n, $payment, $fv, $type) = @_;

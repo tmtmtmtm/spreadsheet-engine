@@ -3,26 +3,24 @@ package Spreadsheet::Engine::Function::DDB;
 use strict;
 use warnings;
 
-use base 'Spreadsheet::Engine::Function::depreciation';
+use base 'Spreadsheet::Engine::Fn::depreciation';
 use List::Util 'min';
 
 sub argument_count { -4 => 5 }
+sub signature { 'n', 'n', '>=1', 'n', 'n' }
 
-sub depreciate {
-  my ($self, $cost, $salvage, $lifetime) = @_;
-  my $period = $self->next_operand_as_number;
-  my $method =
-    @{ $self->foperand } ? $self->next_operand_as_number->value : 2;
+sub calculate {
+  my ($self, $cost, $salvage, $lifetime, $period, $method) = @_;
+  $method ||= 2;
 
   my $depreciation = 0;    # calculated for each period
   my $accumulated  = 0;    # accumulated by adding each period's
 
   # calculate for each period based on net from previous
-  for my $i (1 .. min($period->value, $lifetime->value)) {
-    $depreciation =
-      ($cost->value - $accumulated) * ($method / $lifetime->value);
+  for my $i (1 .. min($period, $lifetime)) {
+    $depreciation = ($cost - $accumulated) * ($method / $lifetime);
     {                      # don't go lower than salvage value
-      my $bottom = $cost->value - $salvage->value - $accumulated;
+      my $bottom = $cost - $salvage - $accumulated;
       $depreciation = $bottom if $bottom < $depreciation;
     }
     $accumulated += $depreciation;

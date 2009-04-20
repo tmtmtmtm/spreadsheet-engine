@@ -3,7 +3,7 @@ package Spreadsheet::Engine::Function::MINUTE;
 use strict;
 use warnings;
 
-use base 'Spreadsheet::Engine::Function::hms';
+use base 'Spreadsheet::Engine::Fn::hms';
 
 sub _calculate {
   my ($self, $H, $M, $S) = @_;

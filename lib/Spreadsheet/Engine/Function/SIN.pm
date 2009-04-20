@@ -3,7 +3,7 @@ package Spreadsheet::Engine::Function::SIN;
 use strict;
 use warnings;
 
-use base 'Spreadsheet::Engine::Function::math';
+use base 'Spreadsheet::Engine::Fn::math';
 
 sub calculate {
   my ($self, $value) = @_;

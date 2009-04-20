@@ -3,14 +3,11 @@ package Spreadsheet::Engine::Function::FALSE;
 use strict;
 use warnings;
 
-use base 'Spreadsheet::Engine::Function::base';
+use base 'Spreadsheet::Engine::Fn::logical';
 
 sub argument_count { 0 }
 
-sub result {
-  my $self = shift;
-  return Spreadsheet::Engine::Value->new(type => 'nl', value => 0);
-}
+sub calculate { 0 }
 
 1;
 

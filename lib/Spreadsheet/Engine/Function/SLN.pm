@@ -3,11 +3,11 @@ package Spreadsheet::Engine::Function::SLN;
 use strict;
 use warnings;
 
-use base 'Spreadsheet::Engine::Function::depreciation';
+use base 'Spreadsheet::Engine::Fn::depreciation';
 
-sub depreciate {
+sub calculate {
   my ($self, $cost, $salvage, $lifetime) = @_;
-  return ($cost->value - $salvage->value) / $lifetime->value;
+  return ($cost - $salvage) / $lifetime;
 }
 
 1;

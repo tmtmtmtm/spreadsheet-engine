@@ -3,7 +3,7 @@ package Spreadsheet::Engine::Function::TAN;
 use strict;
 use warnings;
 
-use base 'Spreadsheet::Engine::Function::math';
+use base 'Spreadsheet::Engine::Fn::math';
 
 sub signature {
   sub { return cos shift != 0 }

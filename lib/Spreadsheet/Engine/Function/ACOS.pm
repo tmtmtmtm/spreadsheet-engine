@@ -3,7 +3,7 @@ package Spreadsheet::Engine::Function::ACOS;
 use strict;
 use warnings;
 
-use base 'Spreadsheet::Engine::Function::math';
+use base 'Spreadsheet::Engine::Fn::math';
 
 sub signature { [ '>=-1', '<=1' ] }
 

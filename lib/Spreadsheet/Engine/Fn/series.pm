@@ -1,9 +1,9 @@
-package Spreadsheet::Engine::Function::series;
+package Spreadsheet::Engine::Fn::series;
 
 use strict;
 use warnings;
 
-use base 'Spreadsheet::Engine::Function::base';
+use base 'Spreadsheet::Engine::Fn::base';
 
 sub argument_count { -1 }
 
@@ -25,8 +25,6 @@ sub result {
   }
   my $result = $self->result_from($accumulator) || 0;
 
-  # TODO remove the need for this
-  ($result, $type) = @{$result} if ref $result eq 'ARRAY';
   return Spreadsheet::Engine::Value->new(
     type => $type || 'n',
     value => $result
@@ -46,11 +44,11 @@ __END__
 
 =head1 NAME
 
-Spreadsheet::Engine::Function::series - base class for series functions
+Spreadsheet::Engine::Fn::series - base class for series functions
 
 =head1 SYNOPSIS
 
-  use base 'Spreadsheet::Engine::Function::series';
+  use base 'Spreadsheet::Engine::Fn::series';
 
   sub calculate { 
     return sub { 

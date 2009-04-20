@@ -3,7 +3,7 @@ package Spreadsheet::Engine::Function::PROPER;
 use strict;
 use warnings;
 
-use base 'Spreadsheet::Engine::Function::text';
+use base 'Spreadsheet::Engine::Fn::text';
 
 sub calculate {
   my ($self, $string) = @_;

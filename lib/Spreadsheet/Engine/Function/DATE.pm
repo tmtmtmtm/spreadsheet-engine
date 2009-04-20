@@ -3,7 +3,7 @@ package Spreadsheet::Engine::Function::DATE;
 use strict;
 use warnings;
 
-use base 'Spreadsheet::Engine::Function::math';
+use base 'Spreadsheet::Engine::Fn::math';
 
 use Spreadsheet::Engine::Sheet qw/convert_date_gregorian_to_julian/;
 

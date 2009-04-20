@@ -3,18 +3,14 @@ package Spreadsheet::Engine::Function::SYD;
 use strict;
 use warnings;
 
-use base 'Spreadsheet::Engine::Function::depreciation';
+use base 'Spreadsheet::Engine::Fn::depreciation';
 
-sub argument_count { 4 }
+sub signature { 'n', 'n', '>=1', '>=0' }
 
-sub depreciate {
-  my ($self, $cost, $salvage, $lifetime) = @_;
-  my $period = $self->next_operand_as_number;
-  die Spreadsheet::Engine::Error->num if $period->value <= 0;
-
-  return ($cost->value - $salvage->value) *
-    ($lifetime->value - $period->value + 1) /
-    ((($lifetime->value + 1) * $lifetime->value) / 2);
+sub calculate {
+  my ($self, $cost, $salvage, $lifetime, $period) = @_;
+  return ($cost - $salvage) * ($lifetime - $period + 1) /
+    ((($lifetime + 1) * $lifetime) / 2);
 }
 
 1;

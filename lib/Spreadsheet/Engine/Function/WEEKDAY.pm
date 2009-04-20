@@ -3,7 +3,7 @@ package Spreadsheet::Engine::Function::WEEKDAY;
 use strict;
 use warnings;
 
-use base 'Spreadsheet::Engine::Function::math';
+use base 'Spreadsheet::Engine::Fn::math';
 
 sub argument_count { -1 => 2 }
 sub signature { 'n', [ '>=1', '<=3' ] }

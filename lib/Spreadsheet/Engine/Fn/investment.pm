@@ -1,11 +1,9 @@
-package Spreadsheet::Engine::Function::investment;
+package Spreadsheet::Engine::Fn::investment;
 
 use strict;
 use warnings;
 
-use base 'Spreadsheet::Engine::Function::math2';
-
-use Spreadsheet::Engine::Sheet qw/lookup_result_type/;
+use base 'Spreadsheet::Engine::Fn::math2';
 
 sub argument_count { -3 => 5 }
 sub signature { 'n', 'n', 'n', 'n', 'n' }
@@ -17,11 +15,11 @@ __END__
 
 =head1 NAME
 
-Spreadsheet::Engine::Function::investment - base class for investment functions
+Spreadsheet::Engine::Fn::investment - base class for investment functions
 
 =head1 SYNOPSIS
 
-  use base 'Spreadsheet::Engine::Function::investment';
+  use base 'Spreadsheet::Engine::Fn::investment';
 
   sub calculate { ... }
 

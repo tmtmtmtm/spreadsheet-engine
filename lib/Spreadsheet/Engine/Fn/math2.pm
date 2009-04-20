@@ -1,16 +1,12 @@
-package Spreadsheet::Engine::Function::COUNT;
+package Spreadsheet::Engine::Fn::math2;
 
 use strict;
 use warnings;
 
-use base 'Spreadsheet::Engine::Fn::counter';
+use base 'Spreadsheet::Engine::Fn::math';
 
-sub calculate {
-  return sub {
-    my $op = shift;
-    return $op->is_num;
-  };
-}
+sub signature { 'n', 'n' }
+sub _result_type_key { 'twoargnumeric' }
 
 1;
 
@@ -18,15 +14,18 @@ __END__
 
 =head1 NAME
 
-Spreadsheet::Engine::Function::COUNT - Spreadsheet funtion COUNT()
+Spreadsheet::Engine::Fn::math2 - base class for 2arg math functions
 
 =head1 SYNOPSIS
 
-  =COUNT(list)
+  use base 'Spreadsheet::Engine::Fn::math2';
+
+  sub calculate { ... }
 
 =head1 DESCRIPTION
 
-This returns the count of how many values in the list are numbers.
+This provides a base class for spreadsheet functions that perform
+mathematical functions with two arguments (POWER(), MOD(), etc)
 
 =head1 HISTORY
 
@@ -41,7 +40,7 @@ All Rights Reserved.
 Portions (c) Copyright 2007 Socialtext, Inc.
 All Rights Reserved.
 
-Portions (c) Copyright 2007, 2008 Tony Bowden
+Portions (c) Copyright 2008 Tony Bowden
 
 =head1 LICENCE
 

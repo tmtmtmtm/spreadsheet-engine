@@ -1,9 +1,9 @@
-package Spreadsheet::Engine::Function::counter;
+package Spreadsheet::Engine::Fn::counter;
 
 use strict;
 use warnings;
 
-use base 'Spreadsheet::Engine::Function::base';
+use base 'Spreadsheet::Engine::Fn::base';
 
 sub argument_count { -1 }
 
@@ -28,11 +28,11 @@ __END__
 
 =head1 NAME
 
-Spreadsheet::Engine::Function::counter - base class for counting functions
+Spreadsheet::Engine::Fn::counter - base class for counting functions
 
 =head1 SYNOPSIS
 
-  use base 'Spreadsheet::Engine::Function::count';
+  use base 'Spreadsheet::Engine::Fn::counter';
 
   sub calculate { 
     return sub { 
