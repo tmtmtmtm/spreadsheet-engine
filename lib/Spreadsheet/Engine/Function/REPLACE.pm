@@ -5,8 +5,7 @@ use warnings;
 
 use base 'Spreadsheet::Engine::Function::text';
 
-sub argument_count { 4 }
-sub arguments      { [ 1, '>=1', '>=0', 1 ] }
+sub signature { 't', '>=1', '>=0', 't' }
 
 sub calculate {
   my ($self, $string, $start, $len, $new) = @_;
@@ -28,13 +27,7 @@ Spreadsheet::Engine::Function::REPLACE - Spreadsheet funtion REPLACE()
 
 =head1 DESCRIPTION
 
-This provides the spreadsheet text funtion REPLACE()
-
-=head2 arguments
-
-This takes the initial string, the offset into that string at which to
-begin, the number of characters to replace, and the text to be replaced
-with.
+Substitute specified characters with new text.
 
 =head1 HISTORY
 

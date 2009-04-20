@@ -6,7 +6,7 @@ use warnings;
 use Spreadsheet::Engine::Sheet (
   qw/parse_sheet_save execute_sheet_command recalc_sheet/);
 
-our $VERSION = '0.11';
+our $VERSION = '0.12';
 
 =head1 NAME
 
@@ -220,8 +220,6 @@ calls, cell/range lists, etc.: SUM(A1;B2;B3), IF(FALSE();7;8)
 
 =item * (6.15.29) FACT() operates on negative numbers
 
-=item * (6.15.37) LOG() does not default to base 10
-
 =item * (6.15.44) PRODUCT() with no paramters is an error
 
 =item * (6.17.45) MIN("a") returns 0 rather than an error
@@ -239,6 +237,8 @@ calls, cell/range lists, etc.: SUM(A1;B2;B3), IF(FALSE();7;8)
 =over 
 
 =item * (6.19.14) MID() does not accept a zero length
+
+=item * (6.15.37) LOG() does not default to base 10
 
 =back
 

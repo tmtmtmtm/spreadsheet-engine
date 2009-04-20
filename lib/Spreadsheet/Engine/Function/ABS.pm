@@ -27,10 +27,6 @@ Spreadsheet::Engine::Function::ABS - Spreadsheet funtion ABS()
 
 This returns the absolute value of the argument.
 
-=head2 arguments
-
-This takes a single numeric argument.
-
 =head1 HISTORY
 
 This is a Modified Version of code extracted from SocialCalc::Functions

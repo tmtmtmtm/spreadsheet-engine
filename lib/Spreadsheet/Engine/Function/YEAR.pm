@@ -5,7 +5,7 @@ use warnings;
 
 use base 'Spreadsheet::Engine::Function::ymd';
 
-sub calculate {
+sub _calculate {
   my ($self, $y, $m, $d) = @_;
   return $y;
 }

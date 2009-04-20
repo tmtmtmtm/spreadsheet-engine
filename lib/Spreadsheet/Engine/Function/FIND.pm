@@ -5,17 +5,18 @@ use warnings;
 
 use base 'Spreadsheet::Engine::Function::text';
 
-sub argument_count { -2 }
+sub argument_count { -2 => 3 }
 
-sub arguments { [ 1, 1, 0 ] }
+sub signature { 't', 't', 'n' }
 
 sub calculate {
   my ($self, $want, $string, $offset) = @_;
-  $offset = 1 unless defined $offset;
 
-  # TODO create signature for optional args
+  # TODO allow signature to define defaults & custom error messages
+  $offset = 1 unless defined $offset;
   die Spreadsheet::Engine::Error->val('Start is before string')
     if $offset < 1;
+
   my $result = index $string, $want, $offset - 1;
   die Spreadsheet::Engine::Error->val('Not found') unless $result >= 0;
   return $result + 1;
@@ -37,12 +38,7 @@ Spreadsheet::Engine::Function::FIND - Spreadsheet funtion FIND()
 
 =head1 DESCRIPTION
 
-This provides the spreadsheet text funtion LEN()
-
-=head2 arguments
-
-This takes the string you want to find, the string you want to find it
-in, and an optional offset.
+Find a substring at optional offset.
 
 =head1 HISTORY
 

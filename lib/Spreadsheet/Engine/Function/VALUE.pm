@@ -17,10 +17,9 @@ sub result {
     return Spreadsheet::Engine::Value->new(type => 'n', value => $op->value);
   }
 
+  # TODO: make this a Value
   if ($op->is_txt) {
     my $result = determine_value_type($op->value, \my $type);
-
-    # TODO: make this a Value
     die Spreadsheet::Engine::Error->val if substr($type, 0, 1) ne 'n';
     return Spreadsheet::Engine::Value->new(type => 'n', value => $result);
   }
@@ -42,10 +41,6 @@ Spreadsheet::Engine::Function::VALUE - Spreadsheet funtion VALUE()
   =VALUE(value)
 
 =head1 DESCRIPTION
-
-This provides the spreadsheet text funtion N()
-
-=head2 calculate
 
 Convert a textual value to a number
 

@@ -3,23 +3,16 @@ package Spreadsheet::Engine::Function::ymd;
 use strict;
 use warnings;
 
-use base 'Spreadsheet::Engine::Function::base';
+use base 'Spreadsheet::Engine::Function::math';
 
 use Spreadsheet::Engine::Sheet qw/convert_date_julian_to_gregorian/;
 
-use constant JULIAN_OFFSET => 2_415_019;
+sub signature { 'n' }
 
-sub argument_count { 1 }
-
-sub result {
-  my $self = shift;
-  my $op   = $self->next_operand_as_number;
-  my $type = $self->optype(oneargnumeric => $op, $op);
-  my ($y, $m, $d) =
-    convert_date_julian_to_gregorian(int($op->value + JULIAN_OFFSET));
-  my $result = $type->is_number ? $self->calculate($y, $m, $d) : 0;
-  return Spreadsheet::Engine::Value->new(type => $type->type,
-    value => $result);
+sub calculate {
+  my ($self, $value) = @_;
+  return $self->_calculate(
+    convert_date_julian_to_gregorian(int($value + $self->JULIAN_OFFSET)));
 }
 
 1;
@@ -40,12 +33,6 @@ Spreadsheet::Engine::Function::ymd - base class for DMY functions
 
 This provides a base class for spreadsheet functions that operate on a
 single date pre-split into year, month, and day.
-
-=head1 INSTANCE METHODS
-
-=head2 calculate
-
-This will be passed the year, month, and day.
 
 =head1 HISTORY
 

@@ -28,15 +28,7 @@ Spreadsheet::Engine::Function::PRODUCT - Spreadsheet funtion PRODUCT()
 
 =head1 DESCRIPTION
 
-This provides the spreadsheet text funtion PRODUCT()
-
-=head2 calculate
-
-This returns the sum of the values
-
-=head2 accumulator
-
-The default accumulator value for PRODUCT() is one.
+This returns the product of the values
 
 =head1 HISTORY
 

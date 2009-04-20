@@ -3,21 +3,10 @@ package Spreadsheet::Engine::Function::math2;
 use strict;
 use warnings;
 
-use base 'Spreadsheet::Engine::Function::base';
+use base 'Spreadsheet::Engine::Function::math';
 
-sub argument_count { 2 }
-
-sub result {
-  my $self   = shift;
-  my $op1    = $self->next_operand_as_number;
-  my $op2    = $self->next_operand_as_number;
-  my $type   = $self->optype(twoargnumeric => $op1, $op2);
-  my $result =
-    $type->is_number ? $self->calculate($op1->value, $op2->value) : 0;
-  return Spreadsheet::Engine::Value->new(type => $type->type,
-    value => $result);
-
-}
+sub signature { 'n', 'n' }
+sub _result_type_key { 'twoargnumeric' }
 
 1;
 
@@ -37,17 +26,6 @@ Spreadsheet::Engine::Function::math2 - base class for 2arg math functions
 
 This provides a base class for spreadsheet functions that perform
 mathematical functions with two arguments (POWER(), MOD(), etc)
-
-Subclasses should provide 'calculate' function that will be called with 
-the arguments provided.
-
-=head1 INSTANCE METHODS
-
-=head2 calculate
-
-Subclasses should provide this as the workhorse. It should either return
-the result, or die with an error message (that will be trapped and
-turned into a e#NUM! error).
 
 =head1 HISTORY
 

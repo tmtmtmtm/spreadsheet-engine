@@ -31,10 +31,6 @@ Spreadsheet::Engine::Function::T - Spreadsheet funtion T()
 
 =head1 DESCRIPTION
 
-This provides the spreadsheet text funtion T()
-
-=head2 calculate
-
 If the value passed is text, then return as is. If not, then the empty
 string is returned. This does *not* convert a number to text.
 

@@ -26,10 +26,6 @@ Spreadsheet::Engine::Function::COUNT - Spreadsheet funtion COUNT()
 
 =head1 DESCRIPTION
 
-This provides the spreadsheet text funtion COUNT()
-
-=head2 calculate
-
 This returns the count of how many values in the list are numbers.
 
 =head1 HISTORY

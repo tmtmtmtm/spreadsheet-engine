@@ -27,10 +27,6 @@ Spreadsheet::Engine::Function::MAX - Spreadsheet funtion MAX()
 
 =head1 DESCRIPTION
 
-This provides the spreadsheet text funtion MAX()
-
-=head2 calculate
-
 This returns the maximum value from the list provided.
 
 =head1 HISTORY

@@ -1,13 +1,20 @@
-package Spreadsheet::Engine::Function::ATAN;
+package Spreadsheet::Engine::Function::ROUND;
 
 use strict;
 use warnings;
 
 use base 'Spreadsheet::Engine::Function::math';
 
+sub argument_count { -1 => 2 }
+sub signature { 'n', 'n' }
+sub _result_type_key { 'oneargnumeric' }
+
 sub calculate {
-  my ($self, $value) = @_;
-  return atan2($value, 1);
+  my ($self, $value, $precision) = @_;
+  my $rounding = ($value >= 0 ? 0.5 : -0.5);
+  my $decimalscale = 10**int($precision || 0);
+  my $scaledvalue = int($value * $decimalscale + $rounding);
+  return $scaledvalue / $decimalscale;
 }
 
 1;
@@ -16,15 +23,15 @@ __END__
 
 =head1 NAME
 
-Spreadsheet::Engine::Function::ATAN - Spreadsheet funtion ATAN()
+Spreadsheet::Engine::Function::ROUND - Spreadsheet funtion ROUND()
 
 =head1 SYNOPSIS
 
-  =ATAN(value)
+  =ROUND(value, [precision])
 
 =head1 DESCRIPTION
 
-This returns the arc tangent.
+This rounds the value to the nearest power of 10 specified by precision.
 
 =head1 HISTORY
 

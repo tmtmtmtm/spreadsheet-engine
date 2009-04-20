@@ -24,10 +24,6 @@ Spreadsheet::Engine::Function::ISLOGICAL - Spreadsheet funtion ISLOGICAL()
 
 =head1 DESCRIPTION
 
-This provides the spreadsheet text funtion ISLOGICAL()
-
-=head2 calculate
-
 Is the value a logical type (TRUE/FALSE)?
 
 =head1 HISTORY

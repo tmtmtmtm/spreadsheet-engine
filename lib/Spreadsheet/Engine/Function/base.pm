@@ -3,6 +3,10 @@ package Spreadsheet::Engine::Function::base;
 use strict;
 use warnings;
 
+use Carp;
+use Class::Struct;
+use Encode;
+
 use Spreadsheet::Engine::Value;
 use Spreadsheet::Engine::Error;
 use Spreadsheet::Engine::Fn::Operand;
@@ -10,15 +14,14 @@ use Spreadsheet::Engine::Sheet qw/ copy_function_args
   function_args_error lookup_result_type operand_value_and_type
   operand_as_number operand_as_text /;
 
-use Class::Struct;
-
 struct(__PACKAGE__,
   {
     fname      => '$',
     operand    => '$',
     errortext  => '$',
     typelookup => '$',
-    sheetdata  => '$'
+    sheetdata  => '$',
+    _opstore   => '@',
   }
 );
 
@@ -44,18 +47,22 @@ sub execute {
   return;
 }
 
-sub argument_count { undef }
-
 sub foperand {
   my $self = shift;
   return $self->{_foperand} if defined $self->{_foperand};
 
   copy_function_args($self->operand, \my @foperand);
 
-  if (defined(my $want_args = $self->argument_count)) {
+  if ($self->can('argument_count') or $self->can('signature')) {
+    my ($min_args, $max_args) =
+      $self->can('argument_count')
+      ? ($self->argument_count)
+      : (0 + @{ [ $self->signature ] });
     my $have_args = scalar @foperand;
-    if ( ($want_args < 0 and $have_args < -$want_args)
-      or ($want_args >= 0 and $have_args != $want_args)) {
+
+    if ( ($min_args < 0 and $have_args < -$min_args)
+      or ($min_args >= 0 and $have_args != $min_args)
+      or (defined $max_args and $have_args > $max_args)) {
       die Spreadsheet::Engine::Error->val(
         sprintf('Incorrect arguments to function "%s". ', $self->fname),
       );
@@ -63,6 +70,51 @@ sub foperand {
   }
 
   return ($self->{_foperand} = \@foperand);
+}
+
+sub _opvals { map $_->value, shift->_ops }
+
+sub _ops {
+  my $self = shift;
+  if (@{ $self->_opstore } == 0) {
+    my $numargs = scalar @{ $self->foperand };
+    my @argdef  = $self->signature;
+
+    my @operands = ();
+
+    # Loop over args, not defs, so that optional args don't fail
+    for my $sig (@argdef[ 0 .. $numargs - 1 ]) {
+      my $op;
+
+      if ($sig eq 'n') {    # any number - was 0
+        $op = $self->next_operand_as_number;
+      } elsif ($sig eq 't') {    # any string - was 1
+        $op = $self->next_operand_as_text;
+      } else {
+        croak 'Missing signature value in ' . $self->fname unless $sig;
+        $op = $self->next_operand_as_number;
+        my @tests = (ref $sig eq 'ARRAY') ? @{$sig} : $sig;
+        foreach my $check (@tests) {
+          if (ref $check eq 'CODE') {
+            die Spreadsheet::Engine::Error->val('Invalid arguments')
+              unless $check->($op->value);
+          } elsif ($check =~ /^([!<>]=?)(-?\d+)/) {    # >=0 <1 etc.
+            my ($test, $num) = ($1, $2);
+            my $val = $op->value;
+            die Spreadsheet::Engine::Error->val('Invalid arguments')
+              unless eval "$val $test $num";
+          } else {
+            croak "Error in signature ($check) of " . $self->fname;
+          }
+        }
+      }
+
+      die $op if $op->is_error;
+      push @operands, $op;
+    }
+    $self->_opstore(\@operands);
+  }
+  return @{ $self->_opstore };
 }
 
 sub next_operand {
@@ -93,7 +145,7 @@ sub next_operand_as_text {
     operand_as_text($self->sheetdata, $self->foperand, $self->errortext,
     \my $tostype);
   return Spreadsheet::Engine::Fn::Operand->new(
-    value => $value,
+    value => decode(utf8 => $value),
     type  => $tostype
   );
 }
@@ -105,6 +157,9 @@ sub optype {
 
   my $first = shift @op;
   my $type  = $first->type;
+
+  # Check against self if no others supplied
+  push @op, $first if $operation eq 'oneargnumeric' and not @op;
 
   while (my $next = shift @op) {
     $type = lookup_result_type($type, (ref $next ? $next->type : $next), $tl);
@@ -151,13 +206,30 @@ As per SocialCalc (to document fully later)
 Each function should declare how many arguments it expects. This should
 be 0 for no arguments, a positive integer for exactly that many
 arguments, or a negative integer for at least that many arguments (based
-on the absolute value). If this method is not provided no checking of
-arguments is performed.
+on the absolute value). 
+
+In the latter case, an optional second value will declare a maximum
+number of arguments (e.g. return (-2, 4) = between 2 and 4 arguments)
+
+If this method is not provided no checking of arguments is performed.
+
+=head2 signature (EXPERIMENTAL)
+
+Functions may also declare a signature function that declares, for each
+operand that the function can receive, whether it must be 't' (text),
+'n' (numeric), or in the case of a number, a test ('>0', '<=1') that it
+must pass. The entire operand stack can then be popped as
+$self->_ops, throwing an "Invalid arguments" error if required.
 
 =head2 result
 
 Functions should provide a result() method that will return a value/type
 hash containing the calculated response.
+
+=head2 result_type
+
+This will normally be calculated based on a lookup of the types of
+operands provided, but subclasses can override this.
 
 =head1 METHODS
 
@@ -174,6 +246,8 @@ response onto the stack.
 Pops the top of the operand stack and returns a hash containing the
 value and type. (This is currently a simple delegation to
 Sheet::operand_value_and_type/operand_as_text/operand_as_number
+
+next_operand_as_text also encodes its return value as utf8.
 
 =head2 optype
 

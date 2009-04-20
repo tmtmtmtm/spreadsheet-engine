@@ -24,10 +24,6 @@ Spreadsheet::Engine::Function::ISNONTEXT - Spreadsheet funtion ISNONTEXT()
 
 =head1 DESCRIPTION
 
-This provides the spreadsheet text funtion ISNONTEXT()
-
-=head2 calculate
-
 Is the value non-textual?
 
 =head1 HISTORY

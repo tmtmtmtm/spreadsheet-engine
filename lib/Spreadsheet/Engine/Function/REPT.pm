@@ -5,8 +5,7 @@ use warnings;
 
 use base 'Spreadsheet::Engine::Function::text';
 
-sub argument_count { 2 }
-sub arguments      { [ 1, '>=0' ] }
+sub signature { 't', '>=0' }
 
 sub calculate {
   my ($self, $string, $times) = @_;
@@ -27,11 +26,7 @@ Spreadsheet::Engine::Function::REPT - Spreadsheet funtion REPT()
 
 =head1 DESCRIPTION
 
-This provides the spreadsheet text funtion REPT()
-
-=head2 arguments
-
-This takes a string, and the number of times to repeat it.
+Repeat the text provided a specified number of times.
 
 =head1 HISTORY
 

@@ -5,8 +5,6 @@ use warnings;
 
 use base 'Spreadsheet::Engine::Function::text';
 
-sub arguments { [1] }
-
 sub calculate {
   my ($self, $string) = @_;
   $string =~ s/^ *//;
@@ -29,13 +27,8 @@ Spreadsheet::Engine::Function::TRIM - Spreadsheet funtion TRIM()
 
 =head1 DESCRIPTION
 
-This provides the spreadsheet text funtion TRIM(). This removes all
-leading and trailing spaces and collapses multiple spaces to a
-single space.
-
-=head2 arguments
-
-This takes a single textual argument.
+This removes all leading and trailing spaces and collapses multiple
+spaces to a single space.
 
 =head1 HISTORY
 

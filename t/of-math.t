@@ -190,7 +190,7 @@ test A142 1
 
 # If the base is not specified, base 10 is assumed. 
 set A143 formula LOG(10)
-TODO test A143 1
+test A143 1
 
 # Log base 8 of 8^3 should return 3. 
 set A144 formula LOG(8*8*8,8)

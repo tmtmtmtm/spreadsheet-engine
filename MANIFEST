@@ -16,7 +16,6 @@ lib/Spreadsheet/Engine/Function/COUNTA.pm
 lib/Spreadsheet/Engine/Function/COUNTBLANK.pm
 lib/Spreadsheet/Engine/Function/counter.pm
 lib/Spreadsheet/Engine/Function/DATE.pm
-lib/Spreadsheet/Engine/Function/dates.pm
 lib/Spreadsheet/Engine/Function/DAY.pm
 lib/Spreadsheet/Engine/Function/DDB.pm
 lib/Spreadsheet/Engine/Function/DEGREES.pm
@@ -44,6 +43,7 @@ lib/Spreadsheet/Engine/Function/ISTEXT.pm
 lib/Spreadsheet/Engine/Function/LEFT.pm
 lib/Spreadsheet/Engine/Function/LEN.pm
 lib/Spreadsheet/Engine/Function/LN.pm
+lib/Spreadsheet/Engine/Function/LOG.pm
 lib/Spreadsheet/Engine/Function/LOG10.pm
 lib/Spreadsheet/Engine/Function/LOWER.pm
 lib/Spreadsheet/Engine/Function/math.pm
@@ -70,6 +70,7 @@ lib/Spreadsheet/Engine/Function/RATE.pm
 lib/Spreadsheet/Engine/Function/REPLACE.pm
 lib/Spreadsheet/Engine/Function/REPT.pm
 lib/Spreadsheet/Engine/Function/RIGHT.pm
+lib/Spreadsheet/Engine/Function/ROUND.pm
 lib/Spreadsheet/Engine/Function/SECOND.pm
 lib/Spreadsheet/Engine/Function/series.pm
 lib/Spreadsheet/Engine/Function/SIN.pm

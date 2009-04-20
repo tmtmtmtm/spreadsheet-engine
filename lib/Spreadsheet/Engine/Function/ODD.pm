@@ -34,10 +34,6 @@ Spreadsheet::Engine::Function::ODD - Spreadsheet funtion ODD()
 
 This rounds the value to the nearest odd integer, away from zero.
 
-=head2 arguments
-
-This takes a single numeric argument.
-
 =head1 HISTORY
 
 This is a Modified Version of code extracted from SocialCalc::Functions

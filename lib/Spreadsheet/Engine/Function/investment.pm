@@ -3,21 +3,13 @@ package Spreadsheet::Engine::Function::investment;
 use strict;
 use warnings;
 
-use base 'Spreadsheet::Engine::Function::base';
+use base 'Spreadsheet::Engine::Function::math2';
 
 use Spreadsheet::Engine::Sheet qw/lookup_result_type/;
 
-sub argument_count { -3 }
-
-sub result {
-  my $self   = shift;
-  my @op     = map $self->next_operand_as_number, 1 .. @{ $self->foperand };
-  my $type   = $self->optype(twoargnumeric => @op);
-  my $result = $type->is_number ? $self->calculate(@op) : 0;
-  return ref $result
-    ? $result
-    : Spreadsheet::Engine::Value->new(type => $type->type, value => $result);
-}
+sub argument_count { -3 => 5 }
+sub signature { 'n', 'n', 'n', 'n', 'n' }
+sub result_type { Spreadsheet::Engine::Value->new(type => 'n$') }
 
 1;
 

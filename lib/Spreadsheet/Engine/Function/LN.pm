@@ -5,12 +5,7 @@ use warnings;
 
 use base 'Spreadsheet::Engine::Function::math';
 
-sub arg_check {
-  return sub {
-    my $value = shift;
-    return $value > 0;
-  };
-}
+sub signature { '>0' }
 
 sub calculate {
   my ($self, $value) = @_;
@@ -32,10 +27,6 @@ Spreadsheet::Engine::Function::LN - Spreadsheet funtion LN()
 =head1 DESCRIPTION
 
 This returns the natural log of the given value.
-
-=head2 arguments
-
-This takes a single numeric argument.
 
 =head1 HISTORY
 

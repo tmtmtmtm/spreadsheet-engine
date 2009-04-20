@@ -35,10 +35,6 @@ Spreadsheet::Engine::Function::TRUNC - Spreadsheet funtion TRUNC()
 
 This truncates the value to the specified number of digits.
 
-=head2 arguments
-
-This takes two numeric arguments.
-
 =head1 HISTORY
 
 This is a Modified Version of code extracted from SocialCalc::Functions

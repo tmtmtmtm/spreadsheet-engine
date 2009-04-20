@@ -28,15 +28,7 @@ Spreadsheet::Engine::Function::SUM - Spreadsheet funtion SUM()
 
 =head1 DESCRIPTION
 
-This provides the spreadsheet text funtion SUM()
-
-=head2 calculate
-
 This returns the sum of the values
-
-=head2 accumulator
-
-The default accumulator value for SUM() is zero.
 
 =head1 HISTORY
 

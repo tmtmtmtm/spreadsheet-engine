@@ -27,10 +27,6 @@ Spreadsheet::Engine::Function::MIN - Spreadsheet funtion MIN()
 
 =head1 DESCRIPTION
 
-This provides the spreadsheet text funtion MIN()
-
-=head2 calculate
-
 This returns the minimum value from the list provided.
 
 =head1 HISTORY

@@ -30,10 +30,6 @@ Spreadsheet::Engine::Function::INT - Spreadsheet funtion INT()
 
 This rounds the value down to the nearest integer. 
 
-=head2 arguments
-
-This takes a single numeric argument.
-
 =head1 HISTORY
 
 This is a Modified Version of code extracted from SocialCalc::Functions

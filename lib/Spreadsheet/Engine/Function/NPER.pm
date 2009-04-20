@@ -5,10 +5,10 @@ use warnings;
 
 use base 'Spreadsheet::Engine::Function::investment';
 
+sub result_type { Spreadsheet::Engine::Value->new(type => 'n') }
+
 sub calculate {
-  my $self = shift;
-  my ($rate, $payment, $pv, $fv, $type) =
-    map { defined $_ ? $_->value : 0 } @_;
+  my ($self, $rate, $payment, $pv, $fv, $type) = @_;
   $fv ||= 0;
   $type = $type ? 1 : 0;
 

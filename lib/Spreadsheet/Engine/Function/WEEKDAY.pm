@@ -3,25 +3,18 @@ package Spreadsheet::Engine::Function::WEEKDAY;
 use strict;
 use warnings;
 
-use base 'Spreadsheet::Engine::Function::dates';
+use base 'Spreadsheet::Engine::Function::math';
 
-sub argument_count { -1 }
+sub argument_count { -1 => 2 }
+sub signature { 'n', [ '>=1', '<=3' ] }
 
 sub calculate {
-  my ($self, $date) = @_;
-  my $type    = $self->_type;
+  my ($self, $date, $type) = @_;
+  $type ||= 1;
+
   my $doffset = 6;
   $doffset-- if $type > 1;
   return int($date + $doffset) % 7 + ($type < 3 ? 1 : 0);
-}
-
-sub _type {
-  my $self = shift;
-  return 1 unless @{ $self->foperand } > 0;
-  my $op = $self->next_operand_as_number;
-  die Spreadsheet::Engine::Error->val
-    if !$op->is_num || $op->value < 1 || $op->value > 3;
-  return $op->value;
 }
 
 1;

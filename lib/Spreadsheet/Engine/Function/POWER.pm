@@ -26,10 +26,6 @@ Spreadsheet::Engine::Function::POWER - Spreadsheet funtion POWER()
 
 This returns the number raised to the power of the exponent.
 
-=head2 arguments
-
-This takes two numeric arguments.
-
 =head1 HISTORY
 
 This is a Modified Version of code extracted from SocialCalc::Functions

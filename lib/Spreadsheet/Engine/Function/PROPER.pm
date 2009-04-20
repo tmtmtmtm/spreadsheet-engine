@@ -5,8 +5,6 @@ use warnings;
 
 use base 'Spreadsheet::Engine::Function::text';
 
-sub arguments { [1] }
-
 sub calculate {
   my ($self, $string) = @_;
   $string =~ s/(\w+)/\u\L$1/g;
@@ -27,11 +25,7 @@ Spreadsheet::Engine::Function::PROPER - Spreadsheet funtion PROPER()
 
 =head1 DESCRIPTION
 
-This provides the spreadsheet text funtion PROPER()
-
-=head2 arguments
-
-This takes a single textual argument.
+Capitalise the first letter of each word and lower case the rest.
 
 =head1 HISTORY
 

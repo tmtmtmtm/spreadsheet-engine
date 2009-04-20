@@ -5,16 +5,11 @@ use warnings;
 
 use base 'Spreadsheet::Engine::Function::math';
 
+sub signature { [ '>=-1', '<=1' ] }
+
 sub calculate {
   my ($self, $value) = @_;
   return atan2($value, sqrt(1 - $value * $value));
-}
-
-sub arg_check {
-  return sub {
-    my $value = shift;
-    return $value >= -1 && $value <= 1;
-  };
 }
 
 1;
@@ -32,10 +27,6 @@ Spreadsheet::Engine::Function::ASIN - Spreadsheet funtion ASIN()
 =head1 DESCRIPTION
 
 This returns the arc sine.
-
-=head2 arguments
-
-This takes a single numeric argument.
 
 =head1 HISTORY
 

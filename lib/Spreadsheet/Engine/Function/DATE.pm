@@ -3,26 +3,18 @@ package Spreadsheet::Engine::Function::DATE;
 use strict;
 use warnings;
 
-use base 'Spreadsheet::Engine::Function::ymd';
+use base 'Spreadsheet::Engine::Function::math';
 
 use Spreadsheet::Engine::Sheet qw/convert_date_gregorian_to_julian/;
 
-sub argument_count { 3 }
+sub argument_count   { 3 }
+sub signature        { 'n', 'n', 'n' }
+sub result_type { Spreadsheet::Engine::Value->new(type => 'nd') }
 
-sub result {
-  my $self = shift;
-
-  my $y = $self->next_operand_as_number;
-  my $m = $self->next_operand_as_number;
-  my $d = $self->next_operand_as_number;
-
-  my $type = $self->optype(twoargnumeric => $y, $m, $d);
-  return $type unless $type->is_num;
-
-  my $result =
-    convert_date_gregorian_to_julian(int($y->value), int($m->value),
-    int($d->value)) - $self->JULIAN_OFFSET;
-  return Spreadsheet::Engine::Value->new(type => 'nd', value => $result);
+sub calculate {
+  my ($self, $y, $m, $d) = @_;
+  return convert_date_gregorian_to_julian(int($y), int($m), int($d)) -
+    $self->JULIAN_OFFSET;
 }
 
 1;

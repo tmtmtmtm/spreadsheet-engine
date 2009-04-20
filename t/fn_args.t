@@ -5,14 +5,14 @@ use warnings;
 use lib ('lib', 't/lib');
 
 use SheetTest;
-use Test::More tests => 2 * 9;
+
+use Test::More tests => 2 * 12;
 
 my $sheet = run_tests();
-for my $cell ('A1' .. 'A9') {
+for my $cell (map "A$_", 1 .. 12) {
   is $sheet->raw->{valuetypes}->{$cell}, 'e#VALUE!', "$cell = Error";
-  like $sheet->raw->{datavalues}->{$cell}, qr/Incorrect arguments/,
+  like $sheet->raw->{datavalues}->{$cell}, qr/arguments/,
     "$cell incorrect args";
-
 }
 
 __DATA__
@@ -37,3 +37,10 @@ set A8 formula ISTEXT(6, "a")
 
 # Zero args
 set A9 formula PI(3)
+
+# Too many
+set A10 formula ROUND(87,3,3)
+set A11 formula WEEKDAY("2007-01-01",2,"y")
+
+# PMT
+set A12 formula PMT(10,0,10)

@@ -6,23 +6,26 @@ use warnings;
 use base 'Spreadsheet::Engine::Function::base';
 
 use constant PI => atan2(1, 1) * 4;
+use constant JULIAN_OFFSET => 2_415_019;
 
-sub argument_count { 1 }
+sub signature        { 'n' }
+sub _result_type_key { 'oneargnumeric' }
+
+sub result_type {
+  my $self = shift;
+  return $self->optype($self->_result_type_key => $self->_ops);
+}
 
 sub result {
   my $self = shift;
-  my $op   = $self->next_operand_as_number;
-  if (my $check = $self->arg_check) {
-    die Spreadsheet::Engine::Error->num('Invalid arguments')
-      unless $check->($op->value);
-  }
-  my $type = $self->optype(oneargnumeric => $op, $op);
-  my $result = $type->is_number ? $self->calculate($op->value) : 0;
-  return Spreadsheet::Engine::Value->new(type => $type->type,
-    value => $result);
-}
+  my $type = $self->result_type;
+  die $type unless $type->is_num;
 
-sub arg_check { }
+  return Spreadsheet::Engine::Value->new(
+    type  => $type->type,
+    value => $self->calculate(map $_->value, $self->_ops),
+  );
+}
 
 1;
 

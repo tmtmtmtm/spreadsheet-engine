@@ -24,10 +24,6 @@ Spreadsheet::Engine::Function::ISNA - Spreadsheet funtion ISNA()
 
 =head1 DESCRIPTION
 
-This provides the spreadsheet text funtion ISNA()
-
-=head2 calculate
-
 Is the value of type NA?
 
 =head1 HISTORY

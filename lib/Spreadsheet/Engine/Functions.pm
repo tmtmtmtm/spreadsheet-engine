@@ -51,12 +51,10 @@ our %function_list = (
   IF        => [ \&if_function,             3 ],
   INDEX     => [ \&index_function,          -1 ],
   IRR       => [ \&irr_function,            -1 ],
-  LOG       => [ \&log_function,            -1 ],
   MATCH     => [ \&lookup_functions,        -2 ],
   NOT       => [ \&not_function,            1 ],
   NOW       => [ \&zeroarg_functions,       0 ],
   OR        => [ \&and_or_function,         -1 ],
-  ROUND     => [ \&round_function,          -1 ],
   ROWS      => [ \&columns_rows_function,   1 ],
   SUMIF     => [ \&countif_sumif_functions, -2 ],
   TODAY     => [ \&zeroarg_functions,       0 ],
@@ -96,11 +94,11 @@ __PACKAGE__->register(
   map +($_ => "Spreadsheet::Engine::Function::$_"),
   qw/ ABS ACOS ASIN ATAN ATAN2 AVERAGE COS COUNT COUNTA COUNTBLANK DATE
     DAY DDB DEGREES ERRCELL EVEN EXP FACT FALSE FIND FV HOUR INT ISBLANK
-    ISERR ISERROR ISLOGICAL ISNA ISNONTEXT ISNUMBER ISTEXT LEFT LEN LN
+    ISERR ISERROR ISLOGICAL ISNA ISNONTEXT ISNUMBER ISTEXT LEFT LEN LN LOG
     LOG10 LOWER MAX MID MIN MINUTE MOD MONTH N NA NPER NPV ODD PI PMT
-    POWER PRODUCT PROPER PV RADIANS RATE REPLACE REPT RIGHT SECOND SIN SLN
-    SQRT STDEV STDEVP SUBSTITUTE SUM SYD T TAN TIME TRIM TRUE TRUNC UPPER
-    VALUE VAR VARP WEEKDAY YEAR /
+    POWER PRODUCT PROPER PV RADIANS RATE REPLACE REPT RIGHT ROUND SECOND
+    SIN SLN SQRT STDEV STDEVP SUBSTITUTE SUM SYD T TAN TIME TRIM TRUE
+    TRUNC UPPER VALUE VAR VARP WEEKDAY YEAR /
 );
 
 =head1 EXPORTS
@@ -914,121 +912,6 @@ sub exact_function {
   } elsif (substr($tostype, 0, 1) eq "e") {
     $result     = $value1;
     $resulttype = $tostype;
-  }
-
-  push @$operand, { type => $resulttype, value => $result };
-
-  return;
-
-}
-
-=head2 log_function
-
-=over
-
-=item LOG(value,[base])
-
-=back
-
-=cut
-
-sub log_function {
-
-  my ($fname, $operand, $foperand, $errortext, $typelookup, $sheetdata) = @_;
-
-  my ($tostype, $tostype2, $value2);
-  my $result = 0;
-
-  my $value = operand_as_number($sheetdata, $foperand, $errortext, \$tostype);
-  my $resulttype =
-    lookup_result_type($tostype, $tostype, $typelookup->{oneargnumeric});
-  if ((scalar @$foperand) == 1) {
-    $value2 =
-      operand_as_number($sheetdata, $foperand, $errortext, \$tostype2);
-    if (substr($tostype2, 0, 1) ne "n" || $value2 <= 0) {
-      function_specific_error($fname, $operand, $errortext, "e#NUM!",
-        "LOG second argument must be numeric greater than 0");
-      return 0;
-    }
-  } elsif ((scalar @$foperand) != 0) {
-    function_args_error($fname, $operand, $errortext);
-    return 0;
-  } else {
-    $value2 = exp(1);
-  }
-
-  if ($resulttype eq "n") {
-    if ($value <= 0) {
-      function_specific_error($fname, $operand, $errortext, "e#NUM!",
-        "LOG first argument must be greater than 0");
-      return 0;
-    }
-    $result = log($value) / log($value2);
-  }
-
-  push @$operand, { type => $resulttype, value => $result };
-
-  return;
-
-}
-
-=head2 round_function
-
-=over
-
-=item ROUND(value,[precision])
-
-=back
-
-=cut
-
-sub round_function {
-
-  my ($fname, $operand, $foperand, $errortext, $typelookup, $sheetdata) = @_;
-
-  my ($tostype, $tostype2, $value2);
-  my $result = 0;
-
-  my $value = operand_as_number($sheetdata, $foperand, $errortext, \$tostype);
-  my $resulttype =
-    lookup_result_type($tostype, $tostype, $typelookup->{oneargnumeric});
-  if ((scalar @$foperand) == 1) {
-    $value2 =
-      operand_as_number($sheetdata, $foperand, $errortext, \$tostype2);
-    if (substr($tostype2, 0, 1) ne "n") {
-      function_specific_error($fname, $operand, $errortext, "e#NUM!",
-        "ROUND second argument must be numeric");
-      return 0;
-    }
-  } elsif ((scalar @$foperand) != 0) {
-    function_args_error($fname, $operand, $errortext);
-    return 0;
-  } else {
-    $value2 = 0;    # if no second arg, assume 0 for simple round
-  }
-
-  if ($resulttype eq "n") {
-    if ($value2 == 0) {
-      $result = int($value + ($value >= 0 ? 0.5 : -0.5));
-    } elsif ($value2 > 0) {
-      my $decimalscale = 1;    # cut down to required number of decimal digits
-      $value2 = int($value2);
-      for (my $i = 0 ; $i < $value2 ; $i++) {
-        $decimalscale *= 10;
-      }
-      my $scaledvalue =
-        int($value * $decimalscale + ($value >= 0 ? 0.5 : -0.5));
-      $result = $scaledvalue / $decimalscale;
-    } elsif ($value2 < 0) {
-      my $decimalscale = 1;    # cut down to required number of decimal digits
-      $value2 = int(-$value2);
-      for (my $i = 0 ; $i < $value2 ; $i++) {
-        $decimalscale *= 10;
-      }
-      my $scaledvalue =
-        int($value / $decimalscale + ($value >= 0 ? 0.5 : -0.5));
-      $result = $scaledvalue * $decimalscale;
-    }
   }
 
   push @$operand, { type => $resulttype, value => $result };

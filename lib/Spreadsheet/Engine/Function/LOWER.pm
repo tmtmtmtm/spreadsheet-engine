@@ -5,8 +5,6 @@ use warnings;
 
 use base 'Spreadsheet::Engine::Function::text';
 
-sub arguments { [1] }
-
 sub calculate {
   my ($self, $string) = @_;
   return lc $string;
@@ -25,14 +23,6 @@ Spreadsheet::Engine::Function::LOWER - Spreadsheet funtion LOWER()
   =LOWER(string)
 
 =head1 DESCRIPTION
-
-This provides the spreadsheet text funtion LOWER()
-
-=head2 arguments
-
-This takes a single textual argument.
-
-=head2 calculate
 
 This transforms the string using Perl's lc() function.
 

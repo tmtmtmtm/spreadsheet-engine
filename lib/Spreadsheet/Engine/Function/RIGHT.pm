@@ -5,8 +5,7 @@ use warnings;
 
 use base 'Spreadsheet::Engine::Function::text';
 
-sub argument_count { -2 }
-sub arguments      { [ 1, '>=0' ] }
+sub signature { 't', '>=0' }
 
 sub calculate {
   my ($self, $string, $len) = @_;
@@ -27,12 +26,7 @@ Spreadsheet::Engine::Function::RIGHT - Spreadsheet funtion RIGHT()
 
 =head1 DESCRIPTION
 
-This provides the spreadsheet text funtion RIGHT() which returns
-the rightmost characters from the end of the string.
-
-=head2 arguments
-
-This takes a single textual argument, and the length required
+Return the rightmost characters from the end of the string.
 
 =head1 HISTORY
 

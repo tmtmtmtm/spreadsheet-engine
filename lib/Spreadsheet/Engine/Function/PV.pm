@@ -6,20 +6,15 @@ use warnings;
 use base 'Spreadsheet::Engine::Function::investment';
 
 sub calculate {
-  my $self = shift;
-  my ($rate, $n, $payment, $fv, $type) =
-    map { defined $_ ? $_->value : 0 } @_;
+  my ($self, $rate, $n, $payment, $fv, $type) = @_;
+  $fv ||= 0;
   $type = $type ? 1 : 0;
 
   die Spreadsheet::Engine::Error->div0 if $rate == -1;
-  my $pv =
-    $rate == 0
-    ? -$fv - ($payment * $n)
-    : (-$fv - $payment * (1 + $rate * $type) * ((1 + $rate)**$n - 1) / $rate)
-    / ((1 + $rate)**$n);
-
-  return Spreadsheet::Engine::Value->new(type => 'n$', value => $pv);
-
+  return -$fv - ($payment * $n) if $rate == 0;
+  return (
+    -$fv - $payment * (1 + $rate * $type) * ((1 + $rate)**$n - 1) / $rate) /
+    ((1 + $rate)**$n);
 }
 
 1;

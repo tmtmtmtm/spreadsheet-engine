@@ -24,10 +24,6 @@ Spreadsheet::Engine::Function::ISBLANK - Spreadsheet funtion ISBLANK()
 
 =head1 DESCRIPTION
 
-This provides the spreadsheet text funtion ISBLANK()
-
-=head2 calculate
-
 Is the value blank?
 
 =head1 HISTORY

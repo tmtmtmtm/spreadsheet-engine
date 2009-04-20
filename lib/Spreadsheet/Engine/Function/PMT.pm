@@ -5,22 +5,16 @@ use warnings;
 
 use base 'Spreadsheet::Engine::Function::investment';
 
+sub signature { 'n', '!=0', 'n', 'n', 'n' }
+
 sub calculate {
-  my $self = shift;
-  my ($rate, $n, $pv, $fv, $type) = map { defined $_ ? $_->value : 0 } @_;
+  my ($self, $rate, $n, $pv, $fv, $type) = @_;
   $fv ||= 0;
   $type = $type ? 1 : 0;
 
-  die Spreadsheet::Engine::Value->num if $n == 0;
-
-  my $payment =
-    $rate == 0
-    ? ($fv - $pv) / $n
-    : (0 - $fv - $pv * (1 + $rate)**$n) /
+  return ($fv - $pv) / $n if $rate == 0;
+  return (0 - $fv - $pv * (1 + $rate)**$n) /
     ((1 + $rate * $type) * ((1 + $rate)**$n - 1) / $rate);
-
-  return Spreadsheet::Engine::Value->new(type => 'n$', value => $payment);
-
 }
 
 1;

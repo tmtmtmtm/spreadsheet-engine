@@ -31,10 +31,6 @@ Spreadsheet::Engine::Function::N - Spreadsheet funtion N()
 
 =head1 DESCRIPTION
 
-This provides the spreadsheet text funtion N()
-
-=head2 calculate
-
 If the value is numberic, return it, else return zero.
 
 =head1 HISTORY

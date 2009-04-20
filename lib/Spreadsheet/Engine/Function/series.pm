@@ -27,8 +27,10 @@ sub result {
 
   # TODO remove the need for this
   ($result, $type) = @{$result} if ref $result eq 'ARRAY';
-  return Spreadsheet::Engine::Value->new(type => $type || 'n',
-    value => $result);
+  return Spreadsheet::Engine::Value->new(
+    type => $type || 'n',
+    value => $result
+  );
 }
 
 sub accumulator { undef }

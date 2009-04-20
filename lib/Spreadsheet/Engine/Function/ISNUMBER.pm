@@ -24,10 +24,6 @@ Spreadsheet::Engine::Function::ISNUMBER - Spreadsheet funtion ISNUMBER()
 
 =head1 DESCRIPTION
 
-This provides the spreadsheet text funtion ISNUMBER()
-
-=head2 calculate
-
 Is the value a number?
 
 =head1 HISTORY

@@ -5,11 +5,8 @@ use warnings;
 
 use base 'Spreadsheet::Engine::Function::math';
 
-sub arg_check {
-  return sub {
-    my $value = shift;
-    return cos $value != 0;
-  };
+sub signature {
+  sub { return cos shift != 0 }
 }
 
 sub calculate {
@@ -32,10 +29,6 @@ Spreadsheet::Engine::Function::TAN - Spreadsheet funtion TAN()
 =head1 DESCRIPTION
 
 This returns the tangent.
-
-=head2 arguments
-
-This takes a single numeric argument.
 
 =head1 HISTORY
 

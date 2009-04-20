@@ -26,15 +26,7 @@ Spreadsheet::Engine::Function::COUNTBLANK - Spreadsheet funtion COUNTBLANK()
 
 =head1 DESCRIPTION
 
-This provides the spreadsheet text funtion COUNTBLANK()
-
-=head2 calculate
-
 This returns the count of how many values in the list are blank.
-
-=head2 accumulator
-
-The default accumulator value is zero.
 
 =head1 HISTORY
 

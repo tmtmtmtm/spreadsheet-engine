@@ -5,15 +5,12 @@ use warnings;
 
 use base 'Spreadsheet::Engine::Function::text';
 
-sub argument_count { -3 }
-sub arguments      { [ 1, 1, 1, 0 ] }
+sub argument_count { -3 => 4 }
+sub signature { 't', 't', 't', '!=0' }
 
 sub calculate {
   my ($self, $string, $oldtext, $newtext, $which) = @_;
 
-  # TODO create signature for optional args
-  die Spreadsheet::Engine::Error->val('Invalid arguments')
-    if defined $which and $which == 0;
   if (!$which) {
     $string =~ s/\Q$oldtext\E/$newtext/g if length $oldtext > 0;
   } elsif ($which >= 1) {
@@ -42,13 +39,7 @@ Spreadsheet::Engine::Function::SUBSTITUTE - Spreadsheet funtion SUBSTITUTE()
 
 =head1 DESCRIPTION
 
-This provides the spreadsheet text funtion SUBSTITUTE()
-
-=head2 arguments
-
-This takes the original string, the text to be replaced, and the text to
-replace it with. If the optional 'which' paramater is gien, only that
-occurence is replaced.
+Substitute the newtext for the oldtext.
 
 =head1 HISTORY
 

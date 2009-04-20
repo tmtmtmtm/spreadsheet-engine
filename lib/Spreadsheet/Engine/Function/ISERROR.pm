@@ -24,10 +24,6 @@ Spreadsheet::Engine::Function::ISERROR - Spreadsheet funtion ISERROR()
 
 =head1 DESCRIPTION
 
-This provides the spreadsheet text funtion ISERROR()
-
-=head2 calculate
-
 Is the value an error?
 
 =head1 HISTORY

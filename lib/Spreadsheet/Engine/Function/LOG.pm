@@ -1,13 +1,18 @@
-package Spreadsheet::Engine::Function::ATAN;
+package Spreadsheet::Engine::Function::LOG;
 
 use strict;
 use warnings;
 
 use base 'Spreadsheet::Engine::Function::math';
 
+sub argument_count { -1 => 2 }
+sub signature { '>0', '>0' }
+sub _result_type_key { 'oneargnumeric' }
+
 sub calculate {
-  my ($self, $value) = @_;
-  return atan2($value, 1);
+  my ($self, $value, $base) = @_;
+  $base ||= 10;
+  return log($value) / log($base);
 }
 
 1;
@@ -16,15 +21,16 @@ __END__
 
 =head1 NAME
 
-Spreadsheet::Engine::Function::ATAN - Spreadsheet funtion ATAN()
+Spreadsheet::Engine::Function::LOG - Spreadsheet funtion LOG()
 
 =head1 SYNOPSIS
 
-  =ATAN(value)
+  =LOG(value, [base])
 
 =head1 DESCRIPTION
 
-This returns the arc tangent.
+This calculates the logarithm of a number in a specified base. If no
+base is specified base 10 is assumed.
 
 =head1 HISTORY
 

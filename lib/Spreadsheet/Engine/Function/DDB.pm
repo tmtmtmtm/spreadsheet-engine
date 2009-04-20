@@ -6,7 +6,7 @@ use warnings;
 use base 'Spreadsheet::Engine::Function::depreciation';
 use List::Util 'min';
 
-sub argument_count { -4 }
+sub argument_count { -4 => 5 }
 
 sub depreciate {
   my ($self, $cost, $salvage, $lifetime) = @_;
@@ -44,7 +44,7 @@ Spreadsheet::Engine::Function::DDB - Spreadsheet funtion DDB()
 
 =head1 DESCRIPTION
 
-This calculates depreciation by double declining balance.
+This calculates depreciation by declining balance.
 
 See: http://en.wikipedia.org/wiki/Depreciation
 

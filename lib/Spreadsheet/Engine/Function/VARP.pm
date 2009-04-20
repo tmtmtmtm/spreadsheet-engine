@@ -25,13 +25,7 @@ Spreadsheet::Engine::Function::VARP - Spreadsheet funtion VARP()
 
 =head1 DESCRIPTION
 
-This provides the spreadsheet text funtion VARP()
-
-=head2 calculate
-
 This returns the variance.
-
-=head2 result
 
 We calculate as per Knuth "The Art of Computer Programming" Vol. 2
 3rd edition, page 232

@@ -24,10 +24,6 @@ Spreadsheet::Engine::Function::ISERR - Spreadsheet funtion ISERR()
 
 =head1 DESCRIPTION
 
-This provides the spreadsheet text funtion ISERR()
-
-=head2 calculate
-
 Is the value an error, other than NA?
 
 =head1 HISTORY

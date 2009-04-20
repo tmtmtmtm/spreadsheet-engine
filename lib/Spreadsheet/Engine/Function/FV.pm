@@ -5,19 +5,16 @@ use warnings;
 
 use base 'Spreadsheet::Engine::Function::investment';
 
-sub calculate {
-  my $self = shift;
-  my ($r, $n, $pmt, $pv, $type) = map { defined $_ ? $_->value : 0 } @_;
+sub result_type { Spreadsheet::Engine::Value->new(type => 'n$') }
 
+sub calculate {
+  my ($self, $r, $n, $pmt, $pv, $type) = @_;
+  $pv ||= 0;
   $type = $type ? 1 : 0;
 
-  my $fv = ($r == 0)    # simple calculation if no interest
-    ? -$pv - ($pmt * $n)
-    : -(
+  return -$pv - ($pmt * $n) if $r == 0;    # simple calculation if no interest
+  return -(
     $pv * (1 + $r)**$n + $pmt * (1 + $r * $type) * ((1 + $r)**$n - 1) / $r);
-
-  return Spreadsheet::Engine::Value->new(type => 'n$', value => $fv);
-
 }
 
 1;

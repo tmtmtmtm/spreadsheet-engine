@@ -26,15 +26,7 @@ Spreadsheet::Engine::Function::COUNTA - Spreadsheet funtion COUNTA()
 
 =head1 DESCRIPTION
 
-This provides the spreadsheet text funtion COUNTA()
-
-=head2 calculate
-
 This returns the count of how many values in the list are non blank.
-
-=head2 accumulator
-
-The default accumulator value is zero.
 
 =head1 HISTORY
 

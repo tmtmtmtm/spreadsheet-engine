@@ -38,15 +38,7 @@ Spreadsheet::Engine::Function::AVERAGE - Spreadsheet funtion AVERAGE()
 
 =head1 DESCRIPTION
 
-This provides the spreadsheet text funtion AVERAGE()
-
-=head2 calculate
-
 This returns the numeric mean of the values
-
-=head2 accumulator / result
-
-The accumulator for AVERAGE() maintains a count and a running sum.
 
 =head1 HISTORY
 

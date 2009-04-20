@@ -27,10 +27,6 @@ Spreadsheet::Engine::Function::ATAN2 - Spreadsheet funtion ATAN2()
 
 This returns the ar tangent of the x and y coordinates.
 
-=head2 arguments
-
-This takes two numeric arguments.
-
 =head1 HISTORY
 
 This is a Modified Version of code extracted from SocialCalc::Functions

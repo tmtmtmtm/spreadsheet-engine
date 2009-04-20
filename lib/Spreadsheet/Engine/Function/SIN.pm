@@ -26,10 +26,6 @@ Spreadsheet::Engine::Function::SIN - Spreadsheet funtion SIN()
 
 This returns the sine.
 
-=head2 arguments
-
-This takes a single numeric argument.
-
 =head1 HISTORY
 
 This is a Modified Version of code extracted from SocialCalc::Functions

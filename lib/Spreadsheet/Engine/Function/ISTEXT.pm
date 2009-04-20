@@ -24,10 +24,6 @@ Spreadsheet::Engine::Function::ISTEXT - Spreadsheet funtion ISTEXT()
 
 =head1 DESCRIPTION
 
-This provides the spreadsheet text funtion ISTEXT()
-
-=head2 calculate
-
 Is the value textual?
 
 =head1 HISTORY

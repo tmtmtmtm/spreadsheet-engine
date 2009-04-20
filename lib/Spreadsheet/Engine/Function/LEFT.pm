@@ -5,8 +5,7 @@ use warnings;
 
 use base 'Spreadsheet::Engine::Function::text';
 
-sub argument_count { -2 }
-sub arguments      { [ 1, '>=0' ] }
+sub signature { 't', '>=0' }
 
 sub calculate {
   my ($self, $string, $len) = @_;
@@ -27,11 +26,7 @@ Spreadsheet::Engine::Function::LEFT - Spreadsheet funtion LEFT()
 
 =head1 DESCRIPTION
 
-This provides the spreadsheet text funtion LEFT()
-
-=head2 arguments
-
-This takes a single textual argument, and the length required
+The leftmost characters in string.
 
 =head1 HISTORY
 

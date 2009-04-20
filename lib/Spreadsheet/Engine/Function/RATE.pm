@@ -5,11 +5,12 @@ use warnings;
 
 use base 'Spreadsheet::Engine::Function::investment';
 
-sub calculate {
-  my $self = shift;
-  my ($n, $payment, $pv, $fv, $paytype, $guess) =
-    map { defined $_ ? $_->value : 0 } @_;
+sub argument_count { -3 => 6 }
+sub signature { 'n', 'n', 'n', 'n', 'n', 'n' }
+sub result_type { Spreadsheet::Engine::Value->new(type => 'n%') }
 
+sub calculate {
+  my ($self, $n, $payment, $pv, $fv, $paytype, $guess) = @_;
   $fv ||= 0;
   $paytype = $paytype ? 1 : 0;
   $guess ||= 0.1;
@@ -44,8 +45,7 @@ sub calculate {
     die Spreadsheet::Engine::Error->num if ++$tries >= $maxloop;
   }
 
-  return Spreadsheet::Engine::Value->new(type => 'n%', value => $rate);
-
+  return $rate;
 }
 
 1;

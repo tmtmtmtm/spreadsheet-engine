@@ -5,8 +5,6 @@ use warnings;
 
 use base 'Spreadsheet::Engine::Function::text';
 
-sub arguments { [1] }
-
 sub calculate {
   my ($self, $string) = @_;
   return length $string;
@@ -28,19 +26,7 @@ Spreadsheet::Engine::Function::LEN - Spreadsheet funtion LEN()
 
 =head1 DESCRIPTION
 
-This provides the spreadsheet text funtion LEN()
-
-=head2 arguments
-
-This takes a single textual argument.
-
-=head2 calculate
-
-This returns the length of the string using Perl's length() function.
-
-=head2 result_type
-
-This returns a number.
+The length of the string.
 
 =head1 HISTORY
 

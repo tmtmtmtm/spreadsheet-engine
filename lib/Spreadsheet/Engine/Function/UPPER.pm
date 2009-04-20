@@ -5,8 +5,6 @@ use warnings;
 
 use base 'Spreadsheet::Engine::Function::text';
 
-sub arguments { [1] }
-
 sub calculate {
   my ($self, $string) = @_;
   return uc $string;
@@ -25,14 +23,6 @@ Spreadsheet::Engine::Function::UPPER - Spreadsheet funtion UPPER()
   =UPPER(string)
 
 =head1 DESCRIPTION
-
-This provides the spreadsheet text funtion UPPER()
-
-=head2 arguments
-
-This takes a single textual argument.
-
-=head2 calculate
 
 This transforms the string using Perl's uc() function.
 

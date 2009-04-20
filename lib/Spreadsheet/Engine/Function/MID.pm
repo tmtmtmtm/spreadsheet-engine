@@ -5,8 +5,7 @@ use warnings;
 
 use base 'Spreadsheet::Engine::Function::text';
 
-sub argument_count { 3 }
-sub arguments      { [ 1, '>=1', '>=0' ] }
+sub signature { 't', '>=1', '>=0' }
 
 sub calculate {
   my ($self, $string, $start, $len) = @_;
@@ -28,12 +27,7 @@ Spreadsheet::Engine::Function::MID - Spreadsheet funtion MID()
 
 =head1 DESCRIPTION
 
-This provides the spreadsheet text funtion MID()
-
-=head2 arguments
-
-This takes a single textual argument, where to start, and the length
-required.
+Return a substring from a given start point and length.
 
 =head1 HISTORY
 

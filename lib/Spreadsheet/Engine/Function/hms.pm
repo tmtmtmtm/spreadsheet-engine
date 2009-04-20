@@ -3,18 +3,14 @@ package Spreadsheet::Engine::Function::hms;
 use strict;
 use warnings;
 
-use base 'Spreadsheet::Engine::Function::base';
+use base 'Spreadsheet::Engine::Function::math';
 
-sub argument_count { 1 }
+sub signature { 'n' }
 
-sub result {
-  my $self = shift;
+sub calculate {
+  my ($self, $value) = @_;
 
-  my $op = $self->next_operand_as_number;
-  my $type = $self->optype(oneargnumeric => $op, $op);
-  return $type unless $type->is_number;
-
-  my $fraction = $op->value - int($op->value);    # fraction of a day
+  my $fraction = $value - int($value);    # fraction of a day
   $fraction *= 24;
 
   my $H = int($fraction);
@@ -25,12 +21,8 @@ sub result {
   $fraction -= int($fraction);
   $fraction *= 60;
 
-  my $S = int($fraction + ($op->value >= 0 ? 0.5 : -0.5));
-  return Spreadsheet::Engine::Value->new(
-    type  => $type->type,
-    value => $self->calculate($H, $M, $S)
-  );
-
+  my $S = int($fraction + ($value >= 0 ? 0.5 : -0.5));
+  return $self->_calculate($H, $M, $S);
 }
 
 1;
@@ -51,12 +43,6 @@ Spreadsheet::Engine::Function::hms - base class for HMS functions
 
 This provides a base class for spreadsheet functions that operate on a
 given time pre-split into hours, minutes, and seconds.
-
-=head1 INSTANCE METHODS
-
-=head2 calculate
-
-This will be passed the hour, minute, and second as integers.
 
 =head1 HISTORY
 

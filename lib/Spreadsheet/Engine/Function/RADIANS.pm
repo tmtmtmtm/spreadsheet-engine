@@ -26,10 +26,6 @@ Spreadsheet::Engine::Function::RADIANS - Spreadsheet funtion RADIANS()
 
 This converts a value in degrees to radians.
 
-=head2 arguments
-
-This takes a single numeric argument.
-
 =head1 HISTORY
 
 This is a Modified Version of code extracted from SocialCalc::Functions

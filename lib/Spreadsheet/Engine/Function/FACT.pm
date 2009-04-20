@@ -28,10 +28,6 @@ Spreadsheet::Engine::Function::FACT - Spreadsheet funtion FACT()
 
 This returns the factorial of the value given.
 
-=head2 arguments
-
-This takes a single numeric argument.
-
 =head1 HISTORY
 
 This is a Modified Version of code extracted from SocialCalc::Functions

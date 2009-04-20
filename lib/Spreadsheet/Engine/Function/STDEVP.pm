@@ -25,13 +25,7 @@ Spreadsheet::Engine::Function::STDEVP - Spreadsheet funtion STDEVP()
 
 =head1 DESCRIPTION
 
-This provides the spreadsheet text funtion STDEVP()
-
-=head2 calculate
-
 This returns the standard deviation.
-
-=head2 result
 
 We calculate as per Knuth "The Art of Computer Programming" Vol. 2
 3rd edition, page 232

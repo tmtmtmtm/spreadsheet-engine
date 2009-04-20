@@ -33,10 +33,6 @@ Spreadsheet::Engine::Function::MOD - Spreadsheet funtion MOD()
 
 This returns the remainder when a is divided by b
 
-=head2 arguments
-
-This takes two numeric arguments.
-
 =head1 HISTORY
 
 This is a Modified Version of code extracted from SocialCalc::Functions

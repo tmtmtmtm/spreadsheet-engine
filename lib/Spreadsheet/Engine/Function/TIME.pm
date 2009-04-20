@@ -3,25 +3,15 @@ package Spreadsheet::Engine::Function::TIME;
 use strict;
 use warnings;
 
-use base 'Spreadsheet::Engine::Function::hms';
+use base 'Spreadsheet::Engine::Function::math';
 
-sub argument_count { 3 }
+sub argument_count   { 3 }
+sub signature        { 'n', 'n', 'n' }
+sub _result_type_key { 'twoargnumeric' }
 
-sub result {
-  my $self = shift;
-
-  my $h_op = $self->next_operand_as_number;
-  my $m_op = $self->next_operand_as_number;
-  my $s_op = $self->next_operand_as_number;
-
-  my $type = $self->optype(twoargnumeric => $h_op, $m_op, $s_op);
-  return $type unless $type->is_num;
-
-  my $result =
-    (($h_op->value * 60 * 60) + ($m_op->value * 60) + $s_op->value) /
-    (24 * 60 * 60);
-
-  return Spreadsheet::Engine::Value->new(type => 'nt', value => $result);
+sub calculate {
+  my ($self, $H, $M, $S) = @_;
+  return (($H * 60 * 60) + ($M * 60) + $S) / (24 * 60 * 60);
 }
 
 1;
