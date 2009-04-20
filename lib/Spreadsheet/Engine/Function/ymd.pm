@@ -5,8 +5,7 @@ use warnings;
 
 use base 'Spreadsheet::Engine::Function::base';
 
-use Spreadsheet::Engine::Sheet
-  qw/convert_date_julian_to_gregorian lookup_result_type/;
+use Spreadsheet::Engine::Sheet qw/convert_date_julian_to_gregorian/;
 
 use constant JULIAN_OFFSET => 2_415_019;
 
@@ -14,23 +13,13 @@ sub argument_count { 1 }
 
 sub result {
   my $self = shift;
-
-  my $op = $self->next_operand_as_number;
-
-  my $result_type =
-    lookup_result_type($op->{type}, $op->{type},
-    $self->typelookup->{oneargnumeric});
-
+  my $op   = $self->next_operand_as_number;
+  my $type = $self->optype(oneargnumeric => $op, $op);
   my ($y, $m, $d) =
-    convert_date_julian_to_gregorian(int($op->{value} + JULIAN_OFFSET));
-
-  my $result =
-    $result_type eq 'n'
-    ? $self->calculate($y, $m, $d)
-    : 0;
-
-  return { type => $result_type, value => $result };
-
+    convert_date_julian_to_gregorian(int($op->value + JULIAN_OFFSET));
+  my $result = $type->is_number ? $self->calculate($y, $m, $d) : 0;
+  return Spreadsheet::Engine::Value->new(type => $type->type,
+    value => $result);
 }
 
 1;

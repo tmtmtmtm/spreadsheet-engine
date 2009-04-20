@@ -5,26 +5,15 @@ use warnings;
 
 use base 'Spreadsheet::Engine::Function::base';
 
-use Spreadsheet::Engine::Sheet qw/lookup_result_type /;
-
 sub argument_count { 1 }
 
 sub result {
-  my $self = shift;
-
-  my $op = $self->next_operand_as_number;
-
-  my $result_type =
-    lookup_result_type($op->{type}, $op->{type},
-    $self->typelookup->{oneargnumeric});
-
-  my $result =
-    $result_type eq 'n'
-    ? $self->calculate($op->{value})
-    : 0;
-
-  return { type => $result_type, value => $result };
-
+  my $self   = shift;
+  my $op     = $self->next_operand_as_number;
+  my $type   = $self->optype(oneargnumeric => $op, $op);
+  my $result = $type->is_number ? $self->calculate($op->value) : 0;
+  return Spreadsheet::Engine::Value->new(type => $type->type,
+    value => $result);
 }
 
 1;

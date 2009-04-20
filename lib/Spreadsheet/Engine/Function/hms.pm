@@ -5,21 +5,16 @@ use warnings;
 
 use base 'Spreadsheet::Engine::Function::base';
 
-use Spreadsheet::Engine::Sheet qw/lookup_result_type/;
-
 sub argument_count { 1 }
 
 sub result {
   my $self = shift;
 
   my $op = $self->next_operand_as_number;
+  my $type = $self->optype(oneargnumeric => $op, $op);
+  return $type unless $type->is_number;
 
-  my $type =
-    lookup_result_type($op->{type}, $op->{type},
-    $self->typelookup->{oneargnumeric});
-  return { type => $type, value => 0 } unless $type eq 'n';
-
-  my $fraction = $op->{value} - int($op->{value});    # fraction of a day
+  my $fraction = $op->value - int($op->value);    # fraction of a day
   $fraction *= 24;
 
   my $H = int($fraction);
@@ -30,9 +25,11 @@ sub result {
   $fraction -= int($fraction);
   $fraction *= 60;
 
-  my $S = int($fraction + ($op->{value} >= 0 ? 0.5 : -0.5));
-
-  return { type => $type, value => $self->calculate($H, $M, $S) };
+  my $S = int($fraction + ($op->value >= 0 ? 0.5 : -0.5));
+  return Spreadsheet::Engine::Value->new(
+    type  => $type->type,
+    value => $self->calculate($H, $M, $S)
+  );
 
 }
 

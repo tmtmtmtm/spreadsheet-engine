@@ -9,10 +9,8 @@ sub argument_count { 0 }
 
 sub result {
   my $self = shift;
-  return {
-    type  => 'n',
-    value => atan2(1, 1) * 4
-  };
+  return Spreadsheet::Engine::Value->new(type => 'n',
+    value => atan2(1, 1) * 4);
 }
 
 1;

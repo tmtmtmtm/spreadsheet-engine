@@ -37,7 +37,6 @@ our %function_list = (
   DAVERAGE  => [ \&dseries_functions,       3 ],
   DCOUNT    => [ \&dseries_functions,       3 ],
   DCOUNTA   => [ \&dseries_functions,       3 ],
-  DDB       => [ \&ddb_function,            -4 ],
   DGET      => [ \&dseries_functions,       3 ],
   DMAX      => [ \&dseries_functions,       3 ],
   DMIN      => [ \&dseries_functions,       3 ],
@@ -48,30 +47,19 @@ our %function_list = (
   DVAR      => [ \&dseries_functions,       3 ],
   DVARP     => [ \&dseries_functions,       3 ],
   EXACT     => [ \&exact_function,          2 ],
-  FV        => [ \&interest_functions,      -2 ],
   HLOOKUP   => [ \&lookup_functions,        -3 ],
   IF        => [ \&if_function,             3 ],
   INDEX     => [ \&index_function,          -1 ],
   IRR       => [ \&irr_function,            -1 ],
   LOG       => [ \&log_function,            -1 ],
   MATCH     => [ \&lookup_functions,        -2 ],
-  N         => [ \&ntv_functions,           1 ],
   NOT       => [ \&not_function,            1 ],
   NOW       => [ \&zeroarg_functions,       0 ],
-  NPER      => [ \&interest_functions,      -2 ],
-  NPV       => [ \&npv_function,            -2 ],
   OR        => [ \&and_or_function,         -1 ],
-  PMT       => [ \&interest_functions,      -2 ],
-  PV        => [ \&interest_functions,      -2 ],
-  RATE      => [ \&interest_functions,      -2 ],
   ROUND     => [ \&round_function,          -1 ],
   ROWS      => [ \&columns_rows_function,   1 ],
-  SLN       => [ \&sln_function,            3 ],
   SUMIF     => [ \&countif_sumif_functions, -2 ],
-  SYD       => [ \&syd_function,            4 ],
-  T         => [ \&ntv_functions,           1 ],
   TODAY     => [ \&zeroarg_functions,       0 ],
-  VALUE     => [ \&ntv_functions,           1 ],
   VLOOKUP   => [ \&lookup_functions,        -3 ],
   HTML      => [ \&html_function,           -1 ],
   PLAINTEXT => [ \&text_function,           -1 ],
@@ -107,11 +95,12 @@ sub register {
 __PACKAGE__->register(
   map +($_ => "Spreadsheet::Engine::Function::$_"),
   qw/ ABS ACOS ASIN ATAN ATAN2 AVERAGE COS COUNT COUNTA COUNTBLANK DATE
-    DAY DEGREES ERRCELL EVEN EXP FACT FALSE FIND HOUR INT ISBLANK ISERR
-    ISERROR ISLOGICAL ISNA ISNONTEXT ISNUMBER ISTEXT LEFT LEN LN LOG10
-    LOWER MAX MID MIN MINUTE MOD MONTH NA ODD PI POWER PRODUCT PROPER
-    RADIANS REPLACE REPT RIGHT SECOND SIN SQRT STDEV STDEVP SUBSTITUTE SUM
-    TAN TIME TRIM TRUE TRUNC UPPER VAR VARP WEEKDAY YEAR /
+    DAY DDB DEGREES ERRCELL EVEN EXP FACT FALSE FIND FV HOUR INT ISBLANK
+    ISERR ISERROR ISLOGICAL ISNA ISNONTEXT ISNUMBER ISTEXT LEFT LEN LN
+    LOG10 LOWER MAX MID MIN MINUTE MOD MONTH N NA NPER NPV ODD PI PMT
+    POWER PRODUCT PROPER PV RADIANS RATE REPLACE REPT RIGHT SECOND SIN SLN
+    SQRT STDEV STDEVP SUBSTITUTE SUM SYD T TAN TIME TRIM TRUE TRUNC UPPER
+    VALUE VAR VARP WEEKDAY YEAR /
 );
 
 =head1 EXPORTS
@@ -933,61 +922,6 @@ sub exact_function {
 
 }
 
-=head2 ntv_functions
-
-=over
-
-=item N(value)
-
-=item T(value)
-
-=item VALUE(value)
-
-=back
-
-=cut
-
-sub ntv_functions {
-
-  my ($fname, $operand, $foperand, $errortext, $typelookup, $sheetdata) = @_;
-
-  my $tostype;
-  my $result     = 0;
-  my $resulttype = "e#VALUE!";
-
-  my $value =
-    operand_value_and_type($sheetdata, $foperand, $errortext, \$tostype);
-
-  if (substr($tostype, 0, 1) eq "e") {
-    $resulttype = $tostype;
-  } elsif ($fname eq "N") {
-    $result = substr($tostype, 0, 1) eq "n" ? $value : 0;
-    $resulttype = "n";
-  } elsif ($fname eq "T") {
-    $result = substr($tostype, 0, 1) eq "t" ? $value : "";
-    $resulttype = "t";
-  } elsif ($fname eq "VALUE") {
-    if (substr($tostype, 0, 1) eq "n" || substr($tostype, 0, 1) eq "b") {
-      $result     = $value;
-      $resulttype = "n";
-    } elsif (substr($tostype, 0, 1) eq "t") {
-      my $type;
-      $result = determine_value_type($value, \$type);
-      if (substr($type, 0, 1) ne "n") {
-        $result     = 0;
-        $resulttype = "e#VALUE!";
-      } else {
-        $resulttype = "n";
-      }
-    }
-  }
-
-  push @$operand, { type => $resulttype, value => $result };
-
-  return;
-
-}
-
 =head2 log_function
 
 =over
@@ -1340,406 +1274,6 @@ sub zeroarg_functions {
 #
 # * * * * * FINANCIAL FUNCTIONS * * * * *
 #
-
-=head2 ddb_function
-
-=over
-
-=item DDB(cost,salvage,lifetime,period,[method])
-
-=back
-
-Depreciation, method defaults to 2 for double-declining balance.
-
-See: http://en.wikipedia.org/wiki/Depreciation
-
-=cut
-
-sub ddb_function {
-
-  my ($fname, $operand, $foperand, $errortext, $typelookup, $sheetdata) = @_;
-
-  my $tostype;
-
-  my $cost = operand_as_number($sheetdata, $foperand, $errortext, \$tostype);
-  my $salvage =
-    operand_as_number($sheetdata, $foperand, $errortext, \$tostype);
-  my $lifetime =
-    operand_as_number($sheetdata, $foperand, $errortext, \$tostype);
-  if ($lifetime < 1) {
-    function_specific_error($fname, $operand, $errortext, "e#NUM!",
-      "DDB life must be greater than 1");
-    return 0;
-  }
-  my $period =
-    operand_as_number($sheetdata, $foperand, $errortext, \$tostype);
-  my $method = 2;
-  if (scalar @$foperand > 0) {
-    $method = operand_as_number($sheetdata, $foperand, $errortext, \$tostype);
-  }
-  if (scalar @$foperand != 0) {
-    function_args_error($fname, $operand, $errortext);
-    return 0;
-  }
-
-  my $depreciation            = 0;    # calculated for each period
-  my $accumulateddepreciation = 0;    # accumulated by adding each period's
-
-  for (my $i = 1 ; $i <= $period && $i <= $lifetime ; $i++)
-  {    # calculate for each period based on net from previous
-    $depreciation =
-      ($cost - $accumulateddepreciation) * ($method / $lifetime);
-    if ($cost - $accumulateddepreciation - $depreciation < $salvage)
-    {    # don't go lower than salvage value
-      $depreciation = $cost - $accumulateddepreciation - $salvage;
-    }
-    $accumulateddepreciation += $depreciation;
-  }
-
-  push @$operand, { type => 'n$', value => $depreciation };
-
-  return;
-
-}
-
-=head2 sln_function
-
-=over
-
-=item SLN(cost,salvage,lifetime)
-
-=back
-
-Depreciation for each period by straight-line method
-
-See: http://en.wikipedia.org/wiki/Depreciation
-
-=cut
-
-sub sln_function {
-
-  my ($fname, $operand, $foperand, $errortext, $typelookup, $sheetdata) = @_;
-
-  my $tostype;
-
-  my $cost = operand_as_number($sheetdata, $foperand, $errortext, \$tostype);
-  my $salvage =
-    operand_as_number($sheetdata, $foperand, $errortext, \$tostype);
-  my $lifetime =
-    operand_as_number($sheetdata, $foperand, $errortext, \$tostype);
-  if ($lifetime < 1) {
-    function_specific_error($fname, $operand, $errortext, "#NUM!",
-      "SLN life must be greater than 1");
-    return 0;
-  }
-
-  my $depreciation = ($cost - $salvage) / $lifetime;
-
-  push @$operand, { type => 'n$', value => $depreciation };
-
-  return;
-
-}
-
-=head2 syd_function
-
-=over
-
-=item SYD(cost,salvage,lifetime,period)
-
-=back
-
-Depreciation by Sum of Year's Digits method
-
-=cut
-
-sub syd_function {
-
-  my ($fname, $operand, $foperand, $errortext, $typelookup, $sheetdata) = @_;
-
-  my $tostype;
-
-  my $cost = operand_as_number($sheetdata, $foperand, $errortext, \$tostype);
-  my $salvage =
-    operand_as_number($sheetdata, $foperand, $errortext, \$tostype);
-  my $lifetime =
-    operand_as_number($sheetdata, $foperand, $errortext, \$tostype);
-  my $period =
-    operand_as_number($sheetdata, $foperand, $errortext, \$tostype);
-  if ($lifetime < 1 || $period <= 0) {
-    push @$operand, { type => "e#NUM!", value => 0 };
-    return 0;
-  }
-
-  my $sumperiods =
-    (($lifetime + 1) * $lifetime) / 2;    # add up 1 through lifetime
-  my $depreciation =
-    ($cost - $salvage) * ($lifetime - $period + 1) /
-    $sumperiods;                          # calc depreciation
-
-  push @$operand, { type => 'n$', value => $depreciation };
-
-  return;
-
-}
-
-=head2 interest_functions
-
-=over
-
-=item FV(rate, n, payment, [pv, [paytype]])
-
-=item NPER(rate, payment, pv, [fv, [paytype]])
-
-=item PMT(rate, n, pv, [fv, [paytype]])
-
-=item PV(rate, n, payment, [fv, [paytype]])
-
-=item RATE(n, payment, pv, [fv, [paytype, [guess]]])
-
-=back
-
-Following www.openformula.org and ODF formula specification:
-
-  PV = - Fv - (Payment * Nper) [if rate equals 0]
-  Pv*(1+Rate)^Nper + Payment * (1 + Rate*PaymentType) * ( (1+Rate)^nper -1)/Rate + Fv = 0
-
-For each function, the formulas are solved for the appropriate value (transformed using
-basic algebra).
-
-=cut
-
-sub interest_functions {
-
-  my ($fname, $operand, $foperand, $errortext, $typelookup, $sheetdata) = @_;
-
-  my (
-    $aval,  $bval,  $cval,  $dval,  $eval,  $fval, $atype,
-    $btype, $ctype, $dtype, $etype, $ftype, $result
-  );
-
-  $aval = operand_as_number($sheetdata, $foperand, $errortext, \$atype);
-  $bval = operand_as_number($sheetdata, $foperand, $errortext, \$btype);
-  $cval = operand_as_number($sheetdata, $foperand, $errortext, \$ctype);
-  my $resulttype =
-    lookup_result_type($atype, $btype, $typelookup->{twoargnumeric});
-  $resulttype =
-    lookup_result_type($resulttype, $ctype, $typelookup->{twoargnumeric});
-  if (scalar @$foperand) {    # optional arguments
-    $dval = operand_as_number($sheetdata, $foperand, $errortext, \$dtype);
-    $resulttype =
-      lookup_result_type($resulttype, $dtype, $typelookup->{twoargnumeric});
-    if (scalar @$foperand) {    # optional arguments
-      $eval = operand_as_number($sheetdata, $foperand, $errortext, \$etype);
-      $resulttype =
-        lookup_result_type($resulttype, $etype, $typelookup->{twoargnumeric});
-      if (scalar @$foperand) {    # optional arguments
-        if ($fname ne "RATE") {    # only rate has 6 possible args
-          function_args_error($fname, $operand, $errortext);
-          return 0;
-        }
-        $fval = operand_as_number($sheetdata, $foperand, $errortext, \$ftype);
-        $resulttype =
-          lookup_result_type($resulttype, $ftype,
-          $typelookup->{twoargnumeric});
-      }
-    }
-  }
-
-  my ($pv, $fv, $rate, $n, $payment, $paytype, $guess);
-
-  if ($resulttype eq "n") {
-    if ($fname eq "FV") {    # FV(rate, n, payment, [pv, [paytype]])
-      $rate    = $aval;
-      $n       = $bval;
-      $payment = $cval;
-      $pv      = defined $dval ? $dval : 0;
-      $paytype = defined $eval ? ($eval ? 1 : 0) : 0;
-      if ($rate == 0) {      # simple calculation if no interest
-        $fv = -$pv - ($payment * $n);
-      } else {
-        $fv =
-          -($pv * (1 + $rate)**$n + $payment * (1 + $rate * $paytype) *
-            ((1 + $rate)**$n - 1) / $rate);
-      }
-      $result     = $fv;
-      $resulttype = 'n$';
-    } elsif ($fname eq "NPER") {    # NPER(rate, payment, pv, [fv, [paytype]])
-      $rate    = $aval;
-      $payment = $bval;
-      $pv      = $cval;
-      $fv      = defined $dval ? $dval : 0;
-      $paytype = defined $eval ? ($eval ? 1 : 0) : 0;
-      if ($rate == 0) {             # simple calculation if no interest
-        if ($payment == 0) {
-          push @$operand, { type => "e#NUM!", value => 0 };
-          return;
-        }
-        $n = ($pv + $fv) / (-$payment);
-      } else {
-        my $part1 = $payment * (1 + $rate * $paytype) / $rate;
-        my $part2 = $pv + $part1;
-        if ($part2 == 0 || $rate <= -1) {
-          push @$operand, { type => "e#NUM!", value => 0 };
-          return;
-        }
-        my $part3 = ($part1 - $fv) / $part2;
-        if ($part3 <= 0) {
-          push @$operand, { type => "e#NUM!", value => 0 };
-          return;
-        }
-        my $part4 = log($part3);
-        my $part5 = log(1 + $rate);    # rate > -1
-        $n = $part4 / $part5;
-      }
-      $result     = $n;
-      $resulttype = 'n';
-    } elsif ($fname eq "PMT") {    # PMT(rate, n, pv, [fv, [paytype]])
-      $rate    = $aval;
-      $n       = $bval;
-      $pv      = $cval;
-      $fv      = defined $dval ? $dval : 0;
-      $paytype = defined $eval ? ($eval ? 1 : 0) : 0;
-      if ($n == 0) {
-        push @$operand, { type => "e#NUM!", value => 0 };
-        return;
-      } elsif ($rate == 0) {       # simple calculation if no interest
-        $payment = ($fv - $pv) / $n;
-      } else {
-        $payment =
-          (0 - $fv - $pv * (1 + $rate)**$n) /
-          ((1 + $rate * $paytype) * ((1 + $rate)**$n - 1) / $rate);
-      }
-      $result     = $payment;
-      $resulttype = 'n$';
-    } elsif ($fname eq "PV") {    # PV(rate, n, payment, [fv, [paytype]])
-      $rate    = $aval;
-      $n       = $bval;
-      $payment = $cval;
-      $fv      = defined $dval ? $dval : 0;
-      $paytype = defined $eval ? ($eval ? 1 : 0) : 0;
-      if ($rate == -1) {
-        push @$operand, { type => "e#DIV/0!", value => 0 };
-        return;
-      } elsif ($rate == 0) {      # simple calculation if no interest
-        $pv = -$fv - ($payment * $n);
-      } else {
-        $pv =
-          (-$fv - $payment * (1 + $rate * $paytype) * ((1 + $rate)**$n - 1) /
-            $rate) / ((1 + $rate)**$n);
-      }
-      $result     = $pv;
-      $resulttype = 'n$';
-    } elsif ($fname eq "RATE")
-    {    # RATE(n, payment, pv, [fv, [paytype, [guess]]])
-      $n       = $aval;
-      $payment = $bval;
-      $pv      = $cval;
-      $fv      = defined $dval ? $dval : 0;
-      $paytype = defined $eval ? ($eval ? 1 : 0) : 0;
-      $guess   = defined $fval ? $fval : 0.1;
-
-      # rate is calculated by repeated approximations
-      # The deltas are used to calculate new guesses
-
-      my $olddelta;
-      my $maxloop = 100;
-      my $tries   = 0;
-      my $delta   = 1;
-      my $epsilon = 0.0000001;    # this is close enough
-      $rate = $guess || 0.00000001;    # zero is not allowed
-      my $oldrate = 0;
-      my $m;
-
-      while (($delta >= 0 ? $delta : -$delta) > $epsilon
-        && ($rate != $oldrate)) {
-        $delta =
-          $fv + $pv * (1 + $rate)**$n + $payment * (1 + $rate * $paytype) *
-          ((1 + $rate)**$n - 1) / $rate;
-        if (defined $olddelta) {
-          $m = ($delta - $olddelta) / ($rate - $oldrate)
-            || .001;                   # get slope (not zero)
-          $oldrate  = $rate;
-          $rate     = $rate - $delta / $m;    # look for zero crossing
-          $olddelta = $delta;
-        } else {                              # first time - no old values
-          $oldrate  = $rate;
-          $rate     = 1.1 * $rate;
-          $olddelta = $delta;
-        }
-        $tries++;
-        if ($tries >= $maxloop) {             # didn't converge yet
-          push @$operand, { type => "e#NUM!", value => 0 };
-          return;
-        }
-      }
-      $result     = $rate;
-      $resulttype = 'n%';
-    }
-  }
-
-  push @$operand, { type => $resulttype, value => $result };
-
-  return;
-
-}
-
-=head2 npv_function
-
-=over
-
-=item NPV(rate,v1,v2,c1:c2,...)
-
-=back
-
-=cut
-
-sub npv_function {
-
-  my ($fname, $operand, $foperand, $errortext, $typelookup, $sheetdata) = @_;
-
-  my ($value1, $tostype);
-
-  my $rate = operand_as_number($sheetdata, $foperand, $errortext, \$tostype);
-  if (substr($tostype, 0, 1) eq "e") {
-    push @$operand, { type => $tostype, value => 0 };
-    return;
-  }
-
-  my $sum           = 0;
-  my $resulttypenpv = "n";
-  my $factor        = 1;
-
-  while (@$foperand) {
-    $value1 =
-      operand_value_and_type($sheetdata, $foperand, $errortext, \$tostype);
-
-    if (substr($tostype, 0, 1) eq "n") {
-      $factor *= (1 + $rate);
-      if ($factor == 0) {
-        push @$operand, { type => "e#DIV/0!", value => 0 };
-        return;
-      }
-      $sum += $value1 / $factor;
-      $resulttypenpv =
-        lookup_result_type($tostype, $resulttypenpv || $tostype,
-        $typelookup->{plus});
-    } elsif (substr($tostype, 0, 1) eq "e"
-      && substr($resulttypenpv, 0, 1) ne "e") {
-      $resulttypenpv = $tostype;
-      last;
-    }
-  }
-
-  if (substr($resulttypenpv, 0, 1) eq "n") {
-    $resulttypenpv = 'n$';
-  }
-
-  push @$operand, { type => $resulttypenpv, value => $sum };
-
-  return;
-
-}
 
 =head2 irr_function
 

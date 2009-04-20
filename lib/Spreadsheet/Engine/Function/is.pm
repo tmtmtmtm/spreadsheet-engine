@@ -9,15 +9,8 @@ sub argument_count { 1 }
 
 sub result {
   my $self = shift;
-
-  my $op = $self->next_operand;
-
-  my $full   = $op->{type};
-  my $major  = substr($full, 0, 1);
-  my $result = $self->calculate($major, $full) ? 1 : 0;
-
-  return { type => 'nl', value => $result };
-
+  my $result = $self->calculate($self->next_operand) ? 1 : 0;
+  return Spreadsheet::Engine::Value->new(type => 'nl', value => $result);
 }
 
 1;

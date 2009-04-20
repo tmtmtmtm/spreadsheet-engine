@@ -7,7 +7,7 @@ use base 'Spreadsheet::Engine::Function::math2';
 
 sub calculate {
   my ($self, $x, $y) = @_;
-  die { value => 0, type => 'e#DIV/0!' } if $x == 0 && $y == 0;
+  die Spreadsheet::Engine::Error->div0 if $x == 0 && $y == 0;
   return atan2($y, $x);
 }
 

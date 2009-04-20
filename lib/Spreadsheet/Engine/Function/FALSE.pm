@@ -9,10 +9,7 @@ sub argument_count { 0 }
 
 sub result {
   my $self = shift;
-  return {
-    type  => 'nl',
-    value => 0,
-  };
+  return Spreadsheet::Engine::Value->new(type => 'nl', value => 0);
 }
 
 1;

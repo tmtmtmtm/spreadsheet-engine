@@ -9,7 +9,7 @@ use warnings;
 use lib ('lib', 't/lib');
 
 use SheetTest;
-use Test::More tests => 75;
+use Test::More tests => 78;
 
 run_tests(against => 't/data/openformula-testsuite.txt');
 
@@ -329,4 +329,17 @@ test A174 3
 # result. copied to result. 
 set A175 formula UPPER("Habc7")
 test A175 HABC7
+
+# ------
+# T does not change text 
+set A176 formula T("HI")
+test A176 HI
+
+# References transformed
+set A177 formula T(B3)
+test A177 7
+
+# Non-text converted into null string
+set A178 formula T(5)
+test A178 
 

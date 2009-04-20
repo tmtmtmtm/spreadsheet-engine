@@ -5,30 +5,23 @@ use warnings;
 
 use base 'Spreadsheet::Engine::Function::hms';
 
-use Spreadsheet::Engine::Sheet qw/lookup_result_type/;
-
 sub argument_count { 3 }
 
 sub result {
-  my ($self, $h, $m, $s) = @_;
+  my $self = shift;
 
   my $h_op = $self->next_operand_as_number;
   my $m_op = $self->next_operand_as_number;
   my $s_op = $self->next_operand_as_number;
 
-  my $type =
-    lookup_result_type($h_op->{type}, $m_op->{type},
-    $self->typelookup->{twoargnumeric});
-  $type =
-    lookup_result_type($type, $s_op->{type},
-    $self->typelookup->{twoargnumeric});
-  return { type => $type, value => 0 } unless substr($type, 0, 1) eq 'n';
+  my $type = $self->optype(twoargnumeric => $h_op, $m_op, $s_op);
+  return $type unless $type->is_num;
 
   my $result =
-    (($h_op->{value} * 60 * 60) + ($m_op->{value} * 60) + $s_op->{value}) /
+    (($h_op->value * 60 * 60) + ($m_op->value * 60) + $s_op->value) /
     (24 * 60 * 60);
 
-  return { type => 'nt', value => $result };
+  return Spreadsheet::Engine::Value->new(type => 'nt', value => $result);
 }
 
 1;

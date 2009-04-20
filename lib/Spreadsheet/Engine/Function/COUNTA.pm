@@ -7,8 +7,8 @@ use base 'Spreadsheet::Engine::Function::counter';
 
 sub calculate {
   return sub {
-    my $type = shift;
-    return substr($type, 0, 1) ne 'b';
+    my $op = shift;
+    return !$op->is_blank;
   };
 }
 
@@ -49,7 +49,7 @@ All Rights Reserved.
 Portions (c) Copyright 2007 Socialtext, Inc.
 All Rights Reserved.
 
-Portions (c) Copyright 2007 Tony Bowden
+Portions (c) Copyright 2007, 2008 Tony Bowden
 
 =head1 LICENCE
 

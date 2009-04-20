@@ -5,33 +5,21 @@ use warnings;
 
 use base 'Spreadsheet::Engine::Function::base';
 
-use Spreadsheet::Engine::Sheet qw/lookup_result_type/;
-
 use constant PI => atan2(1, 1) * 4;
 
 sub argument_count { 1 }
 
 sub result {
   my $self = shift;
-
-  my $op = $self->next_operand_as_number;
-
-  my $result_type =
-    lookup_result_type($op->{type}, $op->{type},
-    $self->typelookup->{oneargnumeric});
-
+  my $op   = $self->next_operand_as_number;
   if (my $check = $self->arg_check) {
-    die {
-      type  => 'e#NUM!',
-      value => 'Invalid arguments',
-      }
-      unless $check->($op->{value});
+    die Spreadsheet::Engine::Error->num('Invalid arguments')
+      unless $check->($op->value);
   }
-
-  my $result = $result_type eq 'n' ? $self->calculate($op->{value}) : 0;
-
-  return { type => $result_type, value => $result };
-
+  my $type = $self->optype(oneargnumeric => $op, $op);
+  my $result = $type->is_number ? $self->calculate($op->value) : 0;
+  return Spreadsheet::Engine::Value->new(type => $type->type,
+    value => $result);
 }
 
 sub arg_check { }

@@ -8,8 +8,8 @@ use base 'Spreadsheet::Engine::Function::series';
 sub calculate {
   return sub {
     my ($in, $max) = @_;
-    return $in->{value} if not defined $max;
-    return ($in->{value} > $max) ? $in->{value} : $max;
+    return $in->value if not defined $max;
+    return ($in->value > $max) ? $in->value : $max;
   };
 }
 
@@ -46,7 +46,7 @@ All Rights Reserved.
 Portions (c) Copyright 2007 Socialtext, Inc.
 All Rights Reserved.
 
-Portions (c) Copyright 2007 Tony Bowden
+Portions (c) Copyright 2007, 2008 Tony Bowden
 
 =head1 LICENCE
 

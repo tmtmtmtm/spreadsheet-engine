@@ -9,7 +9,7 @@ sub arg_check {
   return sub {
     my $value = shift;
     return $value > 0;
-    }
+  };
 }
 
 sub calculate {

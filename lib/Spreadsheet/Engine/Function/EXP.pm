@@ -7,7 +7,7 @@ use base 'Spreadsheet::Engine::Function::math';
 
 sub calculate {
   my ($self, $value) = @_;
-  return exp($value);
+  return exp $value;
 }
 
 1;

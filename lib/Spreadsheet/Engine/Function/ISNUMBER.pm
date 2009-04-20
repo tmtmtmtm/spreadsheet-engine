@@ -6,8 +6,8 @@ use warnings;
 use base 'Spreadsheet::Engine::Function::is';
 
 sub calculate {
-  my ($self, $major, $full) = @_;
-  return $major eq 'n';
+  my ($self, $op) = @_;
+  return $op->is_num;
 }
 
 1;

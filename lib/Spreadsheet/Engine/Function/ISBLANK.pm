@@ -6,8 +6,8 @@ use warnings;
 use base 'Spreadsheet::Engine::Function::is';
 
 sub calculate {
-  my ($self, $major, $full) = @_;
-  return $full eq 'b';
+  my ($self, $op) = @_;
+  return $op->is_blank;
 }
 
 1;

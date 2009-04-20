@@ -14,7 +14,7 @@ sub arg_check {
   return sub {
     my $value = shift;
     return $value >= -1 && $value <= 1;
-    }
+  };
 }
 
 1;

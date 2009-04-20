@@ -25,22 +25,18 @@ sub _opvals {
     if ($sig =~ /^([<>]=?)(\d+)/) {    # >=0 <1 etc.
       my ($test, $num) = ($1, $2);
       $op = $self->next_operand_as_number;
-      die {
-        value => 'Invalid arguments',
-        type  => 'e#VALUE!',
-        }
-        unless eval "$op->{value} $test $num";
+      my $val = $op->value;
+      die Spreadsheet::Engine::Error->val('Invalid arguments')
+        unless eval "$val $test $num";
     } elsif ($sig == 0) {              # any number
       $op = $self->next_operand_as_number;
     } elsif ($sig == 1) {              # any string
       $op = $self->next_operand_as_text;
-      $op->{value} = decode('utf8', $op->{value});
+      $op->value(decode('utf8', $op->value));
     }
 
-    die $op if substr($op->{type}, 0, 1) eq 'e';
-
-    push @opvals, $op->{value};
-
+    die $op if $op->is_error;
+    push @opvals, $op->value;
   }
   return @opvals;
 }
@@ -48,10 +44,10 @@ sub _opvals {
 sub result {
   my $self = shift;
 
-  return {
+  return Spreadsheet::Engine::Value->new(
     type  => $self->result_type,
     value => encode('utf8', $self->calculate($self->_opvals)),
-  };
+  );
 }
 
 sub result_type { 't' }

@@ -7,7 +7,7 @@ use base 'Spreadsheet::Engine::Function::VARP';
 
 sub result_from {
   my ($self, $A) = @_;
-  die { value => 0, type => 'e#DIV/0!' } unless $A->{count} > 1;
+  die Spreadsheet::Engine::Error->div0 unless $A->{count} > 1;
   return sqrt $self->SUPER::result_from($A);
 }
 
@@ -49,7 +49,7 @@ All Rights Reserved.
 Portions (c) Copyright 2007 Socialtext, Inc.
 All Rights Reserved.
 
-Portions (c) Copyright 2007 Tony Bowden
+Portions (c) Copyright 2007, 2008 Tony Bowden
 
 =head1 LICENCE
 

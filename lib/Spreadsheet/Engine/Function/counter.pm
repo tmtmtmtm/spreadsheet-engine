@@ -16,10 +16,10 @@ sub result {
   my $count = 0;
 
   while (@{$foperand}) {
-    $count++ if $match->($self->next_operand->{type});
+    $count++ if $match->($self->next_operand);
   }
 
-  return { type => 'n', value => $count };
+  return Spreadsheet::Engine::Value->new(type => 'n', value => $count);
 }
 
 1;

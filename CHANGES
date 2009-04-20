@@ -14,6 +14,20 @@ Copyright (c) 2006 OASIS 2006. All Rights Reserved.
 
 Changes from the Standard Version (SocialCalc 1.1.0) are detailed below:
 
+== v0.11 ==   (January 17, 2008)
+
+Summary: Value objects
+
+ - Created Value, Error, and Operand classes (and rewrite to use them)
+
+ - Function/*.pm
+   -- Extracted depreciation.pm and investment.pm baseclass
+   -- Extracted functions N(), T(), VALUE(), DDB(), SLN(), SYD(),
+      FV(), NPER(), PMT(), PV(), RATE(), NPV()
+
+ - Function/base.pm
+   -- Added optype() method (and rewrite other methods to use it)
+
 == v0.10 ==   (January 16, 2008)
 
 Summary: Pluggable date and time functions

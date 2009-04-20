@@ -6,8 +6,8 @@ use warnings;
 use base 'Spreadsheet::Engine::Function::is';
 
 sub calculate {
-  my ($self, $major, $full) = @_;
-  return $major eq 't';
+  my ($self, $op) = @_;
+  return $op->is_txt;
 }
 
 1;

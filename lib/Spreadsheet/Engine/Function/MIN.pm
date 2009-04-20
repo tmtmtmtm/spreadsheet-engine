@@ -8,8 +8,8 @@ use base 'Spreadsheet::Engine::Function::series';
 sub calculate {
   return sub {
     my ($in, $min) = @_;
-    return $in->{value} if not defined $min;
-    return ($in->{value} < $min) ? $in->{value} : $min;
+    return $in->value if not defined $min;
+    return ($in->value < $min) ? $in->value : $min;
   };
 }
 
@@ -46,7 +46,7 @@ All Rights Reserved.
 Portions (c) Copyright 2007 Socialtext, Inc.
 All Rights Reserved.
 
-Portions (c) Copyright 2007 Tony Bowden
+Portions (c) Copyright 2007, 2008 Tony Bowden
 
 =head1 LICENCE
 

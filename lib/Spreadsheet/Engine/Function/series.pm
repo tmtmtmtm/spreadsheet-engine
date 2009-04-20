@@ -3,44 +3,32 @@ package Spreadsheet::Engine::Function::series;
 use strict;
 use warnings;
 
-use Spreadsheet::Engine::Sheet qw/lookup_result_type/;
-
 use base 'Spreadsheet::Engine::Function::base';
 
 sub argument_count { -1 }
 
 sub result {
-  my $self = shift;
-
-  my $type = '';
-
+  my $self        = shift;
+  my $type        = '';
   my $calculator  = $self->calculate;
   my $accumulator = $self->accumulator;
 
   my $foperand = $self->foperand;
   while (@{$foperand}) {
     my $op = $self->next_operand;
-
-    if (substr($op->{type}, 0, 1) eq 'n') {
+    if ($op->is_num) {
       $accumulator = $calculator->($op, $accumulator);
-
-      $type = lookup_result_type(
-        $op->{type},
-        $type || $op->{type},
-        $self->typelookup->{plus}
-      );
-
-    } elsif (substr($op->{type}, 0, 1) eq 'e' && substr($type, 0, 1) ne 'e') {
-      $type = $op->{type};
+      $type = $self->optype(plus => $op, $type || $op)->type;
+    } elsif ($op->is_error && substr($type, 0, 1) ne 'e') {
+      $type = $op->type;
     }
   }
-
   my $result = $self->result_from($accumulator) || 0;
 
   # TODO remove the need for this
   ($result, $type) = @{$result} if ref $result eq 'ARRAY';
-
-  return { type => $type || 'n', value => $result };
+  return Spreadsheet::Engine::Value->new(type => $type || 'n',
+    value => $result);
 }
 
 sub accumulator { undef }

@@ -9,7 +9,7 @@ use warnings;
 use lib ('lib', 't/lib');
 
 use SheetTest;
-use Test::More tests => 19;
+use Test::More tests => 20;
 
 run_tests(against => 't/data/openformula-testsuite.txt');
 
@@ -83,3 +83,6 @@ test A118 1
 set A119 formula ISNA(5+NA())
 test A119 1
 
+# ---- Not in Spec 
+set A120 formula ISERROR(ERRCELL())
+test A120 1

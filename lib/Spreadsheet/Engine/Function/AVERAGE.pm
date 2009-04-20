@@ -7,10 +7,10 @@ use base 'Spreadsheet::Engine::Function::series';
 
 sub calculate {
   return sub {
-    my ($in,    $accum) = @_;
+    my ($op,    $accum) = @_;
     my ($count, $sum)   = @{$accum};
-    $count++ if substr($in->{type}, 0, 1) eq 'n';
-    $sum += $in->{value};    # Will be zero if type is not a number
+    $count++ if $op->is_num;
+    $sum += $op->value;    # Will be zero if type is not a number
     return [ $count, $sum ];
   };
 }
@@ -20,7 +20,7 @@ sub accumulator { [ 0, 0 ] }
 sub result_from {
   my ($self,  $accum) = @_;
   my ($count, $sum)   = @{$accum};
-  die { value => 0, type => 'e#DIV/0!' } unless $count;
+  die Spreadsheet::Engine::Error->div0 unless $count;
   return $sum / $count;
 }
 
@@ -61,7 +61,7 @@ All Rights Reserved.
 Portions (c) Copyright 2007 Socialtext, Inc.
 All Rights Reserved.
 
-Portions (c) Copyright 2007 Tony Bowden
+Portions (c) Copyright 2007, 2008 Tony Bowden
 
 =head1 LICENCE
 

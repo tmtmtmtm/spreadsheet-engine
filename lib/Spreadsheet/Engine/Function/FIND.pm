@@ -14,16 +14,10 @@ sub calculate {
   $offset = 1 unless defined $offset;
 
   # TODO create signature for optional args
-  die {
-    value => 'Start is before string',
-    type  => 'e#VALUE!',
-    }
+  die Spreadsheet::Engine::Error->val('Start is before string')
     if $offset < 1;
   my $result = index $string, $want, $offset - 1;
-  die {
-    value => 'Not found',
-    type  => 'e#VALUE!',
-  } unless $result >= 0;
+  die Spreadsheet::Engine::Error->val('Not found') unless $result >= 0;
   return $result + 1;
 }
 

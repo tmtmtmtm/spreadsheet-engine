@@ -5,32 +5,24 @@ use warnings;
 
 use base 'Spreadsheet::Engine::Function::ymd';
 
-use Spreadsheet::Engine::Sheet qw/convert_date_gregorian_to_julian
-  lookup_result_type/;
+use Spreadsheet::Engine::Sheet qw/convert_date_gregorian_to_julian/;
 
 sub argument_count { 3 }
 
 sub result {
-  my ($self, $y, $m, $d) = @_;
+  my $self = shift;
 
-  my $y_op = $self->next_operand_as_number;
-  my $m_op = $self->next_operand_as_number;
-  my $d_op = $self->next_operand_as_number;
+  my $y = $self->next_operand_as_number;
+  my $m = $self->next_operand_as_number;
+  my $d = $self->next_operand_as_number;
 
-  my $type =
-    lookup_result_type($y_op->{type}, $m_op->{type},
-    $self->typelookup->{twoargnumeric});
-  $type =
-    lookup_result_type($type, $d_op->{type},
-    $self->typelookup->{twoargnumeric});
-  return { type => $type, value => 0 } unless substr($type, 0, 1) eq 'n';
+  my $type = $self->optype(twoargnumeric => $y, $m, $d);
+  return $type unless $type->is_num;
 
-  my $result = convert_date_gregorian_to_julian(
-    int($y_op->{value}),
-    int($m_op->{value}),
-    int($d_op->{value})
-  ) - $self->JULIAN_OFFSET;
-  return { type => 'nd', value => $result };
+  my $result =
+    convert_date_gregorian_to_julian(int($y->value), int($m->value),
+    int($d->value)) - $self->JULIAN_OFFSET;
+  return Spreadsheet::Engine::Value->new(type => 'nd', value => $result);
 }
 
 1;

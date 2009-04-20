@@ -19,11 +19,9 @@ sub _type {
   my $self = shift;
   return 1 unless @{ $self->foperand } > 0;
   my $op = $self->next_operand_as_number;
-  die { type => 'e#VALUE!', value => 0 }
-    if substr($op->{type}, 0, 1) ne 'n'
-    || $op->{value} < 1
-    || $op->{value} > 3;
-  return $op->{value};
+  die Spreadsheet::Engine::Error->val
+    if !$op->is_num || $op->value < 1 || $op->value > 3;
+  return $op->value;
 }
 
 1;

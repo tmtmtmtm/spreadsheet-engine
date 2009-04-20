@@ -8,12 +8,12 @@ use base 'Spreadsheet::Engine::Function::series';
 sub calculate {
   return sub {
     my ($in, $A) = @_;
-    return $A = { mk1 => $in->{value}, sk1 => 0, count => 1 }
+    return $A = { mk1 => $in->value, sk1 => 0, count => 1 }
       unless defined $A;
 
-    my $diff = $in->{value} - $A->{mk1};
+    my $diff = $in->value - $A->{mk1};
     $A->{mk}  = $A->{mk1} + $diff / ++$A->{count};
-    $A->{sk}  = $A->{sk1} + $diff * ($in->{value} - $A->{mk});
+    $A->{sk}  = $A->{sk1} + $diff * ($in->value - $A->{mk});
     $A->{sk1} = $A->{sk};
     $A->{mk1} = $A->{mk};
     return $A;
@@ -22,7 +22,7 @@ sub calculate {
 
 sub result_from {
   my ($self, $A) = @_;
-  die { value => 0, type => 'e#DIV/0!' } unless $A->{count} > 1;
+  die Spreadsheet::Engine::Error->div0 unless $A->{count} > 1;
   return $A->{sk} / ($A->{count} - 1);
 }
 
@@ -64,7 +64,7 @@ All Rights Reserved.
 Portions (c) Copyright 2007 Socialtext, Inc.
 All Rights Reserved.
 
-Portions (c) Copyright 2007 Tony Bowden
+Portions (c) Copyright 2007, 2008 Tony Bowden
 
 =head1 LICENCE
 

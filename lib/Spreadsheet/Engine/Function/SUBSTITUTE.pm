@@ -10,10 +10,9 @@ sub arguments      { [ 1, 1, 1, 0 ] }
 
 sub calculate {
   my ($self, $string, $oldtext, $newtext, $which) = @_;
-  die {    # TODO create signature for optional args
-    value => 'Invalid arguments',
-    type  => 'e#VALUE!',
-    }
+
+  # TODO create signature for optional args
+  die Spreadsheet::Engine::Error->val('Invalid arguments')
     if defined $which and $which == 0;
   if (!$which) {
     $string =~ s/\Q$oldtext\E/$newtext/g if length $oldtext > 0;

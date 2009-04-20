@@ -3,10 +3,12 @@ package Spreadsheet::Engine::Function::base;
 use strict;
 use warnings;
 
-use Spreadsheet::Engine::Sheet qw/
-  copy_function_args function_args_error
-  operand_value_and_type operand_as_number operand_as_text
-  /;
+use Spreadsheet::Engine::Value;
+use Spreadsheet::Engine::Error;
+use Spreadsheet::Engine::Fn::Operand;
+use Spreadsheet::Engine::Sheet qw/ copy_function_args
+  function_args_error lookup_result_type operand_value_and_type
+  operand_as_number operand_as_text /;
 
 use Class::Struct;
 
@@ -31,15 +33,13 @@ sub execute {
     $self->result;
   };
 
-  # TODO: harmonise this
   if ($@) {
-    die $@ unless ref $@ eq 'HASH';
-    $result->{value} = $@->{value};
-    $result->{type} = $@->{type};
+    die $@ unless ref $@;
+    $result = $@;
+    $result = $@;
   }
 
-  push @{ $self->operand },
-    { type => $result->{type}, value => $result->{value} }
+  push @{ $self->operand }, { type => $result->type, value => $result->value }
     if $result;
   return;
 }
@@ -56,11 +56,9 @@ sub foperand {
     my $have_args = scalar @foperand;
     if ( ($want_args < 0 and $have_args < -$want_args)
       or ($want_args >= 0 and $have_args != $want_args)) {
-      die {
-        type    => 'e#VALUE!',
-        value =>
-          sprintf('Incorrect arguments to function "%s". ', $self->fname),
-      };
+      die Spreadsheet::Engine::Error->val(
+        sprintf('Incorrect arguments to function "%s". ', $self->fname),
+      );
     }
   }
 
@@ -72,7 +70,10 @@ sub next_operand {
   my $value =
     operand_value_and_type($self->sheetdata, $self->foperand,
     $self->errortext, \my $tostype);
-  return { value => $value, type => $tostype };
+  return Spreadsheet::Engine::Fn::Operand->new(
+    value => $value,
+    type  => $tostype
+  );
 }
 
 sub next_operand_as_number {
@@ -80,7 +81,10 @@ sub next_operand_as_number {
   my $value =
     operand_as_number($self->sheetdata, $self->foperand, $self->errortext,
     \my $tostype);
-  return { value => $value, type => $tostype };
+  return Spreadsheet::Engine::Fn::Operand->new(
+    value => $value,
+    type  => $tostype
+  );
 }
 
 sub next_operand_as_text {
@@ -88,7 +92,24 @@ sub next_operand_as_text {
   my $value =
     operand_as_text($self->sheetdata, $self->foperand, $self->errortext,
     \my $tostype);
-  return { value => $value, type => $tostype };
+  return Spreadsheet::Engine::Fn::Operand->new(
+    value => $value,
+    type  => $tostype
+  );
+}
+
+sub optype {
+  my ($self, $operation, @op) = @_;
+
+  my $tl = $self->typelookup->{$operation};
+
+  my $first = shift @op;
+  my $type  = $first->type;
+
+  while (my $next = shift @op) {
+    $type = lookup_result_type($type, (ref $next ? $next->type : $next), $tl);
+  }
+  return Spreadsheet::Engine::Value->new(type => $type, value => 0);
 }
 
 1;
@@ -153,6 +174,14 @@ response onto the stack.
 Pops the top of the operand stack and returns a hash containing the
 value and type. (This is currently a simple delegation to
 Sheet::operand_value_and_type/operand_as_text/operand_as_number
+
+=head2 optype
+
+	my $type = $self->optype('twoargnumeric', $op1, $op2);
+
+Returns the resulting value type when doing an operation.
+
+=cut
 
 =head1 HISTORY
 

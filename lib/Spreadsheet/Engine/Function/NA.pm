@@ -7,13 +7,7 @@ use base 'Spreadsheet::Engine::Function::base';
 
 sub argument_count { 0 }
 
-sub result {
-  my $self = shift;
-  return {
-    type  => 'e#N/A',
-    value => 0,
-  };
-}
+sub result { Spreadsheet::Engine::Error->na }
 
 1;
 
