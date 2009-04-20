@@ -5,14 +5,25 @@ use warnings;
 
 use base 'Spreadsheet::Engine::Function::text';
 
+sub argument_count { -2 }
+
 sub arguments { [ 1, 1, 0 ] }
 
 sub calculate {
   my ($self, $want, $string, $offset) = @_;
   $offset = 1 unless defined $offset;
-  die 'Start is before string' if $offset < 1;
+
+  # TODO create signature for optional args
+  die {
+    value => 'Start is before string',
+    type  => 'e#VALUE!',
+    }
+    if $offset < 1;
   my $result = index $string, $want, $offset - 1;
-  die 'Not found' unless $result >= 0;
+  die {
+    value => 'Not found',
+    type  => 'e#VALUE!',
+  } unless $result >= 0;
   return $result + 1;
 }
 

@@ -36,6 +36,8 @@ sub result {
   }
 
   my $result = $self->result_from($accumulator) || 0;
+
+  # TODO remove the need for this
   ($result, $type) = @{$result} if ref $result eq 'ARRAY';
 
   return { type => $type || 'n', value => $result };

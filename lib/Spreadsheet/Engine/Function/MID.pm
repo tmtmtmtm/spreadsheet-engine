@@ -5,13 +5,11 @@ use warnings;
 
 use base 'Spreadsheet::Engine::Function::text';
 
-sub arguments { [ 1, 0, 0 ] }
+sub argument_count { 3 }
+sub arguments      { [ 1, '>=1', '>=0' ] }
 
 sub calculate {
   my ($self, $string, $start, $len) = @_;
-  $len ||= 0;
-  $len ||= 0;
-  die 'Bad arguments' if $len < 0 or $start < 1;
   no warnings 'substr';
   return substr($string, $start - 1, $len);
 }

@@ -1,14 +1,13 @@
-package Spreadsheet::Engine::Function::STDEVP;
+package Spreadsheet::Engine::Function::SECOND;
 
 use strict;
 use warnings;
 
-use base 'Spreadsheet::Engine::Function::VARP';
+use base 'Spreadsheet::Engine::Function::hms';
 
-sub result_from {
-  my ($self, $A) = @_;
-  die { value => 0, type => 'e#DIV/0!' } unless $A->{count} > 1;
-  return sqrt $self->SUPER::result_from($A);
+sub calculate {
+  my ($self, $H, $M, $S) = @_;
+  return $S;
 }
 
 1;
@@ -17,24 +16,15 @@ __END__
 
 =head1 NAME
 
-Spreadsheet::Engine::Function::STDEVP - Spreadsheet funtion STDEVP()
+Spreadsheet::Engine::Function::SECOND - Spreadsheet funtion SECOND()
 
 =head1 SYNOPSIS
 
-  =STDEVP(list_of_numbers)
+  =SECOND(time)
 
 =head1 DESCRIPTION
 
-This provides the spreadsheet text funtion STDEVP()
-
-=head2 calculate
-
-This returns the standard deviation.
-
-=head2 result
-
-We calculate as per Knuth "The Art of Computer Programming" Vol. 2
-3rd edition, page 232
+This returns the second portion of the given time.
 
 =head1 HISTORY
 
@@ -49,7 +39,7 @@ All Rights Reserved.
 Portions (c) Copyright 2007 Socialtext, Inc.
 All Rights Reserved.
 
-Portions (c) Copyright 2007 Tony Bowden
+Portions (c) Copyright 2008 Tony Bowden
 
 =head1 LICENCE
 

@@ -20,19 +20,21 @@ sub result {
     lookup_result_type($op->{type}, $op->{type},
     $self->typelookup->{oneargnumeric});
 
-  my $result =
-    $result_type eq 'n'
-    ? eval { $self->calculate($op->{value}) }
-    : 0;
-
-  if ($@) {
-    $result      = $@;
-    $result_type = 'e#NUM!';
+  if (my $check = $self->arg_check) {
+    die {
+      type  => 'e#NUM!',
+      value => 'Invalid arguments',
+      }
+      unless $check->($op->{value});
   }
+
+  my $result = $result_type eq 'n' ? $self->calculate($op->{value}) : 0;
 
   return { type => $result_type, value => $result };
 
 }
+
+sub arg_check { }
 
 1;
 
@@ -63,6 +65,13 @@ the argument provided.
 Subclasses should provide this as the workhorse. It should either return
 the result, or die with an error message (that will be trapped and
 turned into a e#NUM! error).
+
+=head2 arg_check
+
+Before calulate is called, an arg_check subref, if provided, will be
+called to check that the argument passed to the function is acceptable.
+This is an interim step towards proper argument validation. Be careful
+about relying on it.
 
 =head1 HISTORY
 

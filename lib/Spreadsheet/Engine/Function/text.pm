@@ -9,58 +9,49 @@ use Encode;
 use Spreadsheet::Engine::Sheet
   qw/function_args_error operand_as_number operand_as_text operand_value_and_type/;
 
+sub argument_count { 1 }
+
+sub _opvals {
+  my $self = shift;
+
+  my $numargs = scalar @{ $self->foperand };
+  my @argdef  = @{ $self->arguments };
+
+  my @opvals = ();
+
+  for my $sig (@argdef[ 0 .. $numargs - 1 ]) {
+    my $op;
+
+    if ($sig =~ /^([<>]=?)(\d+)/) {    # >=0 <1 etc.
+      my ($test, $num) = ($1, $2);
+      $op = $self->next_operand_as_number;
+      die {
+        value => 'Invalid arguments',
+        type  => 'e#VALUE!',
+        }
+        unless eval "$op->{value} $test $num";
+    } elsif ($sig == 0) {              # any number
+      $op = $self->next_operand_as_number;
+    } elsif ($sig == 1) {              # any string
+      $op = $self->next_operand_as_text;
+      $op->{value} = decode('utf8', $op->{value});
+    }
+
+    die $op if substr($op->{type}, 0, 1) eq 'e';
+
+    push @opvals, $op->{value};
+
+  }
+  return @opvals;
+}
+
 sub result {
   my $self = shift;
 
-  my $fname      = $self->fname or die 'Name not set';
-  my $operand    = $self->operand;
-  my $foperand   = $self->foperand;
-  my $errortext  = $self->errortext;
-  my $typelookup = $self->typelookup;
-  my $sheetdata  = $self->sheetdata;
-
-  my ($value, $tostype, @operand_value, @operand_type);
-
-  my $numargs = scalar @{$foperand};
-  my @argdef  = @{ $self->arguments };
-
-  # go through each arg, get value and type, and check for errors
-  for my $i (1 .. $numargs) {
-    if ($i > scalar @argdef) {    # too many args
-      function_args_error($fname, $self->operand, $errortext);
-      return;
-    }
-
-    if ($argdef[ $i - 1 ] == 0) {
-      $value =
-        operand_as_number($sheetdata, $foperand, $errortext, \$tostype);
-    } elsif ($argdef[ $i - 1 ] == 1) {
-      $value = operand_as_text($sheetdata, $foperand, $errortext, \$tostype);
-      $value = decode('utf8', $value);
-    } elsif ($argdef[ $i - 1 ] == -1) {
-      $value =
-        operand_value_and_type($sheetdata, $foperand, $errortext, \$tostype);
-    }
-
-    $operand_value[$i] = $value;
-    $operand_type[$i]  = $tostype;
-    if (substr($tostype, 0, 1) eq 'e') {
-      push @{$operand}, { type => $tostype, value => $value };
-    }
-  }
-
-  my $result =
-    eval { $self->calculate(@operand_value[ 1 .. $#operand_value ]) };
-  my $result_type = $self->result_type;
-
-  if ($@) {
-    $result      = $@;
-    $result_type = 'e#VALUE!';
-  } else {
-    $result = encode('utf8', $result);    # convert UTF-8 back to bytes
-  }
-
-  return { type => $result_type, value => $result };
+  return {
+    type  => $self->result_type,
+    value => encode('utf8', $self->calculate($self->_opvals)),
+  };
 }
 
 sub result_type { 't' }

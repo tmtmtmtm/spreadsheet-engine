@@ -1,27 +1,32 @@
-package Spreadsheet::Engine::Function::math2;
+package Spreadsheet::Engine::Function::ymd;
 
 use strict;
 use warnings;
 
 use base 'Spreadsheet::Engine::Function::base';
 
-use Spreadsheet::Engine::Sheet qw/lookup_result_type/;
+use Spreadsheet::Engine::Sheet
+  qw/convert_date_julian_to_gregorian lookup_result_type/;
 
-sub argument_count { 2 }
+use constant JULIAN_OFFSET => 2_415_019;
+
+sub argument_count { 1 }
 
 sub result {
   my $self = shift;
 
-  my $op1 = $self->next_operand_as_number;
-  my $op2 = $self->next_operand_as_number;
+  my $op = $self->next_operand_as_number;
 
   my $result_type =
-    lookup_result_type($op1->{type}, $op2->{type},
-    $self->typelookup->{twoargnumeric});
+    lookup_result_type($op->{type}, $op->{type},
+    $self->typelookup->{oneargnumeric});
+
+  my ($y, $m, $d) =
+    convert_date_julian_to_gregorian(int($op->{value} + JULIAN_OFFSET));
 
   my $result =
-    ($result_type eq 'n')
-    ? $self->calculate($op1->{value}, $op2->{value})
+    $result_type eq 'n'
+    ? $self->calculate($y, $m, $d)
     : 0;
 
   return { type => $result_type, value => $result };
@@ -34,29 +39,24 @@ __END__
 
 =head1 NAME
 
-Spreadsheet::Engine::Function::math2 - base class for 2arg math functions
+Spreadsheet::Engine::Function::ymd - base class for DMY functions
 
 =head1 SYNOPSIS
 
-  use base 'Spreadsheet::Engine::Function::math2';
+  use base 'Spreadsheet::Engine::Function::ymd';
 
   sub calculate { ... }
 
 =head1 DESCRIPTION
 
-This provides a base class for spreadsheet functions that perform
-mathematical functions with two arguments (POWER(), MOD(), etc)
-
-Subclasses should provide 'calculate' function that will be called with 
-the arguments provided.
+This provides a base class for spreadsheet functions that operate on a
+single date pre-split into year, month, and day.
 
 =head1 INSTANCE METHODS
 
 =head2 calculate
 
-Subclasses should provide this as the workhorse. It should either return
-the result, or die with an error message (that will be trapped and
-turned into a e#NUM! error).
+This will be passed the year, month, and day.
 
 =head1 HISTORY
 

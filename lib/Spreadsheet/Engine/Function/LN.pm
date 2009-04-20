@@ -5,9 +5,15 @@ use warnings;
 
 use base 'Spreadsheet::Engine::Function::math';
 
+sub arg_check {
+  return sub {
+    my $value = shift;
+    return $value > 0;
+    }
+}
+
 sub calculate {
   my ($self, $value) = @_;
-  die 'LN argument must be greater than 0' unless $value > 0;
   return log $value;
 }
 

@@ -13,6 +13,9 @@ lib/Spreadsheet/Engine/Function/COUNT.pm
 lib/Spreadsheet/Engine/Function/COUNTA.pm
 lib/Spreadsheet/Engine/Function/COUNTBLANK.pm
 lib/Spreadsheet/Engine/Function/counter.pm
+lib/Spreadsheet/Engine/Function/DATE.pm
+lib/Spreadsheet/Engine/Function/dates.pm
+lib/Spreadsheet/Engine/Function/DAY.pm
 lib/Spreadsheet/Engine/Function/DEGREES.pm
 lib/Spreadsheet/Engine/Function/ERRCELL.pm
 lib/Spreadsheet/Engine/Function/EVEN.pm
@@ -20,6 +23,8 @@ lib/Spreadsheet/Engine/Function/EXP.pm
 lib/Spreadsheet/Engine/Function/FACT.pm
 lib/Spreadsheet/Engine/Function/FALSE.pm
 lib/Spreadsheet/Engine/Function/FIND.pm
+lib/Spreadsheet/Engine/Function/hms.pm
+lib/Spreadsheet/Engine/Function/HOUR.pm
 lib/Spreadsheet/Engine/Function/INT.pm
 lib/Spreadsheet/Engine/Function/is.pm
 lib/Spreadsheet/Engine/Function/ISBLANK.pm
@@ -40,7 +45,9 @@ lib/Spreadsheet/Engine/Function/math2.pm
 lib/Spreadsheet/Engine/Function/MAX.pm
 lib/Spreadsheet/Engine/Function/MID.pm
 lib/Spreadsheet/Engine/Function/MIN.pm
+lib/Spreadsheet/Engine/Function/MINUTE.pm
 lib/Spreadsheet/Engine/Function/MOD.pm
+lib/Spreadsheet/Engine/Function/MONTH.pm
 lib/Spreadsheet/Engine/Function/NA.pm
 lib/Spreadsheet/Engine/Function/ODD.pm
 lib/Spreadsheet/Engine/Function/PI.pm
@@ -51,6 +58,7 @@ lib/Spreadsheet/Engine/Function/RADIANS.pm
 lib/Spreadsheet/Engine/Function/REPLACE.pm
 lib/Spreadsheet/Engine/Function/REPT.pm
 lib/Spreadsheet/Engine/Function/RIGHT.pm
+lib/Spreadsheet/Engine/Function/SECOND.pm
 lib/Spreadsheet/Engine/Function/series.pm
 lib/Spreadsheet/Engine/Function/SIN.pm
 lib/Spreadsheet/Engine/Function/SQRT.pm
@@ -60,12 +68,16 @@ lib/Spreadsheet/Engine/Function/SUBSTITUTE.pm
 lib/Spreadsheet/Engine/Function/SUM.pm
 lib/Spreadsheet/Engine/Function/TAN.pm
 lib/Spreadsheet/Engine/Function/text.pm
+lib/Spreadsheet/Engine/Function/TIME.pm
 lib/Spreadsheet/Engine/Function/TRIM.pm
 lib/Spreadsheet/Engine/Function/TRUE.pm
 lib/Spreadsheet/Engine/Function/TRUNC.pm
 lib/Spreadsheet/Engine/Function/UPPER.pm
 lib/Spreadsheet/Engine/Function/VAR.pm
 lib/Spreadsheet/Engine/Function/VARP.pm
+lib/Spreadsheet/Engine/Function/WEEKDAY.pm
+lib/Spreadsheet/Engine/Function/YEAR.pm
+lib/Spreadsheet/Engine/Function/ymd.pm
 lib/Spreadsheet/Engine/Functions.pm
 lib/Spreadsheet/Engine/Sheet.pm
 lib/Spreadsheet/Engine/Storage/SocialCalc.pm

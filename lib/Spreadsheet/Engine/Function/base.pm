@@ -34,8 +34,8 @@ sub execute {
   # TODO: harmonise this
   if ($@) {
     die $@ unless ref $@ eq 'HASH';
-    $result->{value} = $@->{message};
-    $result->{type}  = $@->{type};
+    $result->{value} = $@->{value};
+    $result->{type} = $@->{type};
   }
 
   push @{ $self->operand },
@@ -58,7 +58,7 @@ sub foperand {
       or ($want_args >= 0 and $have_args != $want_args)) {
       die {
         type    => 'e#VALUE!',
-        message =>
+        value =>
           sprintf('Incorrect arguments to function "%s". ', $self->fname),
       };
     }

@@ -1,27 +1,26 @@
-package Spreadsheet::Engine::Function::math2;
+package Spreadsheet::Engine::Function::dates;
 
 use strict;
 use warnings;
 
 use base 'Spreadsheet::Engine::Function::base';
 
-use Spreadsheet::Engine::Sheet qw/lookup_result_type/;
+use Spreadsheet::Engine::Sheet qw/lookup_result_type /;
 
-sub argument_count { 2 }
+sub argument_count { 1 }
 
 sub result {
   my $self = shift;
 
-  my $op1 = $self->next_operand_as_number;
-  my $op2 = $self->next_operand_as_number;
+  my $op = $self->next_operand_as_number;
 
   my $result_type =
-    lookup_result_type($op1->{type}, $op2->{type},
-    $self->typelookup->{twoargnumeric});
+    lookup_result_type($op->{type}, $op->{type},
+    $self->typelookup->{oneargnumeric});
 
   my $result =
-    ($result_type eq 'n')
-    ? $self->calculate($op1->{value}, $op2->{value})
+    $result_type eq 'n'
+    ? $self->calculate($op->{value})
     : 0;
 
   return { type => $result_type, value => $result };
@@ -34,29 +33,24 @@ __END__
 
 =head1 NAME
 
-Spreadsheet::Engine::Function::math2 - base class for 2arg math functions
+Spreadsheet::Engine::Function::dates - base class for date functions
 
 =head1 SYNOPSIS
 
-  use base 'Spreadsheet::Engine::Function::math2';
+  use base 'Spreadsheet::Engine::Function::dates';
 
   sub calculate { ... }
 
 =head1 DESCRIPTION
 
-This provides a base class for spreadsheet functions that perform
-mathematical functions with two arguments (POWER(), MOD(), etc)
-
-Subclasses should provide 'calculate' function that will be called with 
-the arguments provided.
+This provides a base class for spreadsheet functions that operate on a
+single date.
 
 =head1 INSTANCE METHODS
 
 =head2 calculate
 
-Subclasses should provide this as the workhorse. It should either return
-the result, or die with an error message (that will be trapped and
-turned into a e#NUM! error).
+This will be passed the date value as an integer.
 
 =head1 HISTORY
 

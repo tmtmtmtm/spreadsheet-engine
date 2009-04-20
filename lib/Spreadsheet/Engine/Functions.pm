@@ -34,9 +34,7 @@ our %function_list = (
   CHOOSE    => [ \&choose_function,         -2 ],
   COLUMNS   => [ \&columns_rows_function,   1 ],
   COUNTIF   => [ \&countif_sumif_functions, 2 ],
-  DATE      => [ \&date_function,           3 ],
   DAVERAGE  => [ \&dseries_functions,       3 ],
-  DAY       => [ \&dmy_function,            1 ],
   DCOUNT    => [ \&dseries_functions,       3 ],
   DCOUNTA   => [ \&dseries_functions,       3 ],
   DDB       => [ \&ddb_function,            -4 ],
@@ -52,14 +50,11 @@ our %function_list = (
   EXACT     => [ \&exact_function,          2 ],
   FV        => [ \&interest_functions,      -2 ],
   HLOOKUP   => [ \&lookup_functions,        -3 ],
-  HOUR      => [ \&hms_function,            1 ],
   IF        => [ \&if_function,             3 ],
   INDEX     => [ \&index_function,          -1 ],
   IRR       => [ \&irr_function,            -1 ],
   LOG       => [ \&log_function,            -1 ],
   MATCH     => [ \&lookup_functions,        -2 ],
-  MINUTE    => [ \&hms_function,            1 ],
-  MONTH     => [ \&dmy_function,            1 ],
   N         => [ \&ntv_functions,           1 ],
   NOT       => [ \&not_function,            1 ],
   NOW       => [ \&zeroarg_functions,       0 ],
@@ -71,19 +66,15 @@ our %function_list = (
   RATE      => [ \&interest_functions,      -2 ],
   ROUND     => [ \&round_function,          -1 ],
   ROWS      => [ \&columns_rows_function,   1 ],
-  SECOND    => [ \&hms_function,            1 ],
   SLN       => [ \&sln_function,            3 ],
   SUMIF     => [ \&countif_sumif_functions, -2 ],
   SYD       => [ \&syd_function,            4 ],
   T         => [ \&ntv_functions,           1 ],
-  TIME      => [ \&time_function,           3 ],
   TODAY     => [ \&zeroarg_functions,       0 ],
   VALUE     => [ \&ntv_functions,           1 ],
   VLOOKUP   => [ \&lookup_functions,        -3 ],
-  WEEKDAY   => [ \&dmy_function,            -1 ],
   HTML      => [ \&html_function,           -1 ],
   PLAINTEXT => [ \&text_function,           -1 ],
-  YEAR      => [ \&dmy_function,            1 ],
 );
 
 =head1 EXTENDING
@@ -115,12 +106,12 @@ sub register {
 
 __PACKAGE__->register(
   map +($_ => "Spreadsheet::Engine::Function::$_"),
-  qw/ ABS ACOS ASIN ATAN ATAN2 AVERAGE COS COUNT COUNTA COUNTBLANK
-    DEGREES ERRCELL EVEN EXP FACT FALSE FIND INT ISBLANK ISERR ISERROR
-    ISLOGICAL ISNA ISNONTEXT ISNUMBER ISTEXT LEFT LEN LN LOG10 LOWER MAX
-    MID MIN MOD NA ODD PI POWER PRODUCT PROPER RADIANS REPLACE REPT RIGHT
-    SIN SQRT STDEV STDEVP SUBSTITUTE SUM TAN TRIM TRUE TRUNC UPPER VAR
-    VARP /
+  qw/ ABS ACOS ASIN ATAN ATAN2 AVERAGE COS COUNT COUNTA COUNTBLANK DATE
+    DAY DEGREES ERRCELL EVEN EXP FACT FALSE FIND HOUR INT ISBLANK ISERR
+    ISERROR ISLOGICAL ISNA ISNONTEXT ISNUMBER ISTEXT LEFT LEN LN LOG10
+    LOWER MAX MID MIN MINUTE MOD MONTH NA ODD PI POWER PRODUCT PROPER
+    RADIANS REPLACE REPT RIGHT SECOND SIN SQRT STDEV STDEVP SUBSTITUTE SUM
+    TAN TIME TRIM TRUE TRUNC UPPER VAR VARP WEEKDAY YEAR /
 );
 
 =head1 EXPORTS
@@ -863,197 +854,6 @@ sub if_function {
   pop @$foperand if !$cond;
   push @$operand, $foperand->[ @$foperand - 1 ];
   pop @$foperand if $cond;
-
-  return;
-
-}
-
-=head2 date_function
-
-=over
-
-=item DATE(year,month,day)
-
-=back
-
-=cut
-
-sub date_function {
-
-  my ($fname, $operand, $foperand, $errortext, $typelookup, $sheetdata) = @_;
-
-  my ($tostype1, $tostype2, $tostype3);
-  my $result = 0;
-
-  my $year = operand_as_number($sheetdata, $foperand, $errortext, \$tostype1);
-  my $month =
-    operand_as_number($sheetdata, $foperand, $errortext, \$tostype2);
-  my $day = operand_as_number($sheetdata, $foperand, $errortext, \$tostype3);
-  my $resulttype =
-    lookup_result_type($tostype1, $tostype2, $typelookup->{twoargnumeric});
-  $resulttype =
-    lookup_result_type($resulttype, $tostype3, $typelookup->{twoargnumeric});
-  if (substr($resulttype, 0, 1) eq "n") {
-    $result =
-      convert_date_gregorian_to_julian(int($year), int($month), int($day)) -
-      $julian_offset;
-    $resulttype = "nd";
-  }
-  push @$operand, { type => $resulttype, value => $result };
-
-  return;
-
-}
-
-=head2 time_function
-
-=over
-
-=item TIME(hour,minute,second)
-
-=back
-
-=cut
-
-sub time_function {
-
-  my ($fname, $operand, $foperand, $errortext, $typelookup, $sheetdata) = @_;
-
-  my ($tostype1, $tostype2, $tostype3);
-  my $result = 0;
-
-  my $hours =
-    operand_as_number($sheetdata, $foperand, $errortext, \$tostype1);
-  my $minutes =
-    operand_as_number($sheetdata, $foperand, $errortext, \$tostype2);
-  my $seconds =
-    operand_as_number($sheetdata, $foperand, $errortext, \$tostype3);
-  my $resulttype =
-    lookup_result_type($tostype1, $tostype2, $typelookup->{twoargnumeric});
-  $resulttype =
-    lookup_result_type($resulttype, $tostype3, $typelookup->{twoargnumeric});
-
-  if (substr($resulttype, 0, 1) eq "n") {
-    $result =
-      (($hours * 60 * 60) + ($minutes * 60) + $seconds) / (24 * 60 * 60);
-    $resulttype = "nt";
-  }
-  push @$operand, { type => $resulttype, value => $result };
-
-  return;
-
-}
-
-=head2 dmy_function
-
-=over
-
-=item DAY(date)
-
-=item MONTH(date)
-
-=item YEAR(date)
-
-=item WEEKDAY(date, [type])
-
-=back
-
-=cut
-
-sub dmy_function {
-
-  my ($fname, $operand, $foperand, $errortext, $typelookup, $sheetdata) = @_;
-
-  my $tostype;
-  my $result = 0;
-
-  my $datevalue =
-    operand_as_number($sheetdata, $foperand, $errortext, \$tostype);
-  my $resulttype =
-    lookup_result_type($tostype, $tostype, $typelookup->{oneargnumeric});
-
-  if ($resulttype eq "n") {
-    my ($yr, $mn, $dy) =
-      convert_date_julian_to_gregorian(int($datevalue + $julian_offset));
-    if ($fname eq "DAY") {
-      $result = $dy;
-    } elsif ($fname eq "MONTH") {
-      $result = $mn;
-    } elsif ($fname eq "YEAR") {
-      $result = $yr;
-    } elsif ($fname eq "WEEKDAY") {
-      my $dtype = 1;
-      if (scalar @$foperand) {    # get type
-        $dtype =
-          operand_as_number($sheetdata, $foperand, $errortext, \$tostype);
-        if (substr($tostype, 0, 1) ne "n" || $dtype < 1 || $dtype > 3) {
-          push @$operand, { type => "e#VALUE!", value => 0 };
-          return;
-        }
-        if (scalar @$foperand) {
-          function_args_error($fname, $operand, $errortext);
-          return;
-        }
-      }
-      my $doffset = 6;
-      $doffset-- if $dtype > 1;
-      $result = int($datevalue + $doffset) % 7 + ($dtype < 3 ? 1 : 0);
-    }
-  }
-
-  push @$operand, { type => $resulttype, value => $result };
-
-  return;
-
-}
-
-=head2 hms_function
-
-=over
-
-=item HOUR(datetime)
-
-=item MINUTE(datetime)
-
-=item SECOND(datetime)
-
-=back
-
-=cut
-
-sub hms_function {
-
-  my ($fname, $operand, $foperand, $errortext, $typelookup, $sheetdata) = @_;
-
-  my $tostype;
-  my $result = 0;
-
-  my $datetimevalue =
-    operand_as_number($sheetdata, $foperand, $errortext, \$tostype);
-  my $resulttype =
-    lookup_result_type($tostype, $tostype, $typelookup->{oneargnumeric});
-
-  if ($resulttype eq "n") {
-    my $fraction = $datetimevalue - int($datetimevalue);   # fraction of a day
-    $fraction *= 24;
-    my $hours = int($fraction);
-    $fraction -= int($fraction);
-    $fraction *= 60;
-    my $minutes = int($fraction);
-    $fraction -= int($fraction);
-    $fraction *= 60;
-    my $seconds = int($fraction + ($datetimevalue >= 0 ? 0.5 : -0.5));
-
-    if ($fname eq "HOUR") {
-      $result = $hours;
-    } elsif ($fname eq "MINUTE") {
-      $result = $minutes;
-    } elsif ($fname eq "SECOND") {
-      $result = $seconds;
-    }
-  }
-
-  push @$operand, { type => $resulttype, value => $result };
 
   return;
 

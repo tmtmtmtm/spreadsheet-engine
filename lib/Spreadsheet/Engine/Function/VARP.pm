@@ -7,7 +7,7 @@ use base 'Spreadsheet::Engine::Function::VAR';
 
 sub result_from {
   my ($self, $A) = @_;
-  return [ 0, 'e#DIV/0!' ] unless $A->{count} > 1;
+  die { value => 0, type => 'e#DIV/0!' } unless $A->{count} > 1;
   return $A->{sk} / $A->{count};
 }
 

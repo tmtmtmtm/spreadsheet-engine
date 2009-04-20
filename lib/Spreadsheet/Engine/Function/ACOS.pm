@@ -7,8 +7,14 @@ use base 'Spreadsheet::Engine::Function::math';
 
 sub calculate {
   my ($self, $value) = @_;
-  die 'Invalid arguments' unless $value >= -1 and $value <= 1;
   return atan2(sqrt(1 - $value * $value), $value);
+}
+
+sub arg_check {
+  return sub {
+    my $value = shift;
+    return $value >= -1 && $value <= 1;
+    }
 }
 
 1;

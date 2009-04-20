@@ -5,11 +5,16 @@ use warnings;
 
 use base 'Spreadsheet::Engine::Function::text';
 
-sub arguments { [ 1, 1, 1, 0 ] }
+sub argument_count { -3 }
+sub arguments      { [ 1, 1, 1, 0 ] }
 
 sub calculate {
   my ($self, $string, $oldtext, $newtext, $which) = @_;
-  die 'Invalid arguments' if defined $which and $which == 0;
+  die {    # TODO create signature for optional args
+    value => 'Invalid arguments',
+    type  => 'e#VALUE!',
+    }
+    if defined $which and $which == 0;
   if (!$which) {
     $string =~ s/\Q$oldtext\E/$newtext/g if length $oldtext > 0;
   } elsif ($which >= 1) {

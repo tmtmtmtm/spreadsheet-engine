@@ -5,11 +5,16 @@ use warnings;
 
 use base 'Spreadsheet::Engine::Function::math';
 
+sub arg_check {
+  return sub {
+    my $value = shift;
+    return cos $value != 0;
+    }
+}
+
 sub calculate {
   my ($self, $value) = @_;
-  my $result = cos $value;
-  die 'Invalid arguments' if $result == 0;
-  return sin($value) / $result;
+  return sin($value) / cos($value);
 }
 
 1;

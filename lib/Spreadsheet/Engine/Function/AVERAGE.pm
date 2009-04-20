@@ -20,7 +20,7 @@ sub accumulator { [ 0, 0 ] }
 sub result_from {
   my ($self,  $accum) = @_;
   my ($count, $sum)   = @{$accum};
-  return [ 0, 'e#DIV/0!' ] unless $count;
+  die { value => 0, type => 'e#DIV/0!' } unless $count;
   return $sum / $count;
 }
 

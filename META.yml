@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                Spreadsheet-Engine
-version:             0.09
+version:             0.10
 abstract:            Core calculation engine for a spreadsheet
 license:             Artistic License 2.0
 author:              

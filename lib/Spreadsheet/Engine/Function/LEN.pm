@@ -9,7 +9,7 @@ sub arguments { [1] }
 
 sub calculate {
   my ($self, $string) = @_;
-  return length($string || '');
+  return length $string;
 }
 
 sub result_type { 'n' }

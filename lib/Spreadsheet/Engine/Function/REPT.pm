@@ -5,11 +5,11 @@ use warnings;
 
 use base 'Spreadsheet::Engine::Function::text';
 
-sub arguments { [ 1, 0 ] }
+sub argument_count { 2 }
+sub arguments      { [ 1, '>=0' ] }
 
 sub calculate {
   my ($self, $string, $times) = @_;
-  die 'Negative count' if $times < 0;
   return $string x $times;
 }
 

@@ -7,7 +7,7 @@ use base 'Spreadsheet::Engine::Function::math2';
 
 sub calculate {
   my ($self, $x, $y) = @_;
-  die { type => 'e#DIV/0!' } if $y == 0;
+  die { value => 0, type => 'e#DIV/0!' } if $y == 0;
   my $quotient = $x / $y;
   if ($quotient >= 0) {
     $quotient = int($quotient);
