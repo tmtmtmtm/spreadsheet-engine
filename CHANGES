@@ -10,6 +10,25 @@ Portions (c) Copyright 2007 Tony Bowden
 
 Changes from the Standard Version (SocialCalc 1.1.0) are detailed below:
 
+== v0.04 ==   (December 14, 2007)
+
+Summary: Fix cpantesters problems
+
+ - General
+   -- Set minimum perl version to be 5.7.3 (this is the first perl version
+      with suitable unicode support. In theory this could work with earlier
+      perl versions if sheet data was restricted to ascii. YMMV)
+
+ - Spreadsheet::Engine::Sheet
+   -- Fix hash slice syntax that no longer works in 5.10 (Slaven Rezik)
+
+ - Spreadsheet::Engine::SheetFunctions
+   -- use Encode::encode/decode rather than utf::encode/decode
+
+ - Tests
+   -- Rename formatting.t to fmt_date.t
+   -- Add fmt_num.t
+
 == v0.03 ==   (December 13, 2007)
 
 Summary: provide basic interface via Engine.pm

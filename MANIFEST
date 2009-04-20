@@ -15,7 +15,8 @@ t/commands.t
 t/copypaste.t
 t/data/stringfns.txt
 t/dsum.t
-t/formatting.t
+t/fmt_date.t
+t/fmt_num.t
 t/header.t
 t/stringfns.t
 META.yml                                 Module meta-data (added by MakeMaker)

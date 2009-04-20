@@ -3232,9 +3232,9 @@ sub format_number_with_format_string {
          }
       }
 
-   # Get values for our section
+   # Get values for our section 
    my ($sectionstart, $integerdigits, $fractiondigits, $commas, $percent, $thousandssep) = map $_ || 0, 
-    @{%{$thisformat->{sectioninfo}->[$section]}}{qw(sectionstart integerdigits fractiondigits commas percent thousandssep)};
+    @{$thisformat->{sectioninfo}->[$section]}{qw(sectionstart integerdigits fractiondigits commas percent thousandssep)};
 
    if ($commas > 0) { # scale by thousands
       for (my $i=0; $i<$commas; $i++) {

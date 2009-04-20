@@ -16,10 +16,10 @@ etc).
 =cut
 
 use strict;
-use utf8;
 
 use Spreadsheet::Engine::Sheet; # bah!
 use Time::Local; # For timegm in NOW and TODAY
+use Encode;
 
 use base 'Exporter';
 our @EXPORT = qw(calculate_function);
@@ -613,11 +613,9 @@ sub lookup_functions {
 
    my ($value, $value8, $tostype, $cr);
 
-   my ($lookupvalue, $lookupvalue8, $lookuptype);
-   $lookupvalue = operand_value_and_type($sheetdata, $foperand, $errortext, \$lookuptype);
-   $lookupvalue8 = $lookupvalue;
-   utf8::decode($lookupvalue8);
-   $lookupvalue8 = lc $lookupvalue8;
+   my $lookuptype;
+   my $lookupvalue = operand_value_and_type($sheetdata, $foperand, $errortext, \$lookuptype);
+   my $lookupvalue8 = lc(decode('utf8', $lookupvalue));
 
    my ($range, $rangetype) = top_of_stack_value_and_type($sheetdata, $foperand, $errortext);
    my ($offsetvalue, $offsettype);
@@ -721,8 +719,7 @@ sub lookup_functions {
                }
             }
          elsif ($lookuptype eq "t" && $tostype eq "t") {
-            $value8 = $value;
-            utf8::decode($value8);
+            $value8 = decode('utf8', $value);
             $value8 = lc $value8;
             last if ($lookupvalue8 eq $value8); # match
             if (($rangelookup > 0 && $lookupvalue gt $value)
@@ -742,8 +739,7 @@ sub lookup_functions {
             last if ($lookupvalue == $value); # match
             }
          elsif ($lookuptype eq "t" && $tostype eq "t") {
-            $value8 = $value;
-            utf8::decode($value8);
+            $value8 = decode('utf8', $value);
             $value8 = lc $value8;
             last if ($lookupvalue8 eq $value8); # match
             }
@@ -1333,23 +1329,23 @@ sub string_functions {
       if ($i > scalar @argdef) { # too many args
          function_args_error($fname, $operand, $errortext);
          return;
-         }
+      }
       if ($argdef[$i-1] == 0) {
          $value = operand_as_number($sheetdata, $foperand, $errortext, \$tostype);
-         }
+      }
       elsif ($argdef[$i-1] == 1) {
          $value = operand_as_text($sheetdata, $foperand, $errortext, \$tostype);
-         utf8::decode($value); # convert UTF-8 stuff to chars, not bytes
-         }
+				 $value = decode('utf8', $value);
+      }
       elsif ($argdef[$i-1] == -1) {
          $value = operand_value_and_type($sheetdata, $foperand, $errortext, \$tostype);
-         }
+      }
       $operand_value[$i] = $value;
       $operand_type[$i] = $tostype;
       if (substr($tostype,0,1) eq "e") {
          push @$operand, {type => $tostype, value => $value};
-         }
       }
+   }
 
    my $result = 0;
    my $resulttype = "e#VALUE!";
@@ -1358,64 +1354,64 @@ sub string_functions {
       my $offset = $operand_type[3] ? $operand_value[3]-1 : 0;
       if ($offset < 0) {
          $result = "Start is before string"; # !! not displayed
-         }
+      }
       else {
          $result = index($operand_value[2], $operand_value[1], $offset); # (null string matches first char)
          if ($result >= 0) {
             $result += 1;
             $resulttype = "n";
-            }
+         }
          else {
             $result = "Not found";
-            }
          }
       }
+   }
    elsif ($fname eq "LEFT") {
       my $len = $operand_type[2] ? $operand_value[2] : 1;
       if ($len < 0) {
          $result = "Negative length";
-         }
+      }
       else {
          $result = substr($operand_value[1], 0, $len);
          $resulttype = "t";
-         }
       }
+   }
    elsif ($fname eq "LEN") {
       $result = length($operand_value[1]);
       $resulttype = "n";
-      }
+   }
    elsif ($fname eq "LOWER") {
       $result = lc($operand_value[1]);
       $resulttype = "t";
-      }
+   }
    elsif ($fname eq "MID") {
       my $start = $operand_value[2];
       my $len = $operand_value[3];
       if ($len < 1 || $start < 1) {
          $result = "Bad arguments";
-         }
+      }
       else {
          $result = substr($operand_value[1], $start-1, $len);
          $resulttype = "t";
-         }
       }
+   }
    elsif ($fname eq "PROPER") {
       $result = $operand_value[1];
       $result =~ s/(\w+)/\u\L$1/g; # uppercase first character only after breaking into words
       $resulttype = "t";
-      }
+   }
    elsif ($fname eq "REPLACE") {
       my $start = $operand_value[2];
       my $len = $operand_value[3];
       if ($len < 0 || $start < 1) {
          $result = "Bad arguments";
-         }
+      }
       else {
          $result = $operand_value[1];
          substr($result, $start-1, $len) = $operand_value[4];
          $resulttype = "t";
-         }
       }
+   }
    elsif ($fname eq "REPT") {
       my $count = $operand_value[2];
       if ($count < 0) {
@@ -1430,12 +1426,12 @@ sub string_functions {
       my $len = $operand_type[2] ? $operand_value[2] : 1;
       if ($len < 0) {
          $result = "Negative length";
-         }
+      }
       else {
          $result = substr($operand_value[1], -$len, $len);
          $resulttype = "t";
-         }
       }
+   }
    elsif ($fname eq "SUBSTITUTE") {
       my $oldtext = $operand_value[2];
       my $newtext = $operand_value[3];
@@ -1444,36 +1440,36 @@ sub string_functions {
          $result = $operand_value[1];
          if (length($oldtext) > 0) {
             $result =~ s/\Q$oldtext\E/$newtext/g;
-            }
-         $resulttype = "t";
          }
+         $resulttype = "t";
+      }
       elsif ($which >= 1) {
          $result = $operand_value[1];
          for (my $i=1; $i <= $which; $i++) {
             if ($i == $which) {
                $result =~ s/\G(.*?)\Q$oldtext\E/$1$newtext/;
                last;
-               }
-            last unless $result =~ m/\Q$oldtext\E/g;
             }
-         $resulttype = "t";
+            last unless $result =~ m/\Q$oldtext\E/g;
          }
+         $resulttype = "t";
       }
+   }
    elsif ($fname eq "TRIM") {
       $result = $operand_value[1];
       $result =~ s/^ *//;
       $result =~ s/ *$//;
       $result =~ s/ +/ /g;
       $resulttype = "t";
-      }
+   }
    elsif ($fname eq "UPPER") {
       $result = uc($operand_value[1]);
       $resulttype = "t";
-      }
+   }
 
    if (substr($resulttype,0,1) eq "t") {
-      utf8::encode($result); # convert UTF-8 back to bytes
-      }
+		 $result = encode('utf8', $result); # convert UTF-8 back to bytes
+   }
    push @$operand, {type => $resulttype, value => $result};
 
    return;
@@ -2784,7 +2780,7 @@ sub field_to_colnum {
       return 0;
       }
 
-   utf8::decode($fieldname); # change UTF-8 bytes to chars
+   $fieldname = decode('utf8', $fieldname); # change UTF-8 bytes to chars
    $fieldname = lc $fieldname;
 
    my ($cr, $value);
@@ -2792,7 +2788,7 @@ sub field_to_colnum {
    for (my $i=0; $i < $ncols; $i++) { # look through column headers for a match
       $cr = cr_to_coord($col1num+$i, $row1num);
       $value = $sheetdata->{datavalues}->{$cr};
-      utf8::decode($value);
+      $value = decode('utf8', $value);
       $value = lc $value; #ignore case
       next if $value ne $fieldname; # no match
       return $i+1; # match

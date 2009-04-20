@@ -1,6 +1,6 @@
 use ExtUtils::MakeMaker;
 
-require 5.006002;
+require 5.007003;
 
 WriteMakefile(
     NAME          => 'Spreadsheet::Engine',
