@@ -2,25 +2,12 @@
 
 use strict;
 use warnings;
+use lib ('lib', 't/lib');
 
+use SheetTest;
 use Test::More 'no_plan';
 
-use lib 'lib';
-use Spreadsheet::Engine;
-
-my $sheet = Spreadsheet::Engine->new;
-
-chomp(my @cmds = <DATA>);
-foreach my $cmd (@cmds) {
-  next if $cmd =~ /^#/;
-  do { $sheet->execute($cmd); $sheet->recalc } if $cmd =~ /^(set|name)/;
-  is($sheet->raw->{datavalues}{$1}, $2, "$1 = $2")
-    if $cmd =~ /^test\s(\w+)\s(.*?)$/;    # not multi-space
-  is($sheet->raw->{valuetypes}{$1}, $2, "$1 = $2")
-    if $cmd =~ /^testtype\s(\w+)\s(.*?)$/;
-  like($sheet->raw->{datavalues}{$1}, qr/$2/, "$1 =~ $2")
-    if $cmd =~ /^like\s(\w+)\s(.*?)$/;
-}
+run_tests();
 
 __DATA__
 set A1 value n 10

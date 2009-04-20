@@ -38,7 +38,7 @@ sub execute {
   }
 
   my $operand = $self->operand;
-  my $result  = $self->result($accumulator);
+  my $result  = $self->result($accumulator) || 0;
   ($result, $type) = @$result if ref $result eq 'ARRAY';
 
   push @$operand, { type => $type || 'n', value => $result };

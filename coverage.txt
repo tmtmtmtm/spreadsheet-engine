@@ -1,0 +1,30 @@
+
+---------------------------- ------ ------ ------ ------ ------ ------ ------
+File                           stmt   bran   cond    sub    pod   time  total
+---------------------------- ------ ------ ------ ------ ------ ------ ------
+lib/Spreadsheet/Engine.pm       n/a    n/a    n/a    n/a    n/a    n/a    n/a
+...ngine/Function/AVERAGE.pm  100.0   75.0    n/a  100.0  100.0    0.0   96.7
+.../Engine/Function/COUNT.pm  100.0    n/a    n/a  100.0  100.0    0.0  100.0
+...Engine/Function/COUNTA.pm  100.0    n/a    n/a  100.0  100.0    0.0  100.0
+...ne/Function/COUNTBLANK.pm  100.0    n/a    n/a  100.0  100.0    0.0  100.0
+...et/Engine/Function/LEN.pm  100.0    n/a    n/a  100.0  100.0    0.0  100.0
+.../Engine/Function/LOWER.pm   75.0    n/a    n/a   80.0  100.0    0.0   78.9
+...et/Engine/Function/MAX.pm  100.0  100.0    n/a  100.0  100.0    0.0  100.0
+...et/Engine/Function/MIN.pm  100.0  100.0    n/a  100.0  100.0    0.0  100.0
+...ngine/Function/PRODUCT.pm  100.0    n/a    n/a  100.0  100.0    0.0  100.0
+.../Engine/Function/STDEV.pm  100.0  100.0    n/a  100.0  100.0    0.0  100.0
+...Engine/Function/STDEVP.pm  100.0  100.0    n/a  100.0  100.0    0.0  100.0
+...et/Engine/Function/SUM.pm  100.0    n/a    n/a  100.0  100.0    0.0  100.0
+.../Engine/Function/UPPER.pm   75.0    n/a    n/a   80.0  100.0    0.0   78.9
+...et/Engine/Function/VAR.pm  100.0  100.0    n/a  100.0  100.0    0.0  100.0
+...t/Engine/Function/VARP.pm  100.0   50.0    n/a  100.0  100.0    0.0   93.3
+...t/Engine/Function/base.pm  100.0   83.3   55.6  100.0  100.0    0.1   88.1
+...ngine/Function/counter.pm  100.0   75.0    n/a  100.0  100.0    0.0   96.8
+...Engine/Function/series.pm  100.0  100.0   90.0  100.0  100.0    0.3   98.3
+...t/Engine/Function/text.pm   87.0   50.0    n/a  100.0  100.0    0.0   80.9
+...sheet/Engine/Functions.pm   82.4   70.6   47.0   96.3  100.0    3.9   76.1
+...readsheet/Engine/Sheet.pm   45.4   39.8   39.1   67.9  100.0   95.4   43.7
+...ine/Storage/SocialCalc.pm  100.0   81.2    n/a  100.0  100.0    0.1   94.4
+Total                          59.7   49.8   42.4   89.4  100.0  100.0   56.4
+---------------------------- ------ ------ ------ ------ ------ ------ ------
+

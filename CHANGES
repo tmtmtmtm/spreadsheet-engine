@@ -4,11 +4,41 @@ turn started as modifications to the wikiCalc(R) program, version 1.0.
 
 wikiCalc 1.0 was written by Software Garden, Inc.
 
-Portions (c) Copyright 2005, 2006, 2007 Software Garden, Inc.
+Portions (c) Copyright 2007, 2008 Tony Bowden
 Portions (c) Copyright 2007 Socialtext, Inc.
-Portions (c) Copyright 2007 Tony Bowden
+Portions (c) Copyright 2005, 2006, 2007 Software Garden, Inc.
+
+Numerous tests are adapted from the Open Formula specification.
+Copyright (c) 2006 OASIS 2006. All Rights Reserved.
+
 
 Changes from the Standard Version (SocialCalc 1.1.0) are detailed below:
+
+== v0.07 ==   (January 1, 2008)
+
+Summary: Open Formula test cases
+
+ - Tests
+   -- Set up t/data/openformula-testsuite.txt from Open Formula spec
+   -- Create t/lib/SheetTest.pm helper and rewrite tests to use it
+   -- Replace t/dsum.t with t/of-criteria.t
+   -- Add t/of-autonum.t, t/of-colrows.t, t/of-conversions.t,
+      t/of-count.t, t/of-database.t, t/of-datetime.t, t/of-errors.t,
+      t/of-financial.t, t/of-is.t, t/of-limits.t, t/of-logical.t,
+      t/of-lookup.t, t/of-math.t, t/of-names.t, t/of-numbers.t,
+      t/of-operators.t, t/of-params.t, t/of-references.t, t/of-rounding.t,
+      t/of-stats.t t/of-strings.t, t/of-value.t t/of-whitespace.t
+   -- Add test coverage summary as coverage.txt
+
+ - Spreadsheet::Engine::Sheet
+   -- Silence $fractionvalue warnings in format_number_with_format_string
+   -- Silence $oldrate warnings in interest_functions and irr_function
+   -- Silence $offsetvalue and $previousOK warnings in lookup_functions
+   -- Silence $rawvalue warnings in determine_value_type
+   -- Silence $tostype warnings in evaluate_parsed_formula
+
+ - Spreadsheet::Engine::Functions
+   -- Silence warnings from substr() when given weird paramaters
 
 == v0.06 ==   (December 23, 2007)
 

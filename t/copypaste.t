@@ -2,24 +2,12 @@
 
 use strict;
 use warnings;
+use lib ('lib', 't/lib');
 
+use SheetTest;
 use Test::More 'no_plan';
 
-use lib 'lib';
-use Spreadsheet::Engine;
-
-my $sheet = Spreadsheet::Engine->new;
-
-chomp(my @cmds = <DATA>);
-foreach my $cmd (@cmds) {
-  if ($cmd eq 'recalc') {
-    $sheet->recalc if $cmd eq 'recalc';
-  } elsif ($cmd =~ /^test\s+(\w+)\s+(.*?)$/) {
-    is($sheet->raw->{datavalues}{$1}, $2, "$1 = $2");
-  } else {
-    $sheet->execute($cmd);
-  }
-}
+run_tests();
 
 __DATA__
 set A1 value n 2

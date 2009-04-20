@@ -1,19 +1,13 @@
-use Test::More 'no_plan';
+#!/usr/bin/perl
 
 use strict;
+use warnings;
+use lib ('lib', 't/lib');
 
-use lib 'lib';
-use Spreadsheet::Engine;
+use SheetTest;
+use Test::More 'no_plan';
 
-my $sheet = Spreadsheet::Engine->new;
-
-chomp(my @cmds = <DATA>);
-foreach my $cmd (@cmds) {
-  $sheet->execute($cmd) if $cmd =~ /^(set|name)/;
-  $sheet->recalc if $cmd eq 'recalc';
-  is($sheet->raw->{datavalues}{$1}, $2, "$1 = $2")
-    if $cmd =~ /^test\s+(\w+)\s+(.*?)$/;
-}
+run_tests();
 
 __DATA__
 set A1 value n 2

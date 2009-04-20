@@ -2,26 +2,12 @@
 
 use strict;
 use warnings;
+use lib ('lib', 't/lib');
 
+use SheetTest;
 use Test::More 'no_plan';
 
-use lib 'lib';
-use Spreadsheet::Engine;
-
-my $sheet = Spreadsheet::Engine->new;
-
-chomp(my @cmds = <DATA>);
-foreach my $cmd (@cmds) {
-  next                  if $cmd =~ /^#/;
-  $sheet->execute($cmd) if $cmd =~ /^(set|name)/;
-  $sheet->recalc if $cmd eq 'recalc';
-  is($sheet->raw->{datavalues}{$1}, $2, "$1 = $2")
-    if $cmd =~ /^test\s(\w+)\s(.*?)$/;    # not multi-space
-  is($sheet->raw->{valuetypes}{$1}, $2, "$1 = $2")
-    if $cmd =~ /^testtype\s(\w+)\s(.*?)$/;
-  like($sheet->raw->{datavalues}{$1}, qr/$2/, "$1 =~ $2")
-    if $cmd =~ /^like\s(\w+)\s(.*?)$/;
-}
+run_tests();
 
 __DATA__
 set A1 value n test string
@@ -31,60 +17,70 @@ set A4 value n t
 set A5 value n test 
 
 set B1 formula RIGHT(A1,4)
-set B2 formula RIGHT(A1,0)
-set B3 formula RIGHT(A1)
-set B4 formula RIGHT(A1,-1)
-set B5 formula UPPER(B4)
-set C1 formula LEFT(A1,4)
-set C2 formula LEFT(A1,0)
-set C3 formula LEFT(A1)
-set C4 formula LEFT(A1,-1)
-set D1 formula MID(A1,2,3)
-set D2 formula MID(A1,2)
-set D3 formula MID(A1,-1,2)
-set E1 formula PROPER(A1)
-set F1 formula LOWER(A3)
-set G1 formula REPT(A4,5)
-set G2 formula REPT(A5,0)
-set G3 formula REPT(A5,2)
-set H1 formula REPLACE(A1,5,0,"ing")
-set I1 formula SUBSTITUTE(A1,"t","h")
-set I2 formula SUBSTITUTE(A1,"st","pool")
-set I3 formula SUBSTITUTE(A1,"t","k",2)
-set I4 formula SUBSTITUTE(A1,"t","k",5)
-set J1 formula FIND("st", A1)
-set J2 formula FIND("st", A1, 4)
-set K1 formula LEN(A1)
-set L1 formula TRIM(A2)
-recalc
-
 test B1 ring
 testtype B1 t
+
+set B2 formula RIGHT(A1,0)
 test B2 
+
+set B3 formula RIGHT(A1)
 like B3 Incorrect arguments
 testtype B3 e#VALUE!
+
+set B4 formula RIGHT(A1,-1)
 like B4 Negative length
+
+set B5 formula UPPER("fred")
+test B5 FRED
 # Can't capitalise an error message!
-test B5 
+set B6 formula UPPER(B4)
+test B6 
+
+set C1 formula LEFT(A1,4)
 test C1 test
+set C2 formula LEFT(A1,0)
 test C2 
+set C3 formula LEFT(A1)
 like C3 Incorrect arguments
+set C4 formula LEFT(A1,-1)
 like C4 Negative length
+
+set D1 formula MID(A1,2,3)
 test D1 est
+set D2 formula MID(A1,2)
 like D2 Incorrect arguments
+set D3 formula MID(A1,-1,2)
 like D3 Bad arguments
+
+set E1 formula PROPER(A1)
 test E1 Test String
+
+set F1 formula LOWER(A3)
 test F1 test string
+set G1 formula REPT(A4,5)
 test G1 ttttt
+set G2 formula REPT(A5,0)
 test G2 
+set G3 formula REPT(A5,2)
 test G3 test test 
+
+set H1 formula REPLACE(A1,5,0,"ing")
 test H1 testing string
+
+set I1 formula SUBSTITUTE(A1,"t","h")
 test I1 hesh shring
+set I2 formula SUBSTITUTE(A1,"st","pool")
 test I2 tepool poolring
+set I3 formula SUBSTITUTE(A1,"t","k",2)
 test I3 tesk string
+set I4 formula SUBSTITUTE(A1,"t","k",5)
 test I4 test string
+set J1 formula FIND("st", A1)
 test J1 3
+set J2 formula FIND("st", A1, 4)
 test J2 6
+set K1 formula LEN(A1)
 test K1 11
 testtype K1 n
+set L1 formula TRIM(A2)
 test L1 test string

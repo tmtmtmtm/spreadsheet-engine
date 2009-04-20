@@ -458,12 +458,12 @@ sub parse_sheet_save {
    my $valueformats = $sheetdata->{valueformats};
    my $valueformathash = $sheetdata->{valueformathash};
 
-	 my ($coord, $type, $rest);
+   my ($coord, $type, $rest);
    my ($linetype, $value, $valuetype, $formula, $style, $namename, $namedesc);
-	 my ($fontnum, $layoutnum, $colornum, $check,  $row, $col);
+   my ($fontnum, $layoutnum, $colornum, $check,  $row, $col);
    my $errortext;
    my ($clipdatavalues, $clipdatatypes, $clipvaluetypes, $clipdataformulas, $clipcellerrors, $clipcellattribs);
-	 my ($maxcol, $maxrow) = (0, 0);
+   my ($maxcol, $maxrow) = (0, 0);
 
    foreach my $line (@$lines) {
       chomp $line;
@@ -2229,7 +2229,7 @@ sub determine_value_type {
 
    my ($rawvalue, $type) = @_;
 
-   my $value = $rawvalue;
+   my $value = $rawvalue || '';
 
    $$type = "t";
 
@@ -3468,7 +3468,7 @@ sub format_number_with_format_string {
          $integervalue = "" if ($integervalue == 0);
          @integervalue = split(//, $integervalue);
          $fractionvalue = $2;
-         $fractionvalue = "" if ($fractionvalue == 0);
+         $fractionvalue ||= "";
          @fractionvalue = split(//, $fractionvalue);
          $integerpos = 0;
          $fractionpos = 0;
@@ -4436,7 +4436,9 @@ sub evaluate_parsed_formula {
       $ttext = $parsed_token_text->[$revpolish[$i]];
 
       if ($ttype == $token_num) {
-         push @operand, {type => "n", value => 0+$ttext};
+        # TODO t/date.t gives lots of warnings here. Work out why.
+        no warnings;
+        push @operand, {type => "n", value => 0+$ttext};
       }
 
       elsif ($ttype == $token_coord) {
@@ -4614,7 +4616,7 @@ sub evaluate_parsed_formula {
 
    my $value = $operand[0]->{value};
    my $valuetype;
-   $tostype = $operand[0]->{type};
+   $tostype = $operand[0]->{type} || '';
 
    if ($tostype eq "name") { # name - expand it
       $value = lc $value;
@@ -4653,7 +4655,7 @@ sub evaluate_parsed_formula {
 
    # look for overflow
 
-   if (substr($tostype,0,1) eq "n" && $value =~ m/1\.#INF/) {
+   if (substr($tostype,0,1) eq "n" && defined $value && $value =~ m/1\.#INF/) {
       $value = 0;
       $valuetype = "e#NUM!";
       $errortext = "Numeric overflow";
@@ -5068,6 +5070,7 @@ Return that structure as \%othersheet_sheetdata
 =cut 
 
 sub find_in_sheet_cache {
+     # TODO have a way for applications to specify how this should work
 
    my ($sheetdata, $datafilename) = @_;
 
@@ -5083,10 +5086,11 @@ sub find_in_sheet_cache {
 
    my (@headerlines, @sheetlines, $loaderror);
       
-   { # assume local pagename
-      my $editpath = get_page_published_datafile_path($sdsc->{params}, $sdsc->{hostinfo}, $sdsc->{sitename}, $datafilename);
-      $loaderror = load_page($editpath, \@headerlines, \@sheetlines);
-   }
+   $loaderror = "Cross-sheet references are not yet supported";
+    # assume local pagename
+   # my $editpath = get_page_published_datafile_path($sdsc->{params}, $sdsc->{hostinfo}, $sdsc->{sitename}, $datafilename);
+   # $loaderror = load_page($editpath, \@headerlines, \@sheetlines);
+   
 
    $sdsc->{sheets}->{$datafilename} = {}; # start fresh
    my $ok = parse_sheet_save(\@sheetlines, $sdsc->{sheets}->{$datafilename});

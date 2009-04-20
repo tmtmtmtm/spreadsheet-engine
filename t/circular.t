@@ -1,15 +1,13 @@
-use Test::More tests => 1;
+#!/usr/bin/perl
 
 use strict;
+use warnings;
+use lib ('lib', 't/lib');
 
-use lib 'lib';
-use Spreadsheet::Engine;
+use SheetTest;
+use Test::More tests => 1;
 
-my $sheet = Spreadsheet::Engine->new;
-
-chomp(my @cmds = <DATA>);
-$sheet->execute($_) foreach @cmds;
-$sheet->recalc;
+my $sheet = run_tests();
 
 is $sheet->raw->{sheetattribs}->{circularreferencecell}, 'A4|A4', 'Circular';
 

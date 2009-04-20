@@ -260,91 +260,6 @@ sub calculate_function {
 
 =back
 
-=cut
-
-sub series_functions {
-
-   my ($fname, $operand, $foperand, $errortext, $typelookup, $sheetdata) = @_;
-
-   my ($value1, $tostype);
-
-   my $sum = 0;
-   my $resulttypesum = "";
-   my $count = 0;
-   my $counta = 0;
-   my $countblank = 0;
-   my $product = 1;
-   my ($mk, $sk, $mk1, $sk1); # For variance, etc.: M sub k, k-1, and S sub k-1
-                              # as per Knuth "The Art of Computer Programming" Vol. 2 3rd edition, page 232
-
-   while (@$foperand) {
-      $value1 = operand_value_and_type($sheetdata, $foperand, $errortext, \$tostype);
-
-      $count += 1 if substr($tostype,0,1) eq "n";
-      $counta += 1 if substr($tostype,0,1) ne "b";
-      $countblank += 1 if substr($tostype,0,1) eq "b";
-
-      if (substr($tostype,0,1) eq "n") {
-         $sum += $value1;
-         $product *= $value1;
-         if ($count eq 1) { # initialize with with first values for variance used in STDEV, VAR, etc.
-            $mk1 = $value1;
-            $sk1 = 0;
-            }
-         else { # Accumulate S sub 1 through n as per Knuth noted above
-            $mk = $mk1 + ($value1 - $mk1) / $count;
-            $sk = $sk1 + ($value1 - $mk1) * ($value1 - $mk);
-            $sk1 = $sk;
-            $mk1 = $mk;
-            }
-         $resulttypesum = lookup_result_type($tostype, $resulttypesum || $tostype, $typelookup->{plus});
-         }
-      elsif (substr($tostype,0,1) eq "e" && substr($resulttypesum,0,1) ne "e") {
-         $resulttypesum = $tostype;
-         }
-      }
-
-   $resulttypesum ||= "n";
-
-   if ($fname eq "SUM") {
-      push @$operand, {type => $resulttypesum, value => $sum};
-      }
-   elsif ($fname eq "STDEV") {
-      if ($count > 1) {
-         push @$operand, {type => $resulttypesum, value => (sqrt($sk / ($count - 1)))};
-         }
-      else {
-         push @$operand, {type => "e#DIV/0!", value => 0};
-         }
-      }
-   elsif ($fname eq "STDEVP") {
-      if ($count > 1) {
-         push @$operand, {type => $resulttypesum, value => (sqrt($sk / $count))};
-         }
-      else {
-         push @$operand, {type => "e#DIV/0!", value => 0};
-         }
-      }
-   elsif ($fname eq "VAR") {
-      if ($count > 1) {
-         push @$operand, {type => $resulttypesum, value => ($sk / ($count - 1))};
-         }
-      else {
-         push @$operand, {type => "e#DIV/0!", value => 0};
-         }
-      }
-   elsif ($fname eq "VARP") {
-      if ($count > 1) {
-         push @$operand, {type => $resulttypesum, value => ($sk / $count)};
-         }
-      else {
-         push @$operand, {type => "e#DIV/0!", value => 0};
-         }
-      }
-
-   return;
-
-}
 
 =head2 dseries_functions
 
@@ -664,12 +579,13 @@ sub lookup_functions {
       function_args_error($fname, $operand, $errortext);
       return 0;
       }
-   if ($offsetvalue < 1 && $fname ne "MATCH") {
+   # Added defined test here. 31/12/07 TODO give it a sensible default.
+   if (defined $offsetvalue && $offsetvalue < 1 && $fname ne "MATCH") {
       push @$operand, {type => "e#VALUE!", value => 0};
       return 0;
       }
 
-   my $previousOK; # if 1, previous test was <. If 2, also this one wasn't
+   my $previousOK = 0; # if 1, previous test was <. If 2, also this one wasn't
    my ($csave, $rsave); # col and row of last OK
 
    while (1) {
@@ -1356,6 +1272,7 @@ sub string_functions {
          $result = "Bad arguments";
       }
       else {
+         no warnings 'substr';
          $result = substr($operand_value[1], $start-1, $len);
          $resulttype = "t";
       }
@@ -2462,7 +2379,7 @@ sub interest_functions {
          my $delta = 1;
          my $epsilon = 0.0000001; # this is close enough
          $rate = $guess || 0.00000001; # zero is not allowed
-         my $oldrate;
+         my $oldrate = 0;
          my $m;
          while (($delta >= 0 ? $delta : -$delta) > $epsilon && ($rate != $oldrate)) {
             $delta = $fv + $pv*(1+$rate)**$n + $payment * (1 + $rate*$paytype) * ( (1+$rate)**$n -1)/$rate;
@@ -2603,7 +2520,7 @@ sub irr_function {
    my $tries = 0;
    my $epsilon = 0.0000001; # this is close enough
    my $rate = $guess;
-   my $oldrate;
+   my $oldrate = 0;
    my $m;
    my $sum = 1;
    my $factor;
