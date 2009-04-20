@@ -2,17 +2,11 @@ package Spreadsheet::Engine::Function::text;
 
 use strict;
 
-use Spreadsheet::Engine::Sheet
-  qw/function_args_error operand_as_number operand_as_text operand_value_and_type/;
+use base 'Spreadsheet::Engine::Function::base';
 
 use Encode;
-use Class::Struct
-  fname      => '$',
-  operand    => '$',
-  foperand   => '$',
-  errortext  => '$',
-  typelookup => '$',
-  sheetdata  => '$';
+use Spreadsheet::Engine::Sheet
+  qw/function_args_error operand_as_number operand_as_text operand_value_and_type/;
 
 sub execute {
   my $self = shift;
@@ -96,18 +90,6 @@ text, such as UPPER(), LOWER(), REPLACE() etc.
 Subclasses should provide an 'arguments' method detailing the number and
 type of arguments they should receive, and a 'calculate' function that
 will be called with those arguments.
-
-=head1 CONSTRUCTOR
-
-=head2 new
-
-Instantiates with the given variables.
-
-=head1 INSTANCE VARIABLES
-
-=head2 fname / operand / foperand / errortext / typelookup / sheetdata 
-
-As per SocialCalc (to document fully later)
 
 =head1 INSTANCE METHODS
 

@@ -1,13 +1,13 @@
 --- #YAML:1.0
 name:                Spreadsheet-Engine
-version:             0.05
+version:             0.06
 abstract:            Core calculation engine for a spreadsheet
 license:             Artistic License 2.0
-generated_by:        ExtUtils::MakeMaker version 6.36
+author:              
+    - Tony Bowden <tony@tmtm.com>
+generated_by:        ExtUtils::MakeMaker version 6.42
 distribution_type:   module
 requires:     
 meta-spec:
-    url:     http://module-build.sourceforge.net/META-spec-v1.2.html
-    version: 1.2
-author:
-    - Tony Bowden <tony@tmtm.com>
+    url:     http://module-build.sourceforge.net/META-spec-v1.3.html
+    version: 1.3

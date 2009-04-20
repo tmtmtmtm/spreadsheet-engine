@@ -1,9 +1,24 @@
 CHANGES
 lib/Spreadsheet/Engine.pm
+lib/Spreadsheet/Engine/Function/AVERAGE.pm
+lib/Spreadsheet/Engine/Function/base.pm
+lib/Spreadsheet/Engine/Function/COUNT.pm
+lib/Spreadsheet/Engine/Function/COUNTA.pm
+lib/Spreadsheet/Engine/Function/COUNTBLANK.pm
+lib/Spreadsheet/Engine/Function/counter.pm
 lib/Spreadsheet/Engine/Function/LEN.pm
 lib/Spreadsheet/Engine/Function/LOWER.pm
+lib/Spreadsheet/Engine/Function/MAX.pm
+lib/Spreadsheet/Engine/Function/MIN.pm
+lib/Spreadsheet/Engine/Function/PRODUCT.pm
+lib/Spreadsheet/Engine/Function/series.pm
+lib/Spreadsheet/Engine/Function/STDEV.pm
+lib/Spreadsheet/Engine/Function/STDEVP.pm
+lib/Spreadsheet/Engine/Function/SUM.pm
 lib/Spreadsheet/Engine/Function/text.pm
 lib/Spreadsheet/Engine/Function/UPPER.pm
+lib/Spreadsheet/Engine/Function/VAR.pm
+lib/Spreadsheet/Engine/Function/VARP.pm
 lib/Spreadsheet/Engine/Functions.pm
 lib/Spreadsheet/Engine/Sheet.pm
 lib/Spreadsheet/Engine/Storage/SocialCalc.pm
@@ -22,6 +37,7 @@ t/dsum.t
 t/fmt_date.t
 t/fmt_num.t
 t/header.t
+t/series.t
 t/stringfn2.t
 t/stringfns.t
 META.yml                                 Module meta-data (added by MakeMaker)

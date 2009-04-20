@@ -4,7 +4,7 @@ use strict;
 use Spreadsheet::Engine::Sheet (
   qw/parse_sheet_save execute_sheet_command recalc_sheet/);
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 =head1 NAME
 
@@ -33,7 +33,7 @@ necessary calculations. There is no front-end UI provided - this
 is purely the calculation engine.
 
 Over 110 spreadsheet functions are provided: see
-Spreadsheet::Engine::Functions for the full list.
+L<Spreadsheet::Engine::Functions> for the full list.
 
 =head1 METHODS
 
@@ -60,7 +60,7 @@ sub new {
   my $sheet = Spreadsheet::Engine->load_data([@data]);
 
 Instantiate a sheet from lines of data in the saved file format (see
-L<Spreadsheet::Engine::Sheet for doumentation>)
+L<Spreadsheet::Engine::Sheet> for doumentation>)
 
 =cut
 

@@ -36,13 +36,9 @@ our %function_list = (
   ASIN => [\&math1_function, 1],
   ATAN => [\&math1_function, 1],
   ATAN2 => [\&math2_function, 2],
-  AVERAGE => [\&series_functions, -1],
   CHOOSE => [\&choose_function, -2],
   COLUMNS => [\&columns_rows_function, 1],
   COS => [\&math1_function, 1],
-  COUNT => [\&series_functions, -1],
-  COUNTA => [\&series_functions, -1],
-  COUNTBLANK => [\&series_functions, -1],
   COUNTIF => [\&countif_sumif_functions, 2],
   DATE => [\&date_function, 3],
   DAVERAGE => [\&dseries_functions, 3],
@@ -86,9 +82,7 @@ our %function_list = (
   LOG => [\&log_function, -1],
   LOG10 => [\&math1_function, 1],
   MATCH => [\&lookup_functions, -2],
-  MAX => [\&series_functions, -1],
   MID => [\&string_functions, 3],
-  MIN => [\&series_functions, -1],
   MINUTE => [\&hms_function, 1],
   MOD => [\&math2_function, 2],
   MONTH => [\&dmy_function, 1],
@@ -103,7 +97,6 @@ our %function_list = (
   PI => [\&zeroarg_functions, 0],
   PMT => [\&interest_functions, -2],
   POWER => [\&math2_function, 2],
-  PRODUCT => [\&series_functions, -1],
   PROPER => [\&string_functions, 1],
   PV => [\&interest_functions, -2],
   RADIANS => [\&math1_function, 1],
@@ -117,10 +110,7 @@ our %function_list = (
   SIN => [\&math1_function, 1],
   SLN => [\&sln_function, 3],
   SQRT => [\&math1_function, 1],
-  STDEV => [\&series_functions, -1],
-  STDEVP => [\&series_functions, -1],
   SUBSTITUTE => [\&string_functions, -3],
-  SUM => [\&series_functions, -1],
   SUMIF => [\&countif_sumif_functions, -2],
   SYD => [\&syd_function, 4],
   T => [\&ntv_functions, 1],
@@ -131,8 +121,6 @@ our %function_list = (
   TRUE => [\&zeroarg_functions, 0],
   TRUNC => [\&math2_function, 2],
   VALUE => [\&ntv_functions, 1],
-  VAR => [\&series_functions, -1],
-  VARP => [\&series_functions, -1],
   VLOOKUP => [\&lookup_functions, -3],
   WEEKDAY => [\&dmy_function, -1],
   ERRCELL => [\&zeroarg_functions, 0],
@@ -171,9 +159,21 @@ sub register {
 }
 
 __PACKAGE__->register(
-  UPPER => 'Spreadsheet::Engine::Function::UPPER',
-  LOWER => 'Spreadsheet::Engine::Function::LOWER',
+  AVERAGE => 'Spreadsheet::Engine::Function::AVERAGE',
+  COUNT => 'Spreadsheet::Engine::Function::COUNT',
+  COUNTA => 'Spreadsheet::Engine::Function::COUNTA',
+  COUNTBLANK => 'Spreadsheet::Engine::Function::COUNTBLANK',
   LEN => 'Spreadsheet::Engine::Function::LEN',
+  LOWER => 'Spreadsheet::Engine::Function::LOWER',
+  MIN => 'Spreadsheet::Engine::Function::MIN',
+  MAX => 'Spreadsheet::Engine::Function::MAX',
+  PRODUCT => 'Spreadsheet::Engine::Function::PRODUCT',
+  UPPER => 'Spreadsheet::Engine::Function::UPPER',
+  STDEV => 'Spreadsheet::Engine::Function::STDEV',
+  STDEVP => 'Spreadsheet::Engine::Function::STDEVP',
+  SUM => 'Spreadsheet::Engine::Function::SUM',
+  VAR => 'Spreadsheet::Engine::Function::VAR',
+  VARP => 'Spreadsheet::Engine::Function::VARP',
 );
 
 =head1 EXPORTS
@@ -188,13 +188,11 @@ sub calculate_function {
 
    my ($fname, $operand, $errortext, $typelookup, $sheetdata) = @_;
 
-   # has the function been registered (new style) 
+   # has the function been registered? (new style) 
    if (my $fclass = $_reg->{$fname}) { 
-     copy_function_args($operand, \my @foperand);
      my $fn = $fclass->new(
          fname => $fname,
          operand => $operand,
-         foperand => \@foperand,
          errortext => $errortext,
          typelookup => $typelookup,
          sheetdata => $sheetdata,
@@ -236,36 +234,33 @@ sub calculate_function {
 
 =over
 
-=item AVERAGE(v1,c1:c2,...)
+=item AVERAGE(v1,c1:c2,...) - See <Spreadsheet::Engine::Function::AVERAGE>
 
-=item COUNT(v1,c1:c2,...)
+=item COUNT(v1,c1:c2,...) - See <Spreadsheet::Engine::Function::COUNT>
 
-=item COUNTA(v1,c1:c2,...)
+=item COUNTA(v1,c1:c2,...) - See <Spreadsheet::Engine::Function::COUNTA>
 
-=item COUNTBLANK(v1,c1:c2,...)
+=item COUNTBLANK(v1,c1:c2,...) - See <Spreadsheet::Engine::Function::COUNTBLANK>
 
-=item MAX(v1,c1:c2,...)
+=item MAX(v1,c1:c2,...) - See L<Spreadsheet::Engine::Function::MAX>
 
-=item MIN(v1,c1:c2,...)
+=item MIN(v1,c1:c2,...) - See L<Spreadsheet::Engine::Function::MIN>
 
-=item PRODUCT(v1,c1:c2,...)
+=item PRODUCT(v1,c1:c2,...) - See L<Spreadsheet::Engine::Function::PRODUCT>
 
-=item STDEV(v1,c1:c2,...)
+=item STDEV(v1,c1:c2,...) - See L<Spreadsheet::Engine::Function::STDEV>
 
-=item STDEVP(v1,c1:c2,...)
+=item STDEVP(v1,c1:c2,...) - See L<Spreadsheet::Engine::Function::STDEVP>
 
-=item SUM(v1,c1:c2,...)
+=item SUM(v1,c1:c2,...) - See L<Spreadsheet::Engine::Function::SUM>
 
-=item VAR(v1,c1:c2,...)
+=item VAR(v1,c1:c2,...) - See L<Spreadsheet::Engine::Function::VAR>
 
-=item VARP(v1,c1:c2,...)
+=item VARP(v1,c1:c2,...) - See L<Spreadsheet::Engine::Function::VARP>
 
 =back
 
 =cut
-
-#Calculate all of these and then return the desired one (overhead is in accessing not calculating)
-# If this routine is changed, check the dseries_functions, too.
 
 sub series_functions {
 
@@ -279,8 +274,6 @@ sub series_functions {
    my $counta = 0;
    my $countblank = 0;
    my $product = 1;
-   my $maxval;
-   my $minval;
    my ($mk, $sk, $mk1, $sk1); # For variance, etc.: M sub k, k-1, and S sub k-1
                               # as per Knuth "The Art of Computer Programming" Vol. 2 3rd edition, page 232
 
@@ -294,8 +287,6 @@ sub series_functions {
       if (substr($tostype,0,1) eq "n") {
          $sum += $value1;
          $product *= $value1;
-         $maxval = (defined $maxval) ? ($value1 > $maxval ? $value1 : $maxval) : $value1;
-         $minval = (defined $minval) ? ($value1 < $minval ? $value1 : $minval) : $value1;
          if ($count eq 1) { # initialize with with first values for variance used in STDEV, VAR, etc.
             $mk1 = $value1;
             $sk1 = 0;
@@ -317,32 +308,6 @@ sub series_functions {
 
    if ($fname eq "SUM") {
       push @$operand, {type => $resulttypesum, value => $sum};
-      }
-   elsif ($fname eq "PRODUCT") { # may handle cases with text differently than some other spreadsheets
-      push @$operand, {type => $resulttypesum, value => $product};
-      }
-   elsif ($fname eq "MIN") {
-      push @$operand, {type => $resulttypesum, value => ($minval || 0)};
-      }
-   elsif ($fname eq "MAX") {
-      push @$operand, {type => $resulttypesum, value => ($maxval || 0)};
-      }
-   elsif ($fname eq "COUNT") {
-      push @$operand, {type => "n", value => $count};
-      }
-   elsif ($fname eq "COUNTA") {
-      push @$operand, {type => "n", value => $counta};
-      }
-   elsif ($fname eq "COUNTBLANK") {
-      push @$operand, {type => "n", value => $countblank};
-      }
-   elsif ($fname eq "AVERAGE") {
-      if ($count > 0) {
-         push @$operand, {type => $resulttypesum, value => ($sum / $count)};
-         }
-      else {
-         push @$operand, {type => "e#DIV/0!", value => 0};
-         }
       }
    elsif ($fname eq "STDEV") {
       if ($count > 1) {

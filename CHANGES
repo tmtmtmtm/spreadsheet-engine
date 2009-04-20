@@ -10,6 +10,20 @@ Portions (c) Copyright 2007 Tony Bowden
 
 Changes from the Standard Version (SocialCalc 1.1.0) are detailed below:
 
+== v0.06 ==   (December 23, 2007)
+
+Summary: Pluggable series functions 
+
+ - Function/*.pm
+   -- Extracted base.pm root baseclass
+   -- Extracted series.pm and counter.pm baseclasses
+   -- Extracted functions COUNT(), COUNTA(), COUNTBLANK()
+   -- Extracted functions SUM(), MIN(), MAX(), AVERAGE()
+   -- Extracted functions VAR(), VARP(), STDEV(), STDEVP()
+
+ - Tests
+   -- Add series.t
+
 == v0.05 ==   (December 18, 2007)
 
 Summary: Pluggable text functions 
