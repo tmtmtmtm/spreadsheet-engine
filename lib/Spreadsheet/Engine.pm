@@ -1,12 +1,10 @@
 package Spreadsheet::Engine;
 
 use strict;
+use Spreadsheet::Engine::Sheet (
+  qw/parse_sheet_save execute_sheet_command recalc_sheet/);
 
-our $VERSION = '0.02';
-
-1;
-
-__END__
+our $VERSION = '0.03';
 
 =head1 NAME
 
@@ -14,16 +12,18 @@ Spreadsheet::Engine - Core calculation engine for a spreadsheet
 
 =head1 SYNOPSIS
 
-  use Spreadsheet::Engine::Sheet;
+  use Spreadsheet::Engine;
   
-  my $sheet = {};
-  parse_sheet_save( [] => $sheet );
+  my $sheet = Spreadsheet::Engine->new;
+  my $sheet = Spreadsheet::Engine->load_data([@data]);
 
-  execute_sheet_command($sheet => 'set A1 value n 2');
-  execute_sheet_command($sheet => 'set A2 value n 4');
-  execute_sheet_command($sheet => 'set A3 formula SUM(A1:A2)');
-  recalc_sheet($sheet);
-  print $sheet->{datavalues}{A3}; # 6
+  $sheet->execute('set A1 value n 2');
+  $sheet->execute('set A2 value n 4');
+  $sheet->execute('set A3 formula SUM(A1:A2)');
+  $sheet->recalc;
+
+  my $data = $sheet->raw;
+  print $data->{datavalues}{A3}; # 6
 
 =head1 DESCRIPTION
 
@@ -34,6 +34,91 @@ is purely the calculation engine.
 
 Over 110 spreadsheet functions are provided: see
 Spreadsheet::Engine::Functions for the full list.
+
+=head1 METHODS
+
+=head2 new
+  
+  my $sheet = Spreadsheet::Engine->new;
+
+Instantiate a new blank spreadsheet.
+
+=cut
+
+sub _new {
+  my $class = shift;
+  bless { _sheet => {} } => $class;
+}
+
+sub new {
+  my $class = shift;
+  return $class->load_data([]);
+}
+
+=head2 load_data
+
+  my $sheet = Spreadsheet::Engine->load_data([@data]);
+
+Instantiate a sheet from lines of data in the saved file format (see
+L<Spreadsheet::Engine::Sheet for doumentation>)
+
+=cut
+
+sub load_data { 
+  my ($class, $data) = @_;
+  my $self  = $class->_new;
+  parse_sheet_save($data => $self->{_sheet});
+  return $self;
+}
+
+=head2 execute
+
+  $sheet->execute('set A1 value n 2');
+  $sheet->execute('set A2 value n 4');
+  $sheet->execute('set A3 formula SUM(A1:A2)');
+
+Execute the given command against the sheet. See
+L<Spreadsheet::Engine::Sheet> for documentation of commands.
+
+=cut
+
+sub execute {
+  my ($self, $command) = @_;
+  execute_sheet_command($self->{_sheet} => $command);
+  return $self;
+}
+
+=head2 recalc
+
+  $sheet->recalc;
+
+Recalculate the values for all formulae in the sheet. This never happens
+automatically - it must be explicitly called.
+
+=cut
+
+sub recalc {
+  my $self = shift;
+  recalc_sheet($self->{_sheet});
+  return $self;
+}
+
+=head2 raw
+
+  my $data = $sheet->raw;
+  print $data->{datavalues}{A3}; # 6
+
+Access the raw datastructure for the sheet. This is a temporary method
+until we provide proper accessors to the underlying data.
+
+=cut
+
+sub raw {
+  my $self = shift;
+  return $self->{_sheet};
+}
+
+1;
 
 =head1 WARNING
 
@@ -75,4 +160,4 @@ you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
   http://www.perlfoundation.org/artistic_license_2_0
 
-
+=cut

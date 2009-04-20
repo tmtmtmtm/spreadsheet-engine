@@ -6,18 +6,18 @@ use warnings;
 use Test::More tests => 2;
 
 use lib 'lib';
-use Spreadsheet::Engine::Sheet;
+use Spreadsheet::Engine;
 
-my $sheet = {};
-parse_sheet_save([<DATA>] => $sheet);
+my @data = <DATA>;
+my $sheet = Spreadsheet::Engine->load_data(\@data);
 
-execute_sheet_command($sheet => 'set C2 formula DSUM(A4:D8,"Cost",A1:B2)');
-recalc_sheet($sheet);
-is $sheet->{datavalues}{C2}, 31, "DSUM";
+$sheet->execute( 'set C2 formula DSUM(A4:D8,"Cost",A1:B2)');
+$sheet->recalc;
+is $sheet->raw->{datavalues}{C2}, 31, "DSUM";
 
-execute_sheet_command($sheet => 'set A2 text t >1001');
-recalc_sheet($sheet);
-is $sheet->{datavalues}{C2}, 19, "change criteria";
+$sheet->execute( 'set A2 text t >1001');
+$sheet->recalc;
+is $sheet->raw->{datavalues}{C2}, 19, "change criteria";
 
 __DATA__
 version:1.3

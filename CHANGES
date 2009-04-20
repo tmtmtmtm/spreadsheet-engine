@@ -10,12 +10,25 @@ Portions (c) Copyright 2007 Tony Bowden
 
 Changes from the Standard Version (SocialCalc 1.1.0) are detailed below:
 
+== v0.03 ==   (December 13, 2007)
+
+Summary: provide basic interface via Engine.pm
+
+ - Engine.pm
+   -- Add new(), exeute(), ecalc(), raw(), load_data()
+
+ - Spreadsheet::Engine::Storage::SocialCalc
+   -- Created from SocialCalc::DataFiles
+
+ - Tests
+   -- Rewrite tests to use new Engine interface
+   -- Add stringfns.t
+
 == v0.02 ==   (December 12, 2007)
 
 Summary: silence warnings exposed by test suite
 
  - Sheet.pm
-
    -- Rename special_chars() to html_escape()
    -- Ensure values are initialised in format_number_with_format_string()
    -- Silence warnings from format_value_for_display(),
@@ -38,7 +51,6 @@ Summary: silence warnings exposed by test suite
 Summary: Created from SocialCalc 1.1.0
 
  - General
-
    -- Renamed and rearranged files 
    -- Reformatted code 
    -- Turned comments into POD
@@ -47,7 +59,6 @@ Summary: Created from SocialCalc 1.1.0
       (i18n and l10n be damned, for now anyway)
 
  - Functions.pm
-
    -- Removed WKCHTTP() function
    -- Renamed WKCERRCELL() to ERRCELL()
    -- Renamed WKCHTML() to HTML()
@@ -56,7 +67,6 @@ Summary: Created from SocialCalc 1.1.0
       extensibility
 
  - Sheet.pm
-
    -- Removed display functionality
    -- Remove wikitext formatting
    -- Remove ability to fetch related sheets over HTTP

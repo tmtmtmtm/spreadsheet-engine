@@ -6,19 +6,18 @@ use warnings;
 use Test::More 'no_plan';
 
 use lib 'lib';
-use Spreadsheet::Engine::Sheet;
+use Spreadsheet::Engine;
 
-my $sheet = {};
-parse_sheet_save([] => $sheet);
+my $sheet = Spreadsheet::Engine->new;
 
 chomp(my @cmds = <DATA>);
 foreach my $cmd (@cmds) {
   if ($cmd eq 'recalc') {
-    recalc_sheet($sheet) if $cmd eq 'recalc';
+    $sheet->recalc if $cmd eq 'recalc';
   } elsif ($cmd =~ /^test\s+(\w+)\s+(.*?)$/) {
-    is($sheet->{datavalues}{$1}, $2, "$1 = $2");
+    is($sheet->raw->{datavalues}{$1}, $2, "$1 = $2");
   } else {
-    execute_sheet_command($sheet => $cmd);
+    $sheet->execute($cmd);
   }
 }
 

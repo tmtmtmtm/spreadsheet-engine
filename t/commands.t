@@ -3,16 +3,15 @@ use Test::More 'no_plan';
 use strict;
 
 use lib 'lib';
-use_ok 'Spreadsheet::Engine::Sheet';
+use Spreadsheet::Engine;
 
-my $sheet = {};
-parse_sheet_save([] => $sheet);
+my $sheet = Spreadsheet::Engine->new;
 
 chomp(my @cmds = <DATA>);
 foreach my $cmd (@cmds) {
-  execute_sheet_command($sheet => $cmd) if $cmd =~ /^(set|name)/;
-  recalc_sheet($sheet) if $cmd eq 'recalc';
-  is($sheet->{datavalues}{$1}, $2, "$1 = $2")
+  $sheet->execute($cmd) if $cmd =~ /^(set|name)/;
+  $sheet->recalc if $cmd eq 'recalc';
+  is($sheet->raw->{datavalues}{$1}, $2, "$1 = $2")
     if $cmd =~ /^test\s+(\w+)\s+(.*?)$/;
 }
 

@@ -1,18 +1,17 @@
-use Test::More tests => 2;
+use Test::More tests => 1;
 
 use strict;
 
 use lib 'lib';
-use_ok 'Spreadsheet::Engine::Sheet';
+use Spreadsheet::Engine;
 
-my $sheet = {};
-parse_sheet_save([] => $sheet);
+my $sheet = Spreadsheet::Engine->new;
 
 chomp(my @cmds = <DATA>);
-execute_sheet_command($sheet => $_) foreach @cmds;
-recalc_sheet($sheet);
+$sheet->execute($_) foreach @cmds;
+$sheet->recalc;
 
-is $sheet->{sheetattribs}->{circularreferencecell}, 'A4|A4', 'Circular';
+is $sheet->raw->{sheetattribs}->{circularreferencecell}, 'A4|A4', 'Circular';
 
 __DATA__
 set A1 value n 2
