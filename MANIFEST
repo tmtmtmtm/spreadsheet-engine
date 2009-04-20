@@ -1,0 +1,14 @@
+CHANGES
+lib/Spreadsheet/Engine.pm
+lib/Spreadsheet/Engine/Functions.pm
+lib/Spreadsheet/Engine/Sheet.pm
+LICENSE.txt
+Makefile.PL
+MANIFEST			This list of files
+MANIFEST.SKIP
+README
+t/98-pod.t
+t/99-podc.t
+t/commands.t
+t/formatting.t
+META.yml                                 Module meta-data (added by MakeMaker)

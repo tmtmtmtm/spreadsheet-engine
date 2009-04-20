@@ -1,0 +1,38 @@
+
+Spreadsheet::Engine is a Modified Version of SocialCalc 1.1.0, which in
+turn started as modifications to the wikiCalc(R) program, version 1.0.
+
+wikiCalc 1.0 was written by Software Garden, Inc.
+
+Portions (c) Copyright 2005, 2006, 2007 Software Garden, Inc.
+Portions (c) Copyright 2007 Socialtext, Inc.
+Portions (c) Copyright 2007 Tony Bowden
+
+Changes from the Standard Version (SocialCalc 1.1.0) are detailed below:
+
+== v0.01 ==
+
+ - General
+
+   -- Renamed and rearranged files 
+   -- Reformatted code 
+   -- Turned comments into POD
+   -- Created all test files
+   -- Inlined all strings and formats from Strings.pm 
+      (i18n and l10n be damned, for now anyway)
+
+ - Functions.pm
+
+   -- Removed WKCHTTP() function
+   -- Renamed WKCERRCELL() to ERRCELL()
+   -- Renamed WKCHTML() to HTML()
+   -- Renamed WKCTEXT() to PLAINTEXT()
+   -- Made %Functions::function_list our() rather than my() for easier
+      extensibility
+
+ - Sheet.pm
+
+   -- Removed display functionality
+   -- Remove wikitext formatting
+   -- Remove ability to fetch related sheets over HTTP
+
